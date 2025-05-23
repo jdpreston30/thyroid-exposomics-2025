@@ -32,8 +32,8 @@
   #! All read_excel and read_csv steps can be skipped if this is run
 #* Preprocessing
   #+ Import raw data and sequence data
-    tumor_raw <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "lib.subject.summary")
-    tumor_seq <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "tumors_sequence") %>%
+    tumor_raw <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.summary")
+    tumor_seq <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "tumors_sequence") %>%
       select(ID,variant) %>%
       unique()
   #+ Structure data
@@ -135,7 +135,7 @@
         arrange(variant)
         write.csv(detection,"detection.csv")
     #- Import the list which is purely endogenous which was compiled externally from above
-      endog <- read_excel("Supplementary Data Files/Supplementary Material 3.xlsx", sheet = "Endogenous Excluded Features") %>%
+      endog <- read_excel("Data and Metadata Files/chemical_metadata.xlsx", sheet = "Endogenous Excluded Features") %>%
         select(cas)
       endog_cas <- endog$cas
     #- Remove those from the detection list
@@ -159,7 +159,7 @@
       kruskal.test(total_detected ~ variant, data = detection_no_endog)
       #! Graphed in prism at this point
   #+ Use Classes (Figure 2A)
-    feature_metadata <- read_excel("Supplementary Data Files/Supplementary Material 3.xlsx", sheet = "feature_metadata")
+    feature_metadata <- read_excel("Data and Metadata Files/chemical_metadata.xlsx", sheet = "feature_metadata")
     all <- feature_metadata %>%
       select(Graph_Class) %>%
       count(Graph_Class) %>%
@@ -190,7 +190,7 @@
   #+ ANOVA and Fisher's (3A and 3B)
     #- ANOVA Stats
       #_Import the weights of the tissues
-        weights <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "tissue_weights") %>%
+        weights <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "tissue_weights") %>%
           filter(samples == "Tumor") %>%
           select(ID, weight_mg) %>%
           rename(patient_ID = ID)
@@ -344,7 +344,7 @@
         print(qual_single_frag, n = Inf)
     #- Compiled ANOVA and Fisher's, add short name, export qual for Prism
       #_Add updated quant names to the excel
-        short_name <- read_excel("Supplementary Data Files/Supplementary Material 3.xlsx", sheet = "feature_metadata") %>%
+        short_name <- read_excel("Data and Metadata Files/chemical_metadata.xlsx", sheet = "feature_metadata") %>%
           select(cas, name, Potential_EDC, IARC_Group, GHS_var_diff_only,Short_display_name, Graph_Class, Superclass, Table_Class, Annotation_or_Identification) %>%
           rename(annot_ident = Annotation_or_Identification)
       #_Filter quant to be safe
@@ -804,7 +804,7 @@
           filter(mode == "qualitative") %>%
           pull(name_sub_lib_id)
       #_Import raw concentration data
-        conc_raw <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "lib.subject.qsummary",col_type = "text") %>%
+        conc_raw <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary",col_type = "text") %>%
           select(name_sub_lib_id,F1:F20) %>%
           mutate(across(-name_sub_lib_id, as.numeric))
     #- Create a mean PPM/PPB in detected samples value for each chemical, add to master table
@@ -850,12 +850,12 @@
           select(cas, everything(),-c(Name))
     #- Determine PPM and PPB for controls
       #_Import control tissue weights
-        cadaver_tissue_wts <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "tissue_weights") %>%
+        cadaver_tissue_wts <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "tissue_weights") %>%
           filter(samples == "Control") %>%
           select(ID, weight_mg) %>%
           rename(control_ID = ID)
       #_Import control conc data, normalize by tissue weight, compute PPM/PPB
-        cadaver_qraw <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "lib.subject.qsummary.cadaver") %>%
+        cadaver_qraw <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary.cadaver") %>%
           select(name_sub_lib_id, T001:T009) %>%
           mutate(across(-name_sub_lib_id, as.numeric)) %>%
           pivot_longer(cols = -name_sub_lib_id, names_to = "control_ID", values_to = "Ce") %>%
@@ -914,7 +914,7 @@
       ftc_cols <- names(ppm_raw)[grepl("^F\\d+$", names(ppm_raw))]
       fvptc_cols <- names(ppm_raw)[grepl("^FVPTC\\d+$", names(ppm_raw))]
     #- Bring in appropriate metadata to make prioritization decisions
-      fragment_quality_info <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "lib.subject.qsummary") %>%
+      fragment_quality_info <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary") %>%
         arrange(cas) %>%
         select(name_sub_lib_id, iMean) %>%
         rename(iMean_tumors = iMean)
@@ -1129,13 +1129,13 @@
         filter(IARC_Group == "1") %>%
         pull(cas)
     #- Now pull the IARC1s in controls and tumors
-      IARC_controls <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "lib.subject.qsummary.cadaver") %>%
+      IARC_controls <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary.cadaver") %>%
         filter(!is.na(comp)) %>%
         filter(pct_NA <= 0.5) %>%
         filter(cas %in% iarc_1) %>%
         select(pct_NA,name_sub_lib_id,iMean) %>%
         rename(pct_NA_ctrl = pct_NA, iMean_ctrl = iMean)
-      IARC_tumors <- read_excel("Supplementary Data Files/Supplementary Material 2.xlsx", sheet = "lib.subject.qsummary") %>%
+      IARC_tumors <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary") %>%
         filter(cas %in% iarc_1) %>%
         filter(pct_NA <= 0.7) %>%
         select(cas, pct_NA, name, name_sub_lib_id,iMean) %>%
