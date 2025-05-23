@@ -2,7 +2,6 @@
 This repository contains code and data used for the analysis presented in the submitted manuscript 'Environmental Chemical Burden in Differentiated Thyroid Cancer' by Preston et al. 2025.
 
 To clone this repository to your local machine:
-
 ```bash
 git clone https://github.com/jdpreston30/thyroid-exposomics-2025
 cd thyroid-exposomics-2025
@@ -12,7 +11,7 @@ Make sure you have [Git](https://git-scm.com/) installed. After cloning, you can
 
 
 ## Requirements
-- R version >= 4.3.1
+- R version ≥ 4.3.1
 - Packages: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, writexl
 
 
