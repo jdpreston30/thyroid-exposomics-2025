@@ -1,10 +1,11 @@
 # Thyroid Exposomics Analysis
 This repository contains code and data used for the analysis presented in the submitted manuscript 'Environmental Chemical Burden in Differentiated Thyroid Cancer' by Preston et al. 2025.
 
-## Requirements
 
+## Requirements
 - R version >= 4.3.1
 - Packages: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, writexl
+
 
 ## Files
 All elements of the repository are listed below, along with a description and guide of each:
