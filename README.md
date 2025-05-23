@@ -1,11 +1,11 @@
-# Thyroid Exposomics Analysis
+# Thyroid Tumor Exposomics Analysis
 This repository contains code and data used for the analysis presented in the submitted manuscript 'Environmental Chemical Burden in Differentiated Thyroid Cancer' by Preston et al. 2025.
 
 To clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/your-username/thyroid-exposomics-analysis.git
-cd thyroid-exposomics-analysis
+git clone https://github.com/jdpreston30/thyroid-exposomics-2025
+cd thyroid-exposomics-2025
 ```
 
 Make sure you have [Git](https://git-scm.com/) installed. After cloning, you can open `source_code.R` in RStudio or your preferred IDE to begin the analysis.
