@@ -6,6 +6,7 @@ This repository contains code and data used for the analysis presented in the su
 - `processed_data.rds`: RDS object containing all objects and the full dataset, excluding demographic data.
 - `Data and Metadata Files`: Folder containing all primary data and metadata files. These data can also can be imported into the analysis script.
 - `Outputs`: Folder with all outputted data files (mainly .csv and .xlsx files).
+- `Figures.prism`: Prism file where figures were created.
 
 ## Requirements
 - R version >= 4.3.1
