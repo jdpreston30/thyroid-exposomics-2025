@@ -807,67 +807,6 @@
           arrange(cas)
       write_xlsx(feature_lib, "feature_library.xlsx", col_names = TRUE)
       #! In excel, then pared down and formatted, but reimporting here to double check the molecular formulas
-    #- Re-import formatted version, look up molecular formulas, compare
-    #_Import formatted table
-      feature_lib_formatted <- read_excel("Data and Metadata Files/supplementary_tables_raw.xlsx", sheet = "ST1_raw") %>%
-        select(CAS,Formula)
-    #_Filter valid CAS numbers
-      valid_cas <- feature_lib_formatted %>%
-        filter(CAS != "-") %>%
-        pull(CAS)
-    #_Look up CIDs for valid CAS
-      cid_df <- get_cid(valid_cas, from = "xref/rn")
-    #_Get molecular formulas from PubChem
-      pubchem_formulas <- pc_prop(cid_df$cid, properties = c("MolecularFormula", "Title"))
-      pubchem_formulas$cid <- cid_df$cid
-    #_Join PubChem results back to original tibble
-      resolved <- cid_df %>%
-        left_join(pubchem_formulas, by = "cid", relationship = "many-to-many") %>%
-        select(CAS = query, New_Formula = MolecularFormula, PubChem_Name = Title)
-    # _Formatting function for subscripts
-      to_subscript <- function(x) {
-        x %>%
-          str_replace_all("0", "₀") %>%
-          str_replace_all("1", "₁") %>%
-          str_replace_all("2", "₂") %>%
-          str_replace_all("3", "₃") %>%
-          str_replace_all("4", "₄") %>%
-          str_replace_all("5", "₅") %>%
-          str_replace_all("6", "₆") %>%
-          str_replace_all("7", "₇") %>%
-          str_replace_all("8", "₈") %>%
-          str_replace_all("9", "₉")
-      }
-    #_Merge with original and compare
-      feature_lib_compared <- feature_lib_formatted %>%
-        left_join(resolved, by = "CAS") %>%
-        mutate(
-          Formula_plain = Formula %>%
-            str_replace_all("₀", "0") %>%
-            str_replace_all("₁", "1") %>%
-            str_replace_all("₂", "2") %>%
-            str_replace_all("₃", "3") %>%
-            str_replace_all("₄", "4") %>%
-            str_replace_all("₅", "5") %>%
-            str_replace_all("₆", "6") %>%
-            str_replace_all("₇", "7") %>%
-            str_replace_all("₈", "8") %>%
-            str_replace_all("₉", "9"),
-          Match = case_when(
-            is.na(New_Formula) ~ NA_character_,
-            Formula_plain == New_Formula ~ "Y",
-            TRUE ~ "N"
-          )
-        ) %>%
-        mutate(
-          formula_format = if_else(
-            is.na(New_Formula),
-            NA_character_,
-            to_subscript(New_Formula)
-          )
-        )
-    #_Export and check manually
-      write_xlsx(feature_lib_compared, "feature_library_compared.xlsx", col_names = TRUE)
   #+ Determine est PPM/PPB for detected samples and controls, join (ST3/4)
     #- Import the quantified data
       #_Pull the differing features by variant
