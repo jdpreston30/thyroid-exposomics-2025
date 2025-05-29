@@ -12,7 +12,7 @@ Make sure you have [Git](https://git-scm.com/) installed. After cloning, you can
 
 ## Requirements
 - R version ≥ 4.3.1
-- Packages: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, writexl
+- Packages: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, webchem, writexl
 
 
 ## Files
@@ -36,3 +36,9 @@ All elements of the repository are listed below, along with a description and gu
   - `chemical_metadata.xlsx`: Metadata for all detected chemicals.
     - `feature_metadata`: Detailed metadata for all unique identifications.
     - `Endogenous Excluded Features`: Features excluded from analysis due to being primarily endogenous.
+  - `supplementary_tables_raw.xlsx`: Raw forms of the tables used in the supplementary material.
+    - `ST1_raw`: Raw form of Supplementary Table 1.
+    - `ST2_raw`: Raw form of Supplementary Table 2.
+    - `ST3_raw`: Raw form of Supplementary Table 3.
+    - `ST4_raw`: Raw form of Supplementary Table 4.
+    - `Abbreviations`: Abbreviation legend for the Supplementary Tables.

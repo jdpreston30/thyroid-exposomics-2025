@@ -13,6 +13,7 @@
         "tibble",
         "tidyr",
         "writexl"
+        "webchem"
       ))
     #- Load libraries
       library(broom)
@@ -25,6 +26,7 @@
       library(stringr)
       library(tibble)
       library(tidyr)
+      library(webchem)
       library(writexl)
   #+ Import all objects and load into global environment for session
     all_objects <- readRDS("all_objects.rds")
@@ -135,7 +137,7 @@
         arrange(variant)
         write.csv(detection,"detection.csv")
     #- Import the list which is purely endogenous which was compiled externally from above
-      endog <- read_excel("Data and Metadata Files/chemical_metadata.xlsx", sheet = "Endogenous Excluded Features") %>%
+      endog <- read_excel("Data and Metadata Files/chemical_metadata.xlsx", sheet = "endogenous_excluded_features") %>%
         select(cas)
       endog_cas <- endog$cas
     #- Remove those from the detection list
@@ -164,7 +166,7 @@
       select(Graph_Class) %>%
       count(Graph_Class) %>%
       arrange(desc(n))
-      write.csv(all, "all.csv")
+    write.csv(all, "all.csv")
     #! Graphed in prism at this point
   #+ IARC and EDC Classes (Figure 2B and C)
     IARC <- feature_metadata %>%
@@ -792,7 +794,81 @@
         ) %>%
         filter(Variant != "Equal")
       write.csv(carc_by_variant, "carc_by_variant.csv")
-  #+ Determine est PPM/PPB for detected samples and controls, join (SF4)
+  #+ Chemical Library Display (ST1)
+    #- Create feature library table which has subid pivoted columns and each id is treated individually
+      feature_lib <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "library") %>%
+          filter(Disposition != "Endogenous") %>%
+          mutate(subid_col = paste0("mz", subid)) %>%
+          select(id, name, short_display_name, trt, monoisotopic, cas, formula, Disposition, subid_col, tmz) %>%
+          distinct() %>%
+          pivot_wider(
+            names_from = subid_col,
+            values_from = tmz) %>%
+          arrange(cas)
+      write_xlsx(feature_lib, "feature_library.xlsx", col_names = TRUE)
+      #! In excel, then pared down and formatted, but reimporting here to double check the molecular formulas
+    #- Re-import formatted version, look up molecular formulas, compare
+    #_Import formatted table
+      feature_lib_formatted <- read_excel("Data and Metadata Files/supplementary_tables_raw.xlsx", sheet = "ST1_raw") %>%
+        select(CAS,Formula)
+    #_Filter valid CAS numbers
+      valid_cas <- feature_lib_formatted %>%
+        filter(CAS != "-") %>%
+        pull(CAS)
+    #_Look up CIDs for valid CAS
+      cid_df <- get_cid(valid_cas, from = "xref/rn")
+    #_Get molecular formulas from PubChem
+      pubchem_formulas <- pc_prop(cid_df$cid, properties = c("MolecularFormula", "Title"))
+      pubchem_formulas$cid <- cid_df$cid
+    #_Join PubChem results back to original tibble
+      resolved <- cid_df %>%
+        left_join(pubchem_formulas, by = "cid", relationship = "many-to-many") %>%
+        select(CAS = query, New_Formula = MolecularFormula, PubChem_Name = Title)
+    # _Formatting function for subscripts
+      to_subscript <- function(x) {
+        x %>%
+          str_replace_all("0", "₀") %>%
+          str_replace_all("1", "₁") %>%
+          str_replace_all("2", "₂") %>%
+          str_replace_all("3", "₃") %>%
+          str_replace_all("4", "₄") %>%
+          str_replace_all("5", "₅") %>%
+          str_replace_all("6", "₆") %>%
+          str_replace_all("7", "₇") %>%
+          str_replace_all("8", "₈") %>%
+          str_replace_all("9", "₉")
+      }
+    #_Merge with original and compare
+      feature_lib_compared <- feature_lib_formatted %>%
+        left_join(resolved, by = "CAS") %>%
+        mutate(
+          Formula_plain = Formula %>%
+            str_replace_all("₀", "0") %>%
+            str_replace_all("₁", "1") %>%
+            str_replace_all("₂", "2") %>%
+            str_replace_all("₃", "3") %>%
+            str_replace_all("₄", "4") %>%
+            str_replace_all("₅", "5") %>%
+            str_replace_all("₆", "6") %>%
+            str_replace_all("₇", "7") %>%
+            str_replace_all("₈", "8") %>%
+            str_replace_all("₉", "9"),
+          Match = case_when(
+            is.na(New_Formula) ~ NA_character_,
+            Formula_plain == New_Formula ~ "Y",
+            TRUE ~ "N"
+          )
+        ) %>%
+        mutate(
+          formula_format = if_else(
+            is.na(New_Formula),
+            NA_character_,
+            to_subscript(New_Formula)
+          )
+        )
+    #_Export and check manually
+      write_xlsx(feature_lib_compared, "feature_library_compared.xlsx", col_names = TRUE)
+  #+ Determine est PPM/PPB for detected samples and controls, join (ST3/4)
     #- Import the quantified data
       #_Pull the differing features by variant
         diff_by_var <- MTi %>%
@@ -908,7 +984,7 @@
         joiner <- joiner_ctrl %>%
           inner_join(joiner_tumor, by = "name_sub_lib_id") %>%
           select(-name_sub_lib_id)
-  #+ All Inner join (only retain features in TUMORS that match controls) (SF4)
+  #+ All Inner join (only retain features in TUMORS that match controls) (ST3/4)
     #- Define the tumor variant columns for taking means
       ptc_cols <- names(ppm_raw)[grepl("^P\\d+$", names(ppm_raw))]
       ftc_cols <- names(ppm_raw)[grepl("^F\\d+$", names(ppm_raw))]
@@ -994,7 +1070,7 @@
         pivot_wider(names_from = name_sub_lib_id, values_from = value) %>%
         mutate(
           tumor_vs_ctrl = ifelse(variant == "Ctrl", "Control", "Tumor"))
-  #+ Create final master variant table (SF4 variant table)
+  #+ Create final master variant table (ST3/4)
     #- Create version of above SF4 ppm table except no filtering
       SF4_ppb_inclusive <- ppm_raw_ctrl %>%
         inner_join(ppm_raw, by = "name_sub_lib_id") %>%
