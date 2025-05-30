@@ -42,3 +42,11 @@ All elements of the repository are listed below, along with a description and gu
     - `ST3_raw`: Raw form of Supplementary Table 3.
     - `ST4_raw`: Raw form of Supplementary Table 4.
     - `Abbreviations`: Abbreviation legend for the Supplementary Tables.
+
+- `Spectral Validation`: This is the directory for the spectral validation performed on select identifications
+  - `spectral_validation.xlsx`: Contains observed versus theoretical mz and rt values for validation
+
+## Accessing Raw Data
+Raw data files (~77 GB) are stored securely via OneDrive.
+- Please request access by contacting me directly (joshua.preston@emory.edu)
+- OR contact the corresponding author for permission
