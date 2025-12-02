@@ -1,0 +1,22 @@
+Type: Project
+Title: Environmental Chemical Burden in Differentiated Thyroid Cancer
+Authors@R: person("Joshua", "Preston", email = "joshua.preston@emory.edu", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9834-3017"))
+Description: GC-MS Exposomics analysis pipeline for differentiated thyroid cancer study. This project contains all code and analysis scripts for reproducing the results submitted to Lancet, Preston et al. 2025.
+URL: https://github.com/jdpreston30/thyroid-exposomics-2025
+Depends: 
+    R (>= 4.5.1)
+Imports:
+    broom,
+    cowplot,
+    dplyr,
+    forcats,
+    ggplot2,
+    multcompView,
+    purrr,
+    readxl,
+    stringr,
+    tibble,
+    tidyr,
+    webchem,
+    writexl
+Encoding: UTF-8

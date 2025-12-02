@@ -1,0 +1,17 @@
+{
+source("R/Utilities/Helpers/load_dynamic_config.R")
+config <- load_dynamic_config(computer = "auto", config_path = "All_Run/config_dynamic.yaml")
+source("R/Scripts/00a_environment_setup.R")
+source("R/Scripts/00b_setup.R")
+source("R/Scripts/00c_clinical_data.R")
+source("R/Scripts/00d_FTs.R")
+source("R/Scripts/01_demographics.R")
+source("R/Scripts/99_render_figures.R")
+# source("R/Scripts/03_annotated_bars.R")
+# source("R/Scripts/04_assign_plots.R")
+# source("R/Scripts/05_render_figures.R")
+# source("R/Scripts/06_tables.R")
+# source("R/Scripts/07_data_not_shown.R")
+# source("R/Scripts/08_supporting_info.R")
+# source("R/Scripts/09_session_info.R")
+}

@@ -1,0 +1,52 @@
+# Analysis Configuration - Dynamic Computer Detection
+# Project settings and data paths for reproducible analysis
+
+# Computer-specific path templates
+computers:
+  laptop:
+    user_home: "/Users/jdp2019"
+    onedrive_path: "Library/CloudStorage/OneDrive-Emory"
+    figures_path: "Outputs/Figures/Final"
+  
+  desktop:
+    user_home: "/Users/JoshsMacbook2015" 
+    onedrive_path: "Library/CloudStorage/OneDrive-EmoryUniversity"
+    figures_path: "Outputs/Figures/Final"
+
+# Dynamic path templates (will be populated based on computer selection)
+paths:
+  # Raw data path templates - {user_home} and {onedrive_path} will be substituted
+  base_data_path: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022"
+  # Specific file paths (built from base)
+  clinical_metadata: "{base_data_path}/Manifest.xlsx"
+  primary_data: "{base_data_path}/primary_data.xlsx"
+
+  # Local database paths (relative - same across computers)
+  chemical_metadata: "metadata_files/chemical_metadata.xlsx"
+  supplementary_tables_raw: "metadata_files/supplementary_tables_raw.xlsx"
+  
+  # Output paths (relative to project root)
+  output: "./Outputs"
+  figures: "{figures_path}"
+  
+  # Script and utility paths
+  scripts: "R/Scripts/"
+  utils: "R/Utilities/"
+
+# Analysis settings (same across all computers)
+analysis:
+  # Project metadata
+  project_name: "thyroid-exposomics-2025"
+  description: "Thyroid Exposomics Analysis"
+  
+  # Environment preferences
+  tibble_options:
+    print_max: 100
+    print_min: 100
+    sigfig: 3
+    
+  # Data.table preferences  
+  datatable_options:
+    print_class: true
+    print_keys: true
+    aware: true
