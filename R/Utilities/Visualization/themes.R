@@ -14,7 +14,8 @@ IARC_colors <- c(
   "Group 1" = "#BF2D39",
   "Group 2A" = "#CF5349",
   "Group 2B" = "#EAA269",
-  "Group 3" = "#FAD97E"
+  "Group 3" = "#FAD97E",
+  "Not Classified" = "#FFFFFF"
 )
 
 #+ EDC Classification Color Palette
@@ -140,19 +141,19 @@ get_tumor_noncancer_color <- function(tissue_type) {
 
 #+ Base Theme
 #' Custom ggplot2 theme for publication-ready figures
-#' Standardized formatting: Arial font, size 12 bold for axis text, size 14 bold for titles
+#' Standardized formatting: Arial font, size 10 bold for axis text, size 12 bold for titles
 theme_thyroid <- function() {
   theme_minimal(base_family = "Arial") +
     theme(
-      # Axis text: size 12, bold
-      axis.text.x = element_text(size = 12, face = "bold", family = "Arial"),
-      axis.text.y = element_text(size = 12, face = "bold", family = "Arial"),
-      # Axis titles: size 14, bold
-      axis.title.x = element_text(size = 14, face = "bold", family = "Arial"),
-      axis.title.y = element_text(size = 14, face = "bold", family = "Arial"),
-      # Legend text: size 12, plain (not bold)
-      legend.text = element_text(size = 12, face = "plain", family = "Arial"),
-      legend.title = element_text(size = 12, face = "bold", family = "Arial"),
+      # Axis text: size 10, bold
+      axis.text.x = element_text(size = 10, face = "bold", family = "Arial"),
+      axis.text.y = element_text(size = 10, face = "bold", family = "Arial"),
+      # Axis titles: size 12, bold
+      axis.title.x = element_text(size = 12, face = "bold", family = "Arial"),
+      axis.title.y = element_text(size = 12, face = "bold", family = "Arial"),
+      # Legend text: size 10, plain (not bold)
+      legend.text = element_text(size = 10, face = "plain", family = "Arial"),
+      legend.title = element_text(size = 10, face = "bold", family = "Arial"),
       legend.position = "right",
       # Other elements
       plot.title = element_text(size = 16, face = "bold", family = "Arial"),

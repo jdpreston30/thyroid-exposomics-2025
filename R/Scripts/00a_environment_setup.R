@@ -31,7 +31,6 @@ if (length(missing_core) > 0) {
 } else {
   cat("✅ renv environment verified. All core packages available.\n")
 }
-
 #+ 0a.3: Load all packages from DESCRIPTION
 cat("📚 Loading packages...\n")
 invisible(lapply(core_packages, function(pkg) {
@@ -39,3 +38,19 @@ invisible(lapply(core_packages, function(pkg) {
   cat("  ✓", pkg, "\n")
 }))
 cat("✅ All packages loaded successfully!\n")
+#+ 0a.4: Check TinyTeX installation for PDF rendering
+if (!tinytex::is_tinytex()) {
+  cat("⚠️  TinyTeX not found. Installing...\n")
+  tinytex::install_tinytex()
+  cat("✅ TinyTeX installed successfully!\n")
+} else {
+  cat("✅ TinyTeX is installed.\n")
+}
+#+ 0a.4: Check TinyTeX installation for PDF rendering
+if (!tinytex::is_tinytex()) {
+  cat("⚠️  TinyTeX not found. Installing...\n")
+  tinytex::install_tinytex()
+  cat("✅ TinyTeX installed successfully!\n")
+} else {
+  cat("✅ TinyTeX is installed.\n")
+}

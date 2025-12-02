@@ -40,25 +40,27 @@ plot_detection_distribution <- function(freq_dist_data) {
   library(dplyr)
   
   # Convert to long format for stacking
-  plot_data <- freq_dist_data %>%
+  plot_data <- freq_dist_data |>
     pivot_longer(
       cols = c(Follicular, `FV-PTC`, Papillary),
       names_to = "variant",
       values_to = "count"
-    ) %>%
+    ) |>
     mutate(variant = factor(variant, levels = c("Follicular", "FV-PTC", "Papillary")))
   
   # Create stacked bar plot
   p <- ggplot(plot_data, aes(x = Bin, y = count, fill = variant)) +
-    geom_bar(stat = "identity", position = "stack", color = "black", linewidth = 0.6) +
+    geom_bar(stat = "identity", position = "stack", color = "black", linewidth = 0.4, width = 0.6) +
     scale_fill_manual(
       values = variant_colors,
       breaks = c("Follicular", "FV-PTC", "Papillary")
     ) +
     guides(fill = guide_legend(
-      keywidth = unit(0.5, "cm"),
-      keyheight = unit(0.5, "cm"),
-      byrow = TRUE
+      keywidth = unit(0.25, "cm"),
+      keyheight = unit(0.25, "cm"),
+      byrow = FALSE,
+      label.position = "right",
+      ncol = 1
     )) +
     scale_y_continuous(
       limits = c(0, 25),
@@ -75,17 +77,21 @@ plot_detection_distribution <- function(freq_dist_data) {
     theme(
       plot.background = element_rect(fill = "transparent", color = NA),
       panel.background = element_rect(fill = "transparent", color = NA),
-      legend.position = "right",
-      legend.direction = "vertical",
-      legend.text = element_text(size = 12, face = "plain", family = "Arial"),
+      legend.position = c(0.02, 1),
+      legend.justification = c(0, 1),
+      legend.direction = "horizontal",
+      legend.text = element_text(size = 8, face = "plain", family = "Arial"),
       legend.title = element_blank(),
       legend.background = element_rect(fill = "transparent", color = NA),
-      legend.key = element_rect(fill = "white", color = "black", linewidth = 0.5),
-      legend.key.size = unit(0.5, "cm"),
-      axis.text.x = element_text(face = "bold", color = "black", angle = 45, hjust = 1),
-      axis.text.y = element_text(face = "bold", color = "black"),
-      axis.title.x = element_text(face = "bold", color = "black", size = 14),
-      axis.title.y = element_text(face = "bold", color = "black", size = 14, margin = margin(r = 10)),
+      legend.key = element_rect(fill = "white", color = "black", linewidth = 0.25),
+      legend.key.size = unit(0.25, "cm"),
+      legend.spacing.x = unit(0.05, "cm"),
+      legend.spacing.y = unit(0.02, "cm"),
+      legend.box.spacing = unit(0, "cm"),
+      axis.text.x = element_text(face = "bold", color = "black", size = 10, angle = 45, hjust = 1),
+      axis.text.y = element_text(face = "bold", color = "black", size = 10),
+      axis.title.x = element_text(face = "bold", color = "black", size = 12),
+      axis.title.y = element_text(face = "bold", color = "black", size = 12, margin = margin(r = 10)),
       axis.ticks.length = unit(0.15, "cm"),
       axis.line = element_line(color = "black", linewidth = 0.8),
       axis.ticks = element_line(color = "black", linewidth = 0.8)

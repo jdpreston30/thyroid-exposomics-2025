@@ -11,12 +11,20 @@ Imports:
     dplyr,
     forcats,
     ggplot2,
+    ggtext,
+    here,
+    magick,
     multcompView,
     purrr,
     readxl,
+    rmarkdown,
     stringr,
     tibble,
     tidyr,
+    tinytex,
     webchem,
-    writexl
+    writexl,
+    yaml
+SystemRequirements: 
+    TinyTeX (LaTeX distribution) - automatically installed via tinytex::install_tinytex() if not present
 Encoding: UTF-8
