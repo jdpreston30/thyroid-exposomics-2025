@@ -1,1 +1,7 @@
-\includepdf[pages=-,pagecommand={\noindent\textbf{\Large Supplemental Figure 1}\vspace{0.5cm}}]{../Figures/PDF/S1.pdf}
+\newpage
+
+\textbf{SUPPLEMENTAL FIGURE 1.} \textit{Classification of detected chemicals.} Chemical superclasses (A) and subclasses (B) of all detected chemicals.
+
+\vspace{0.5em}
+
+\includegraphics[width=\textwidth]{Figures/PDF/S1.pdf}

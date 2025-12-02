@@ -1,39 +1,245 @@
-# **Expanded Metabolomics Methods and Other Technical Details**
-In keeping with consensus reporting standards for metabolomics experiments,[@sumnerProposedMinimumReporting2007] we provide in-depth metabolomics details as follows. In addition, we provide expanded details on statistical analyses and other technical details:
+\begin{center}
+\textbf{\large EXPANDED METHODS}
+\end{center}
 
-## *Sample Collection and Processing*
-Blood samples were collected immediately before transplant into K2EDTA plasma preparation tubes. Once samples were collected from patients, they were immediately placed on ice. The samples remained on ice and were centrifuged at 2500 x g for 15 minutes at 4°C within 5 hours of collection (the mean time from collection to processing for all samples = 1 hour). Following centrifugation, three aliquots were made from the supernatant, which were stored at -80°C shortly after.
+\vspace{0.5em}
 
-## *Metabolomics Profiling with Liquid Chromatography-Mass Spectrometry*
-High-resolution metabolomics was performed in the Emory Clinical Biomarkers Laboratory as previously described.[@liuReferenceStandardizationQuantification2020] Plasma samples were thawed, and 10 μL of plasma was added to 190 μL of acetonitrile containing 2% internal standards. Samples were then vortexed and allowed to incubate on ice for 30 minutes. Following incubation, samples were centrifuged 20,817 x g for 10 minutes. Supernatants were then transferred into autosampler vials. These were loaded onto autosampler plates and were kept at -20°C until analysis. Pooled control plasma (Equitech-Bio, SHP45) and National Institute of Standards and Technology (NIST) reference plasma were prepared and analyzed in tandem.
+\textbf{High-Resolution Exposomics}
 
-\noindent\hspace{1.5em}Metabolomics analysis was conducted with a liquid chromatography-mass spectrometry system (LC-MS) consisting of a Vanquish Duo UHPLC coupled to an Orbitrap ID-X Tribrid Mass Spectrometer (Thermo Scientific). Autosampler plates containing samples were maintained at 4°C in the autosampler of the LC-MS throughout the analysis. Samples were analyzed in triplicate on a 5-minute method using C18 chromatography coupled to negative electrospray ionization (ESI) (C18-) and hydrophilic interaction liquid chromatography coupled to positive ESI (HILIC+). Analyte separation for HILIC was performed with a Waters Acquity BEH Amide HILIC column (2.1 mm x 100 mm, 1.7 μm particle size) and gradient elution with LCMS-grade solvents and additives. The HILIC mobile phases included (Buffer A) water with 1 mM ammonium acetate and 0.1\% formic acid and (Buffer B) 95\% acetonitrile with 1 mM ammonium acetate and 0.1\% formic acid. For the HILIC gradient, an initial 0.5 min hold at 90\% B was followed by a linear decrease to 20\% B from 0.6 to 2.55 min, a 2 min hold, and a 5-minute re-equilibration period. C18 chromatography was performed on a Thermo Hypersil Gold C18 column (2.1 mm x 100 mm, 1.9 μm particle size). The C18 mobile phases included (Buffer A) water with 1 mM ammonium acetate and (Buffer B) 99\% acetonitrile with 1 mM ammonium acetate. For the C18 gradient, an initial 0.5 min hold at 1\% B was followed by a 0.75 min linear increase to 99\% B, held for 3.75 min, and a 5-minute re-equilibration period. The flow rate for both methods was 0.3 mL/min, and the column compartment was heated to 45 °C. The mass spectrometer was operated at 120k resolution and MS1 scans were collected for m/z 85-1,275. Tune parameters consisted of sheath gas at 50, auxiliary gas at 10, and sweep gas at 1. The spray voltage was set to 3.50 kV for ESI+ and -2.75 kV for ESI-.
+Prior to processing samples, several individual reference standards were prepared by spiking pure chemical standards into pooled reference plasma to achieve a common concentration of 0·5 ng/mL. A majority of all chemical standards were purchased from AccuStandard (New Haven, CT, USA), Restek (Bellefonte, PA, USA), MilliporeSigma (Burlington, MA, USA), Santa Cruz Biotechnology (Dallas, TX, USA), Wellington Laboratories (Guelph, ON, Canada), Cambridge Isotope Laboratories (Tewksbury, MA, USA). Plasma reference standards and tissue samples were processed using a modified version of the express liquid extraction (XLE) method.[@huScalableWorkflowCharacterize2021] The XLE is optimized for biofluids; however, it was necessary to modify it to ensure analytical consistency across plasma standards and tumor tissue samples, as detailed below.
 
-## *Feature Extraction, Annotation, and Identification*
-ProteoWizard v3[@chambersCrossplatformToolkitMass2012] was used to convert raw spectral files to .mzXML files. Untargeted feature tables were then generated from extracted data using established laboratory workflows, softwares[@uppal2013; @jarrellPlasmaAcylcarnitineLevels2020; @yuApLCMSAdaptiveProcessing2009] (namely, apLCMS and xMSAnalyzer), and an in-house R package, \textit{MetaboJanitoR}, which is available upon request. All feature tables were corrected for batch effects using ComBat [@johnson2007] from the \textit{sva} package [@leek2012].
+First, $\sim$50 mg of tumor or non-tumor cadaver thyroid tissue was cut and placed into a glass vial (13$\times$100 mm), and exact tissue weights were recorded (mean $\pm$ SD = 52·7 $\pm$ 11·3 mg for tumor tissue, 43·1 $\pm$ 4·5 mg for non-cancer cadaver thyroid tissue). Next, 200 $\mu$L of each pooled reference plasma standard (an in-house standard referred to as QStd; see Go et al.[@goReferenceStandardizationMass2015] for a full description of a previous iteration of this standard) was transferred to glass vials (13$\times$100 mm). For tissues, 500 $\mu$L of an extraction buffer comprised of acetone and petroleum ether (1:1 v/v) (MilliporeSigma, Catalog \#184519) with $\sim$2\% internal standard mix, was added to the glass vials containing tissues. For plasma, 200 $\mu$L of extraction buffer containing 2\% internal standard mix was added to the glass vials containing the pooled reference plasma. 50 $\mu$L of formic acid (Emprove\textregistered{} Essential DAC, 98-100\% pure, MilliporeSigma, Catalog \#1002631000) was then added to tissue and plasma standard vials. To the tissue vials, 20 mg of NaCl was added, and 45 $\pm$ 5 mg of MgSO$_4$ ($\geq$99·99\% trace metals basis, Sigma-Aldrich, Catalog \#203726) was added to tissue and plasma standard vials.
 
-\noindent\hspace{1.5em}Untargeted feature tables comprised all HILIC+ and C18- features observed with a unique mass to charge ratio (m/z) and corresponding retention time (RT). Identified/annotated feature tables were made up Level 1[@schymanskiIdentifyingSmallMolecules2014] and Level 3[@schymanskiIdentifyingSmallMolecules2014] identifications. Level 1 identifications were obtained by ion dissociation mass spectrometry relative to authentic standards (mass error = ± 5 ppm, retention time threshold = ± 30 seconds). Level 3 identifications were made using an in-house annotation algorithm (see https://github.com/jamesjiadazhan for the future release of this R package upon its publication), which generates annotations based on precursor-product correlations (note: this version of the algorithm chose a single best adduct for the feature table based on the strength of the precursor-product correlation alone).
-All raw data files (.mzXML format) and feature tables analyzed for this study will be available on October 31, 2026, through the NIH Common Fund's National Metabolomics Data Repository (NMDR) website, Metabolomics Workbench (Project ID PR002742; Study ID ST004328; Project DOI http://dx.doi.org/10.21228/M87549).
+Tissue samples were then homogenized in this solution using a tissue-tearor, followed by water bath sonication for 30 minutes at room temperature. Plasma samples were shaken vigorously on ice using a multitube vortexer (VWR VX-2500) for 60 min. Following this, both tissue and plasma homogenates were centrifuged at 3000 rpm $\times$ 4 $^{\circ}$C $\times$ 10 min. Supernatants were then transferred to new glass vials (13 $\times$ 100 mm) and dried using a vacuum centrifuge for 60 min at 35 $^{\circ}$C. Finally, dried samples were reconstituted in 50 $\mu$L of isooctane. Reconstituted samples were transferred to autosampler vials with 150 $\mu$L vial inserts for analysis. Samples were prepared in batches containing 20 samples along with standard reference material (SRM) samples (NIST 1957, 1958, and several in-house SRMs discussed above). In addition, pooled reference plasma samples, a retention-time batch comparison standard, a method solvent blank that underwent solvent extraction, and a solvent blank were prepared in tandem as part of quality control measures. It should be noted that tumor tissues and non-cancer cadaver thyroid tissues were analyzed at different timepoints and in separate batches, although the same method was used for each tissue. As a result, direct comparison of raw spectral intensities between non-cancer thyroids and tumors was limited; however, quantitative estimates of chemical concentrations in tissues (see the section `Quantitative Estimates of Chemical Concentrations in Tissues' below) did enable some degree of direct comparison, though these comparisons should be interpreted conservatively and cautiously given the high potential for batch effects.
 
-## *Quality Control and Data Transformation*
-Features that were not detected in at least 80% of samples were excluded from analysis, but were included as background for pathway enrichment analysis. All '0' values (indicating non-detection by the instrument) were replaced with ½ the minimum value for that feature detected across all samples.[@weiMissingValueImputation2018] Following this, all intensity (peak area) values were log$_2$-transformed prior to further analysis. Features in identified/annotated feature tables that significantly differed between study groups (Severe PGD versus No Severe PGD) were manually inspected and evaluated for biological plausibility and annotation quality control. Only annotated features encompassing endogenous, microbiome-derived, or relevant pharmacological metabolites were included.
+Following preparation, samples were analyzed in duplicate with a Q Exactive GC hybrid quadrupole Orbitrap mass spectrometer (ThermoScientific), allowing for 25 minutes of data collection on retention times and spectral intensities from m/z 85-850 collected at 60k resolution. Samples were injected at 2 $\mu$L and subjected to a capillary DB-5MS column (15 m $\times$ 0·25 mm $\times$ 0·25 $\mu$m film thickness) with a gradient as follows: 75 $^{\circ}$C for 1 min then 25 $^{\circ}$C/min to 180 $^{\circ}$C, 6 $^{\circ}$C/min to 250 $^{\circ}$C, 20 $^{\circ}$C/min to 300 $^{\circ}$C, with a final 5 min hold. Helium gas flow rate was 1 mL/min. Positive electron ionization was set at 70 eV, the ion source was set at 250 $^{\circ}$C, and the transfer line was set at 280 $^{\circ}$C.
 
-# **Statistical Analysis and Data Visualization**
-The complete analytical pipeline and source code used for data processing and statistical analyses are publicly available at https://github.com/jdpreston30/PGD-preop-metabolomics. A containerized Docker image of the complete computational environment is available at Docker Hub (https://hub.docker.com/r/jdpreston30/pgd-preop-metabolomics), and the archived analysis pipeline is permanently available at Zenodo (DOI: [PLACEHOLDER - TO BE ASSIGNED UPON PUBLICATION]). 
+\textbf{Data Extraction, Feature Annotation, and Signal Identification}
 
-\noindent\hspace{1.5em}Data were analyzed and visualized using Microsoft Excel (Mac v16.101.294, Microsoft Corporation, 2025), R (v4.5.1),[@rcoreteam2023] and MetaboAnalyst (v6.0)[@pangMetaboAnalyst60Unified2024] via the \textit{MetaboAnalystR} package.[@xia2025] All code was written, compiled, and run in Visual Studio Code (v1.104.2, Microsoft Corporation, 2025). All data visualizations were created using \textit{ggplot2},[@wickhamGgplot2ElegantGraphics2016] \textit{igraph},[@csardiIgraphSoftwarePackage2006; @antonovIgraphEnablesFast2023; @csardiIgraphNetworkAnalysis2025] and \textit{ggraph}.[@pedersenGgraphImplementationGrammar2025] All figures were compiled using \textit{cowplot}.[@clauso.wilke2025] Epidemiologic statistics were performed using the \textit{TernTablesR} package.[@preston2025] For all analyses, statistical significance was set at α = 0.05.
+Raw data were extracted on a sample-by-sample basis using MZmine2.[@pluskalmzmine2ModularFramework2010] Data were interpreted and combined using an in-house algorithm for feature annotation and the identification and quantification of chemicals in GC-MS exposomics data. Briefly, the algorithm utilizes a large library of environmental chemicals (EC) with known concentrations in standards, each of which has been manually quantified to ascertain retention times within the context of the laboratory procedure. In total, 738 unique standards are in the library; however, 28 of these represent chemicals that can be considered largely endogenous and not ECs. The remaining standards can be considered entirely exogenous (700) or both endogenous and exogenous (10) chemicals, resulting in a total of 710 ECs in the library, which can be screened by parallel analysis of standards with samples. This library is compared against sample data to find the best matching signal for ECs if any appropriate candidates exist. Shifts in elution time due to column degradation and the presence of co-occurring isomers pose significant challenges for standard annotation procedures; however, the algorithm addresses this issue by employing time-warping techniques, along with corrective algorithms that mimic manual chemical identification procedures, to overcome these challenges. Chemical identification and accuracy are achieved by leveraging the co-elution and correlation of chemical fragments generated from the same chemical. Standards are run in tandem with samples, which allows not only for the identification and relative quantification of all chemicals in the library of standards but also for the absolute quantification of identified metabolites using the comparative intensity of peak areas. The algorithm specifically assigns ``quality fractions'' based on the simultaneous detection of multiple fragments of the same chemical. Following the application of the algorithm for annotation, the quality fraction was used to label features as `annotations' (quality fraction of 0) while the remaining signals were labeled `identifications.' It is important to note that identification versus annotation status was determined solely in reference to tumor samples and not non-cancer cadaver thyroid samples. Thus, when annotations or identifications are denoted in any figures or tables, these refer to the determination made in the data from thyroid tumors rather than non-cancer cadaver samples. Information on annotation versus identification status in non-cancer cadaver samples can be found in the `primary\_data.xlsx' spreadsheet located in the GitHub repository (see below for further details). The algorithm will be published as a Python or R package in the coming 1-2 years. For further details on the algorithm, readers are welcome to contact the corresponding author.
 
-## *Partial Least Squares Discriminant Analysis and Volcano Plots*
-Partial Least Squares Discriminant Analysis (PLS-DA) was performed using the R package mixOmics[@rohart2017]. Volcano plots were created by calculating p-values (based on Welch's t-tests on log$_2$-transformed data) to compare the means of each (untargeted) feature between groups, while fold changes were determined using untransformed data. All p-value calculations were performed using R's stats package. For purposes of visualization, p-values were then -log$_{10}$-transformed, and fold changes were log$_2$-transformed.
+\textbf{Preprocessing of Exposomics Data}
 
-## *Pathway Enrichment Analysis*
-All pathway enrichment analysis was performed using Mummichog[@li2013]. A full list of p-values comparing means of all features between groups was first generated in R using the stats package via Welch's t-tests. These features, including the m/z, retention time, and ESI mode, along with their corresponding p-values, were then analyzed using MetaboAnalyst's[@pangMetaboAnalyst60Unified2024] 'Functional Analysis' tool for LC-MS, which utilizes Mummichog[@li2013] as its core algorithm. Notably, this tool allows for the usage of Mummichog v2.0, which takes into account retention time and ESI mode, whereas the original algorithm simply used m/z. The parameters for the pathway enrichment included the following: mixed mode, 5 ppm mass tolerance, primary ions enforced, p-value cutoff = default for top 10% of peaks, KEGG and MFN \textit{homo sapiens} databases. A bubble plot was then constructed based on the p-values (Fisher’s) and enrichment factors generated by the algorithm output.
+A targeted exposomics feature table (see the associated GitHub repository) was derived from the feature annotation and signal identification process described above. The proportion of missing values (PMV) was then calculated for each feature (total number of missing values/60 total samples). Next, features with PMV $>$ 30\% missing values were separated for analysis in `qualitative' mode. The individual spectral intensity values for qualitative features were converted to `1,' representing detection, whereas missing values were converted to `0,' representing non-detection. Any qualitative features with 100\% `0' values (indicating detection in reference standards but complete non-detection in samples) were eliminated and not considered for further analysis. Alternatively, the remaining features with PMV $\leq$ 30\% were separated for analysis in `quantitative' mode. The missing values for quantitative features were imputed using the half minimum method (study-wide).[@weiMissingValueImputation2018] Following imputation, all spectral intensity values for quantitative features were log$_2$-transformed before further analysis. Finally, to determine the total number of unique chemicals detected per sample, features were consolidated and grouped by their respective Chemical Abstracts Service registry numbers (CAS number), regardless of analytical mode (qualitative versus quantitative), such that the detection of at least one fragment for a given CAS number was considered as detection of that unique chemical. This list of chemicals was then compiled, and chemicals that were mainly endogenous (i.e., carnitines, cholesterol, arachidonic acid metabolites, bile acids, hormones, and hormone precursors) were removed and not considered for exposomics analysis (23 total). Chemicals that had both exogenous and endogenous dispositions (7 total) were retained for exposomics analysis. The number of unique chemicals detected was then tallied for each sample. The median number of chemicals detected per variant (prior to imputation) was compared using the Kruskal-Wallis test.
 
-## *Identified and Annotated Metabolite Analysis*
-For identified/annotated metabolites, Welch's t-tests were employed to determine the p-values comparing means between each group. FDR adjustments were performed using the Benjamini-Hochberg (BH) procedure. A representative set of various families of metabolites was selected and displayed in the main text figures (\textbf{Figure 3A-D}), but all significantly differing annotated or identified features are displayed in \textbf{Supplemental Figure 2}. Both raw p-values and FDR q-values are displayed on all plots displaying annotated/identified metabolites.
+\textbf{Metadata Annotation of Environmental Chemicals}
 
-## *Sensitivity Analysis*
-Given the exploratory and hypothesis-generating nature of the untargeted metabolomics study performed herein, which measured over 20,000 individual metabolic features, a conventional power analysis is not applicable. However, we conducted a quantitative post-hoc sensitivity analysis (further details of which can be found in the GitHub repository) to determine the minimum detectable effect size based on the group sizes in our study. With 62 patients (8 with severe PGD and 54 without), we had ~80\% power (α=0.05) to detect a minimum standardized mean difference of Cohen's d ≈ 1.08. Based on observed within-group variance (calculated using the filtered, i.e. post-QC, untargeted feature table), the median minimum detectable fold-change was 1.87 (IQR 1.46–2.99) across all features. Considering this, this study was powered to detect very large metabolic differences between groups, which is consistent with the exploratory and hypothesis-generating design. More subtle differences would require larger cohorts moving forward.
+The name, IUPAC name, CAS number, PubChem Compound Identification (CID), SMILES, InChIKey, InChI, Toxin and Toxin-Target Database[@wishartT3DBToxicExposome2015] ID (when applicable), monoisotopic mass, and formula were obtained for each chemical detected in at least one sample. For the purposes of data visualization and simplified naming in the manuscript text, a short name or abbreviation was assigned to a large portion of chemicals. The Toxin-Toxin-Targeted Database[@wishartT3DBToxicExposome2015] (T3DB) ID and the International Agency for Research on Cancer (IARC) carcinogen group[@2024] were assigned to chemicals when applicable and possible (when this information could not be ascertained, the T3DB ID was listed as `NA' and the IARC Group was listed as `Not Classified'). Classification as either a potential endocrine-disrupting chemical (EDC) or non-EDC was assigned to each chemical, per the PARCEDC list.[@andres2024] Inclusion on the list resulted in chemicals being marked as potential EDCs; non-inclusion resulted in classification as a non-EDC. The single most common use or best-fit chemical class was identified for each chemical. To facilitate data visualization, broader categories were also assigned to each chemical. For example, if a chemical's common-use class was `Insecticide/Pesticide (Pyrethroid),' this was simplified to `Insecticide/Pesticide' for data display. In the broader categories, metabolites or degradation products of certain chemicals were simply considered as members of the class to which their precursor belonged. For example, aldicarb sulfone, a breakdown product of the carbamate pesticide aldicarb, was classified as an insecticide/pesticide. However, the inclusion of breakdown products is indicated in figures and tables where applicable. ClassyFire[@djoumboufeunang2016] was used to designate superclasses, classes, subclasses, direct parents, and molecular frameworks. All chemical metadata are available below in Supplementary Table 1.
+
+\textbf{Core Statistical Analysis and Data Visualization}
+
+All data were compiled and structured using Microsoft Excel (Mac v16·96, Microsoft Corporation, 2025). All code was written and executed using R (v4·3·1)[@rcoreteam2023] in Visual Studio Code (v1·82·2, Microsoft Corporation, 2025). Source code can be found on the GitHub repository (source\_code.R; see below for details). Data visualization was performed using GraphPad Prism (Mac v10·4·0, GraphPad Software, 2024) and the R package, ggplot2.[@wickham2016] All figures were compiled and edited using BioRender.com (see `BioRender Publication Licenses' below).
+
+\textbf{Online Code and Data Repository}
+
+All source code is available in the accompanying GitHub repository, accessible at the following URL: https://github.com/jdpreston30/thyroid-exposomics-2025. All elements of the repository are listed below, along with a description and guide of each:
+
+\begin{itemize}
+\item \textbf{source\_code.R:} This file is the main analysis script for the project. All data required to run the code, excluding data required for the blocks under ``\#+ Demographics (Table 1)'', can be imported from the ``Data and Metadata Files'' folder or loaded into the global environment from the compiled R serialized object (all\_objects.rds). The following packages are required for the source code: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, webchem, writexl. These can all be installed and loaded under the header ``\#* Dependencies.'' A version of R $\geq$ 4·5.1 is recommended for running all analyses in the source code.
+
+\item \textbf{all\_objects.rds:} This is the R serialized object containing all objects and the full dataset, excluding demographic data.
+
+\item \textbf{Data and Metadata Files:} This folder contains all primary data and metadata files. These data can be directly imported into the analysis script. A description of each file is as follows:
+
+\begin{itemize}
+\item \textbf{primary\_data.xlsx:} This file contains the primary data for this project. A description of each tab in the file is as follows:
+\begin{itemize}
+\item lib.subject.summary: Feature table for all annotated features.
+\item tumors\_sequence: Sequence file and associated sample metadata.
+\item lib.subject.qusummary: Quantitative feature table for tumors.
+\item lib.subject.qsummary.cadaver: Quantitative feature table for non-cancer cadaver thyroids.
+\item library: Information on the full library of standards used.
+\item tissue\_weights: Weights of each tissue sample.
+\end{itemize}
+
+\item \textbf{chemical\_metadata.xlsx:} Metadata for all detected chemicals.
+
+\item \textbf{feature\_metadata:} Detailed metadata for all unique identifications.
+
+\item \textbf{endogenous\_excluded\_features:} Features excluded from analysis due to being primarily endogenous.
+
+\item \textbf{supplementary\_tables\_raw.xlsx:} Raw forms of the tables used in the supplementary material.
+\begin{itemize}
+\item ST1\_raw: raw form of Supplementary Table 1
+\item ST2\_raw: raw form of Supplementary Table 2
+\item ST3\_raw: raw form of Supplementary Table 3
+\item ST4\_raw: raw form of Supplementary Table 4
+\item Abbreviation legend for the Supplementary Tables
+\end{itemize}
+\end{itemize}
+
+\item \textbf{Spectral Validation:} This is the directory for spectral validation performed on select identifications.
+
+\item \textbf{Outputs:} This folder contains all output data files generated by running the source code.
+
+\item \textbf{Figures.Prism:} This is a GraphPad Prism file used to create all figures in the manuscript.
+\end{itemize}
 
 \newpage
-# **References**
+
+\textbf{Exposome-Wide Association Study}
+
+Electron ionization generates multiple fragments for each chemical prior to detection; thus, in many cases, multiple fragments were annotated for the same chemical. In keeping with our exploratory and descriptive approach and to maximize coverage, we treated each fragment as an individual observation during statistical analysis. For qualitative features, Fisher's exact test for count data was employed on the binary exposomics data to determine if any chemical was overrepresented in its detection within any specific variant. Corresponding detection fractions were calculated for each variant (sum of samples with detection of chemical/20 samples per variant). For quantitative features, one-way ANOVA was used to assess differences in mean spectral intensities across variants, with corresponding p-values calculated for each chemical. Post-hoc testing was performed using Tukey's HSD test, which included correction for multiple comparisons. Given the pilot design and exploratory nature of this study, no false discovery rate corrections were applied beyond those used in post-hoc testing. Mean spectral intensities were scaled by converting them to z-scores within each chemical. Chemicals with a p $<$ 0·05 from either test were considered significant and were compiled, tabulated, and further classified as described below. Four chemicals had multiple fragments showing significant differences between variants. In these cases, the quantitative fragment was selected if available; otherwise, the fragment with the highest frequency of detection across all samples, irrespective of variant, was selected. The top 5 quantitative features were visualized via violin plots (of z-scored spectral intensities), and the top 10 qualitative features via a heatmap (of detection fraction/percent). A balloon plot was constructed based on these results, wherein significant ECs were grouped by usage classes and variants, being `counted' once each time it was `highest,' whether by qualitative or quantitative measures in a variant. In cases where the detection percentages were equally high in two variants, a count was assigned to each variant.
+
+\textbf{Advanced Carcinogenicity Classification of Select Chemicals}
+
+To identify any potential carcinogens that have not been evaluated by the IARC, additional research was performed on the chemicals that showed significant differences in presence or concentration between variants (63 in total). To accomplish this, the Global Harmonized System of Classification and Labelling of Chemicals (GHS) statements were screened for any listed H350 (``may cause cancer''), H350i (``may cause cancer by inhalation''), or H351 (``suspected of causing cancer'') status (and the corresponding consensus/confidence percentages of data sources as listed on PubChem in section 12·1.1, `GHS Classification'). Systematic logic that considered both the IARC grouping and the GHS carcinogen statement was then applied to categorize chemicals into the groups ``Known Carcinogen,'' ``Likely Carcinogen,'' ``Possible Carcinogen,'' or ``Uncertain Risk'' (for the function accomplishing this, see the blocks of code under ``\#+ Carcinogen classification based on GHS and IARC (3E)'' in the source\_code.R file available in the GitHub repository). Chemicals with no IARC group and GHS statement were not classified. Briefly, the following rules were applied for classification:
+
+\begin{itemize}
+\item IARC group 1 chemicals were automatically assigned `Known Carcinogen', and group 2A `Likely Carcinogen.' These conditions overrode any other considerations.
+\item If IARC grouping was 2B, 3, or not evaluated, but H350 or H350i 50\%, then the chemical was assigned `Likely Carcinogen.'
+\item If IARC grouping was 2B, 3, or not evaluated, but H351 $>$ 0\% and/or 0\% $<$ H350/H350i $<$ 50\%, then the chemical was assigned `Possible Carcinogen.'
+\item IARC group 3 chemicals with no supporting GHS H350, H350i, or H351 statement listed were assigned `Uncertain Risk.'
+\item Chemicals with no IARC evaluation and no supporting GHS H350, H350i, or H351 statement listed were considered `Unclassified' as to their carcinogenicity.
+\end{itemize}
+
+These classifications, along with other relevant chemical metadata, can be found on the GitHub repository (chemical\_metadata.xlsx).
+
+\textbf{Quantitative Estimates of Chemical Concentrations in Tissues}
+
+The SRM used for annotation and identification had a concentration of 0·5 ng/mL for each individual EC. Thus, we used the spectral intensities associated with these known concentrations to establish estimates of chemical concentrations within tissues in parts per million (PPM) and parts per billion (PPB). Importantly, we relied on the following experimental features and assumptions:
+
+\begin{itemize}
+\item Tissues are processed via solvent extraction and subsequent solvent evaporation, followed by reconstitution in 50 $\mu$L of isooctane. For the purposes of calculating concentrations in the original samples, we assume 100\% extraction efficiency from tissues and plasma, such that the entire amount of the EC present in the sample is recovered in the isooctane.
+\item A chemical concentration of 0 ng/mL results in an intensity of 0 (i.e., the origin of (0,0)). This is used in combination with the intensity from the known concentration in the SRM (0·5 ng/mL) to establish a two-point standard curve, which assumes linearity.
+\item While each chemical has a concentration in the SRM of 0·5 ng/mL, the concentration in 50 $\mu$L of isooctane is 2 ng/mL. This is because 200 $\mu$L of SRM plasma is used, and therefore, 0·1 ng of the total EC of interest is extracted. This is dried after extraction and reconstituted in 50 $\mu$L of isooctane, resulting in a concentration of 2 ng/mL in the injected solution.
+\end{itemize}
+
+Our calculations to estimate tissue concentrations were performed as follows for each individual chemical:
+
+\begin{enumerate}
+\item A linear model is fit based on the assumptions discussed above, such that:
+$$y = \beta x$$
+where $y$ is the known concentration of the EC in the SRM (0·5 ng/mL for all ECs analyzed), $x$ is the observed spectral intensity for the given EC, and $\beta$ is the slope of the calibration curve, defined by the line through the origin (0,0) and the point $(x,y)$.
+
+\item Once the slope ($\beta$) for the specific chemical is established, it is then used to estimate concentration (ng/mL) in the sample ($C_e$) using the following equation:
+$$C_e = \beta I$$
+where $I$ is the observed spectral intensity for the given EC in the sample. However, to determine the true concentration in the isooctane solvent ($C_{es}$), we must scale $C_e$ by a factor of 2 to account for the concentration that occurs during extraction. Specifically, the 200 $\mu$L of plasma standard extracted contains 0·1 ng total of the EC (0·5 ng/mL). Assuming 100\% extraction, this 0·1 ng was then resuspended in 50 $\mu$L isooctane (2 ng/mL), Therefore, we use a 2$\times$ scaling factor:
+$$C_{es} = 2C_e$$
+
+\item Next, the $C_{es}$ is converted from ng/mL to mg/L:
+$$C_{es} \text{ (mg/L)} = C_{es} \text{ (ng/mL)} \times \frac{10^3 \text{ mL}}{\text{L}} \times \frac{10^{-6} \text{ mg}}{\text{ng}}$$
+$$C_{es} \text{ (mg/L)} = C_{es} \text{ (ng/mL)} \times 10^{-3}$$
+
+\item Next, the total mass of the chemical of interest present in 50 $\mu$L of isooctane ($M_{EC}$) is determined:
+$$M_{EC} \text{ (mg)} = C_{es} \text{ (mg/L)} \times 50 \text{ }\mu\text{L solvent} \times \frac{10^{-6} \text{ L}}{\mu\text{L}}$$
+$$M_{EC} \text{ (mg)} = 5 \times 10^{-5} \text{ (L)} \times C_{es} \text{ (mg/L)}$$
+
+\item To derive the mass fraction of the EC in tissue, we divide $M_{EC}$ (mg) by $M_T$ (mg) and scale to PPM or PPB:
+$$\text{PPM} = \frac{M_{EC}}{M_T} \times 10^6$$
+$$\text{PPB} = \frac{M_{EC}}{M_T} \times 10^9$$
+
+Alternatively, algorithm outputs are used directly without unit conversions, the following formula can be used, provided $C_e$ is in ng/mL and $M_T$ is in mg:
+$$\text{PPM} = \frac{C_e \times 10^2}{M_T}$$
+$$\text{PPB} = \frac{C_e \times 10^5}{M_T}$$
+\end{enumerate}
+
+\textbf{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids}
+
+Targeted quantitative feature tables, which were additionally filtered for detection in relevant standards, were generated for tumors and non-cancer cadaver thyroids, and conversion to PPM was performed as described above. Once spectral intensities were converted to PPM, direct comparisons of chemical concentrations were made only for fragments that were detected in both the tumor and non-cancer thyroid tissues. In cases where multiple fragments were annotated for the same chemical in both tumors and non-cancer thyroids, an ideal fragment was first selected based on the highest percentage of detection in tumors, then the highest percentage of detection in non-cancer thyroids, and finally the greatest mean intensity in tumors. For all matching fragments, the mean, maximum, and theoretical minimum (i.e., half the minimum detectable concentration in either the tumors or non-cancer thyroids) were calculated for tumors (all combined) and non-cancer thyroids. These data, along with percentage detection in tumors and non-cancer thyroids, are reported as PPB below in Supplementary Table 3. It is important to note that means were calculated using half-minimum imputed data, even if features were detected at `qualitative' analysis thresholds. Finally, these values were converted to PPM for a direct comparison of tumors to non-cancer thyroids of all detected IARC Group 1 carcinogens (Figure 3D); however, this comparison was only reported for features that met quantitative criteria in both the tumor and non-cancer thyroid datasets. T-tests were run on log$_2$-transformed data to compute p-values for comparing the means between tumors and non-cancer thyroids for these chemicals.
+
+\textbf{Comparing Observed Concentrations to Literature Values for Select Chemicals}
+
+To compare the quantification estimates generated as described above with estimated values in other tissues and matrices, we identified values for select chemicals in the published literature and tabulated our data alongside these reported concentrations (Supplementary Table 2). We prioritized chemicals that were IARC Group 1 carcinogens and polycyclic aromatic hydrocarbon combustion byproducts. For quantitative estimates of 245 individual chemicals, see Supplementary Table 3.
+
+\newpage
+
+\begin{center}
+\textbf{\large TABLE ABBREVIATION DICTIONARY}
+\end{center}
+
+\vspace{0.5em}
+
+The supplementary tables have a substantial number of abbreviations, largely for chemical names. A full dictionary of abbreviations relevant to all supplementary tables can be found below:
+
+\begin{itemize}
+\item 9Cl-PF3ONS = 9-Chlorohexadecafluoro-3-oxanone-1-sulfonic acid
+\item BDCPP = bis(1,3-Dichloro-2-propyl) phosphate
+\item BDE = brominated diphenyl ether
+\item BDPP = Bis(2,3-dibromopropyl) hydrogen phosphate
+\item Bromo-TMP-Phenol = 2-Bromo-4-(2,4,4-trimethylpentan-2-yl)phenol
+\item CAS = Chemical Abstracts Service (Number)
+\item CDC = Centers for Disease Control and Prevention
+\item CID = Compound ID (PubChem)
+\item Compds. = compounds
+\item DBahA = Dibenz(a,h)anthracene
+\item DCP = Dichlorophenyl
+\item DCPMNB  = 4-(2,4-dichlorophenoxy)-2-methyl-1-nitrobenzene
+\item DDD = Dichlorodiphenyldichloroethane
+\item DDE = Dichlorodiphenyldichloroethylene
+\item DDT = Dichlorodiphenyltrichloroethane
+\item DFTPP = Decafluorotriphenylphosphine
+\item DTPAs = Dithiophosphoric Acids
+\item EPN = Ethyl p-nitrophenyl phenylphosphorothioate
+\item EtFOSAA = N-Ethylperfluoro-1-octanesulfonamidoacetic acid (linear)
+\item Furaneol = 4-Hydroxy-2,5-dimethyl-3(2H)-furanone
+\item HpCDD = Heptachlorodibenzo-p-dioxin
+\item HpCDF = Heptachlorodibenzofuran
+\item HxCDD = Hexachlorodibenzo-P-dioxin
+\item HxCDF = Hexachlorodibenzofuran
+\item IARC = International Agency for Research on Cancer
+\item IMHP = 2-Isopropyl-6-methyl-4-pyrimidinol
+\item Lin. = linear
+\item LLMs = lipid-like molecules
+\item LOD = limit of detection
+\item MBOT = 4,4'-Methylenebis(o-toluidine)
+\item MCPA = 2-Methyl-4-chlorophenoxyacetic acid
+\item MEcPP = Mono(5-carboxy-2-ethylpentyl) phthalate
+\item MEHHP = Mono(2-ethyl-5-hydroxyhexyl) phthalate
+\item MEOHP = Mono(2-ethyl-5-oxohexyl) phthalate
+\item MGK-264 = McLaughlin Gormley King-264 (also known as N-2-Ethylhexylbicycloheptenedicarboximide)
+\item min = minutes
+\item MOCA = 4,4'-Methylenebis(2-chloroaniline)
+\item mz = mass-to-charge ratio
+\item N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear)
+\item NHANES = National Health and Nutrition Examination Survey
+\item NPE = nitrophenyl ether
+\item o-Dianisidine = 3,3'-Dimethoxybenzidine
+\item OD-PABA = Octyl-dimethyl-p-aminobenzoic acid
+\item Org = organic
+\item Org. Heterocycl. = organoheterocyclic
+\item p-Chlorocresol = 4-Chloro-3-methylphenol
+\item PAH = polycyclic aromatic hydrocarbon
+\item PBB = polybrominated biphenyl
+\item PCB = polychlorinated biphenyl
+\item PCDF = Pentachlorodibenzofuran
+\item PeCDD = pentachlorodibenzo-p-dioxin
+\item PKs = polyketides
+\item PPB = parts per billion
+\item RT = retention time
+\item SDs = Substituted Derivatives
+\item TBBPA-BAE = Tetrabromobisphenol A bis(allyl ether)
+\item TCDD = tetrachlorodibenzo-p-dioxin
+\item TCDF = tetrachlorodibenzofuran
+\item TCP = Trichlorophenyl
+\item TCP-4'-NPE = TCP-4'-NPE
+\item TCPP = Tris(1-chloro-2-propyl) phosphate
+\item TDCPP = Tris(1,3-dichloro-2-propyl)phosphate
+\item TEEP = Tetraethyl ethylenediphosphonate
+\item TPAs = Thiophosphoric acids
+\item TTBNPP = Tris(tribromoneopentyl) phosphate
+\end{itemize}
+
+\newpage
+
+\textbf{SUPPLEMENTARY TABLE 1.} \textit{The full library of xenobiotic chemicals employed for chemical identification.} The library of 710 confirmed xenobiotic chemicals employed for chemical identification. All chemicals were present in pooled reference plasma at a concentration of 0·5 ng/mL. There are 710 total unique chemicals (i.e., unique CAS numbers), but for some chemicals, there are multiple fragments from different standards used for identification, thus resulting in 892 total rows in the table. The individual mz columns indicate typical fragments observed for the given chemical.
+
+[INSERT ST1 HERE - TO BE GENERATED PROGRAMMATICALLY]
+
+\newpage
+
+\textbf{SUPPLEMENTARY TABLE 2.} \textit{Metadata for all chemicals detected in samples.} Both the long-form chemical name and alias or abbreviation are listed if there is sufficient space. However, for chemical names that are too long or redundant, only the alias or abbreviation has been listed. The column `variant diff.' specifies if the chemical had differential abundance or detection between the three variants.
+
+[INSERT ST2 HERE - TO BE GENERATED PROGRAMMATICALLY]
+
+\newpage
+
+\textbf{SUPPLEMENTARY TABLE 3.} \textit{Observed concentrations versus reported literature values.} All values originally published as ng/g, $\mu$g/L, ng/mL are listed as PPB. Values originally published as pg/mL were converted to ng/mL and then listed as PPB. All values are rounded to the nearest integer or are listed as $<$ 1 PPB when applicable. The corresponding reference from which the comparison value is derived is cited next to the listed concentration.
+
+[INSERT ST3 HERE - TO BE GENERATED PROGRAMMATICALLY]
+
+\newpage
+
+\begin{center}
+\textbf{\large REFERENCES}
+\end{center}

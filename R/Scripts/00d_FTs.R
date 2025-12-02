@@ -8,6 +8,11 @@ tumor_seq <- read_excel(config$paths$primary_data, sheet = "tumors_sequence") |>
   unique()
 #- 0d.1.3: Import feature metadata
 feature_metadata <- read_excel(config$paths$chemical_metadata, sheet = "feature_metadata")
+#- 0d.1.4: Import and clean tissue weights
+weights <- read_excel(config$paths$primary_data, sheet = "tissue_weights") |>
+  filter(samples == "Tumor") |>
+  select(ID, weight_mg) |>
+  rename(patient_ID = ID)
 #+ 0d.2: Structure data
 #- 0d.2.1: Pull the tumor columns
 tumor_column <- tumor_raw |>

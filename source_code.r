@@ -1,11 +1,6 @@
 
   #+ ANOVA and Fisher's (3A and 3B)
     #- ANOVA Stats
-      #_Import the weights of the tissues
-        weights <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "tissue_weights") |>
-          filter(samples == "Tumor") |>
-          select(ID, weight_mg) |>
-          rename(patient_ID = ID)
       #_Normalize by weights
         tumors_quant_wt_i <- tumor_column |>
           pivot_longer(-name_sub_lib_id, names_to = "ID", values_to = "Value") |>
@@ -156,7 +151,7 @@
         print(qual_single_frag, n = Inf)
     #- Compiled ANOVA and Fisher's, add short name, export qual for Prism
       #_Add updated quant names to the excel
-        short_name <- read_excel("Data and Metadata Files/chemical_metadata.xlsx", sheet = "feature_metadata") |>
+        short_name <- read_excel(config$paths$chemical_metadata, sheet = "feature_metadata") |>
           select(cas, name, Potential_EDC, IARC_Group, GHS_var_diff_only,Short_display_name, Graph_Class, Superclass, Table_Class, Annotation_or_Identification) |>
           rename(annot_ident = Annotation_or_Identification)
       #_Filter quant to be safe
@@ -235,20 +230,7 @@
             "Follicular" = "FTC",
             "FV-PTC" = "FV_PTC"
           ))
-      #_Helper to make superscripts for 'a', 'b', 'c'...
-        superscript <- function(letter) {
-          sapply(strsplit(letter, NULL)[[1]], function(char) {
-            switch(char,
-              "a" = "\u1d43",
-              "b" = "\u1d47",
-              "c" = "\u1d9c",
-              "d" = "\u1d48",
-              "e" = "\u1d49",
-              "f" = "\u1da0",
-              char # fallback if undefined
-            )
-          }) |> paste0(collapse = "")
-        }
+  
       # _Get the names for the quant data
         posthoc_compound_names <- posthoc_quant |>
           select(where(is.numeric)) |>
@@ -278,17 +260,7 @@
           left_join(cas_key_2, by = "name_sub_lib_id") |>
           select(cas, FTC, FV_PTC, PTC) |>
           rename(FTC_let = FTC, FV_PTC_let = FV_PTC, PTC_let = PTC)
-      #_Write function to convert superscript letters to regular letters
-        convert_superscript <- function(x) {
-          str_replace_all(x, c(
-            "ᵃ" = "a",
-            "ᵇ" = "b",
-            "ᶜ" = "c",
-            "ᵈ" = "d",
-            "ᵉ" = "e",
-            "ᶠ" = "f"
-          ))
-        }
+
       #_Separate superscripts from means
         posthoc_decomp <- posthoc_table |>
           # Extract means and letters
@@ -507,57 +479,6 @@
       #_Save  
         ggsave("balloon3C.svg", plot = balloon, width = 4.4, height = 3, dpi = 1200)
   #+ Carcinogen classification based on GHS and IARC (3E)
-    #- Define function to classify carcinogenicity
-      classify_carcinogenicity <- function(ghs, iarc) {
-        # Treat explicit "NA" as true NA for consistency
-        if (is.na(ghs) || ghs == "NA" || ghs == "no ghs carcinogen statement") {
-          ghs <- NA
-        }
-        if (is.na(iarc) || iarc == "NA" || iarc == "Not classified") {
-          iarc <- NA
-        }
-        # Extract numeric values from H350, H350i, H351
-        h350_perc <- as.numeric(str_extract(tolower(ghs), "(?<=h350 \\()\\d+\\.?\\d*"))
-        h350i_perc <- as.numeric(str_extract(tolower(ghs), "(?<=h350i \\()\\d+\\.?\\d*"))
-        h351_perc <- as.numeric(str_extract(tolower(ghs), "(?<=h351 \\()\\d+\\.?\\d*"))
-        # Known Carcinogen (Highest Priority)
-        if (!is.na(iarc) && iarc == "1") {
-          return("Known Carcinogen")
-        }
-        # Likely Carcinogen (High Priority)
-        if (!is.na(iarc) && iarc == "2A") {
-          return("Likely Carcinogen")
-        }
-        if (!is.na(h350_perc) && h350_perc >= 50) {
-          return("Likely Carcinogen")
-        }
-        if (!is.na(h350i_perc) && h350i_perc >= 50) {
-          return("Likely Carcinogen")
-        }
-        # Possible Carcinogen (Moderate Priority)
-        if (!is.na(iarc) && iarc == "2B") {
-          return("Possible Carcinogen")
-        }
-        if (!is.na(h350_perc) && h350_perc > 0 && h350_perc < 50) {
-          return("Possible Carcinogen")
-        }
-        if (!is.na(h350i_perc) && h350i_perc > 0 && h350i_perc < 50) {
-          return("Possible Carcinogen")
-        }
-        if (!is.na(h351_perc) && h351_perc > 0) {
-          return("Possible Carcinogen")
-        }
-        # Uncertain Risk (Low Priority)
-        if (!is.na(iarc) && iarc == "3" && is.na(h350_perc) && is.na(h350i_perc) && is.na(h351_perc)) {
-          return("Uncertain Risk")
-        }
-        # Unclassified (No IARC and No GHS)
-        if (is.na(iarc) && is.na(ghs)) {
-          return("Unclassified")
-        }
-        # Catch-all for unexpected cases
-        return("Uncertain Risk")
-      }
     #- Apply function to classify carcinogenicity
       MTi <- MTii |>
         mutate(
@@ -606,7 +527,7 @@
       write.csv(carc_by_variant, "carc_by_variant.csv")
   #+ Chemical Library Display (ST1)
     #- Create feature library table which has subid pivoted columns and each id is treated individually
-      feature_lib <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "library") |>
+      feature_lib <- read_excel(config$paths$primary_data, sheet = "library") |>
           filter(Disposition != "Endogenous") |>
           mutate(subid_col = paste0("mz", subid)) |>
           select(id, name, short_display_name, trt, monoisotopic, cas, formula, Disposition, subid_col, tmz) |>
@@ -629,7 +550,7 @@
           filter(mode == "qualitative") |>
           pull(name_sub_lib_id)
       #_Import raw concentration data
-        conc_raw <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary",col_type = "text") |>
+        conc_raw <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary",col_type = "text") |>
           select(name_sub_lib_id,F1:F20) |>
           mutate(across(-name_sub_lib_id, as.numeric))
     #- Create a mean PPM/PPB in detected samples value for each chemical, add to master table
@@ -675,12 +596,12 @@
           select(cas, everything(),-c(Name))
     #- Determine PPM and PPB for controls
       #_Import control tissue weights
-        cadaver_tissue_wts <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "tissue_weights") |>
+        cadaver_tissue_wts <- read_excel(config$paths$primary_data, sheet = "tissue_weights") |>
           filter(samples == "Control") |>
           select(ID, weight_mg) |>
           rename(control_ID = ID)
       #_Import control conc data, normalize by tissue weight, compute PPM/PPB
-        cadaver_qraw <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary.cadaver") |>
+        cadaver_qraw <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary.cadaver") |>
           select(name_sub_lib_id, T001:T009) |>
           mutate(across(-name_sub_lib_id, as.numeric)) |>
           pivot_longer(cols = -name_sub_lib_id, names_to = "control_ID", values_to = "Ce") |>
@@ -739,7 +660,7 @@
       ftc_cols <- names(ppm_raw)[grepl("^F\\d+$", names(ppm_raw))]
       fvptc_cols <- names(ppm_raw)[grepl("^FVPTC\\d+$", names(ppm_raw))]
     #- Bring in appropriate metadata to make prioritization decisions
-      fragment_quality_info <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary") |>
+      fragment_quality_info <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary") |>
         arrange(cas) |>
         select(name_sub_lib_id, iMean) |>
         rename(iMean_tumors = iMean)
@@ -781,18 +702,7 @@
         select(Name, cas, annot_ident, IARC_Group, pct_det_ctrl, pct_det_tumor, half_min, max_value, name_sub_lib_id, mean_ctrl:mean_FVPTC,T001:F20) |>
         arrange(cas)
     #- Format and export to excel
-      format_ppb_value <- function(x) {
-        if (is.na(x)) {
-          return(NA_character_)
-        }
-        if (x < 1) {
-          formatC(x, format = "e", digits = 1)
-        } else if (x >= 1000) {
-          formatC(x, format = "e", digits = 1)
-        } else {
-          round(x)
-        }
-      }
+
       PPB_version <- SF4_ppm_fulltable |>
         select(Name:mean_tumor,mean_FTC,mean_FVPTC,mean_PTC,-c(T001:F20,name_sub_lib_id)) |>
         mutate(across(half_min:mean_FVPTC, ~ .x * 1000)) |>
@@ -857,17 +767,7 @@
         select(short_name, cas, mode, annot_ident, p_value, highest, FTC:PTC, FTC_let:PTC_let, Carcinogenicity:GHS_var_diff_only, Potential_EDC, usage_class:Table_Class, pct_det_ctrl:mean_FVPTC_PPB)
     #- Pull superscript letters off and place on +/- columns
       #_Write function to do this
-        move_superscript <- function(main, sd_raw) {
-          superscript_pattern <- "[\\u1d43-\\u1d4d\\u02b0-\\u02b8\\u1d62-\\u1d6b\\u2070-\\u209f\\u2020-\\u2021]+"
-          # Extract superscript from the main value
-          superscript <- str_extract(main, superscript_pattern)
-          # Remove superscript from main
-          main_clean <- str_remove(main, superscript_pattern)
-          # Format SD to 2 decimal places
-          sd_clean <- format(round(as.numeric(sd_raw), 2), nsmall = 2)
-          # Recombine
-          paste0(main_clean, " ± ", sd_clean, ifelse(is.na(superscript), "", superscript))
-        }
+
       #_Apply function to the relevant columns
         MT_export <- MT_final |>
           mutate(
@@ -961,13 +861,13 @@
         filter(IARC_Group == "1") |>
         pull(cas)
     #- Now pull the IARC1s in controls and tumors
-      IARC_controls <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary.cadaver") |>
+      IARC_controls <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary.cadaver") |>
         filter(!is.na(comp)) |>
         filter(pct_NA <= 0.5) |>
         filter(cas %in% iarc_1) |>
         select(pct_NA,name_sub_lib_id,iMean) |>
         rename(pct_NA_ctrl = pct_NA, iMean_ctrl = iMean)
-      IARC_tumors <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.qsummary") |>
+      IARC_tumors <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary") |>
         filter(cas %in% iarc_1) |>
         filter(pct_NA <= 0.7) |>
         select(cas, pct_NA, name, name_sub_lib_id,iMean) |>
@@ -1035,7 +935,7 @@
       mutate(id = str_extract(name_sub_lib_id, "(?<=_)[^_]+$")) |>
       pull(id)
     #- Import the spectral validation data
-      spectral_validation_i <- read_excel("Data and Metadata Files/primary_data.xlsx", sheet = "lib.subject.summary") |>
+      spectral_validation_i <- read_excel(config$paths$primary_data, sheet = "lib.subject.summary") |>
         filter(id %in% sig_id) |>
         mutate(
           mzMed = paste0(

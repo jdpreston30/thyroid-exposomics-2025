@@ -2,21 +2,27 @@
 output:
   pdf_document:
     latex_engine: xelatex
-bibliography: "References/Supporting_AJT.bib"
-csl: "References/jama.csl"
+bibliography: "References/suplemental.bib"
+csl: "References/the-lancet.csl"
 header-includes:
   - \usepackage{fontspec}
   - \usepackage{graphicx}
   - \usepackage{pdfpages}
   - \usepackage{fancyhdr}
-  - \setmainfont{Arial}
+  - \usepackage{setspace}
+  - \usepackage{pdflscape}
+  - \setmainfont{Times New Roman}
   - \hyphenpenalty=10000
   - \exhyphenpenalty=10000
   - \pagestyle{fancy}
   - \fancyhf{}
-  - \fancyfoot[R]{Page \thepage}
+  - \fancyhead[L]{\fontsize{11}{13}\selectfont\textit{Supplementary Material}}
+  - \fancyhead[R]{\fontsize{11}{13}\selectfont\textit{\rightmark}}
+  - \fancyfoot[C]{\fontsize{11}{13}\selectfont-\thepage-}
   - \renewcommand{\headrulewidth}{0pt}
   - \renewcommand{\footrulewidth}{0pt}
+  - \renewcommand{\sectionmark}[1]{\markright{#1}}
+  - \singlespacing
 ---
 
 \begin{center}

@@ -1,7 +1,7 @@
-#* 8: Generate Supporting Information PDF
+#* 8: Generate Supplemental Material PDF
 #+ 8.1: Read Component Files
 #- 8.1.1: Define paths to all component files
-components_dir <- here::here("Supporting Information", "Components")
+components_dir <- here::here("Supplemental", "Components")
 sections_dir <- file.path(components_dir, "Sections")
 cover_page_path <- file.path(sections_dir, "cover_page.Rmd")
 figures_path <- file.path(sections_dir, "figures.Rmd")
@@ -17,14 +17,17 @@ if (length(missing_files) > 0) {
 cover_content <- readLines(cover_page_path, warn = FALSE)
 figures_content <- readLines(figures_path, warn = FALSE)
 methods_content <- readLines(methods_path, warn = FALSE)
-#- 8.2.2: Fix paths in cover page for correct references when rendered from Components directory
+#- 8.2.2: Fix paths for correct references when rendered from Components directory
 # Update bibliography and csl paths to be relative from Components directory
-references_dir <- file.path(components_dir, "References")
-bib_path_rel <- file.path("References", "Supporting_AJT.bib")
-csl_path_rel <- file.path("References", "jama.csl")
+bib_path_rel <- file.path("References", "suplemental.bib")
+csl_path_rel <- file.path("References", "the-lancet.csl")
 # Replace the relative paths in cover content
-cover_content <- gsub('../References/Supporting_AJT.bib', bib_path_rel, cover_content, fixed = TRUE)
-cover_content <- gsub('../References/jama.csl', csl_path_rel, cover_content, fixed = TRUE)
+cover_content <- gsub('bibliography: "References/supplemental.bib"', 
+                     paste0('bibliography: "', bib_path_rel, '"'), 
+                     cover_content, fixed = TRUE)
+cover_content <- gsub('csl: "References/the-lancet.csl"', 
+                     paste0('csl: "', csl_path_rel, '"'), 
+                     cover_content, fixed = TRUE)
 # Fix figure paths to be relative from Components directory  
 figures_content <- gsub('../Figures/PDF/', 'Figures/PDF/', figures_content, fixed = TRUE)
 #- 8.2.3: Combine all content
@@ -35,16 +38,14 @@ full_content <- c(
   "",  # Empty line for separation
   methods_content
 )
-
 #+ 8.3: Generate Final PDF
 #- 8.3.1: Write combined markdown file
-output_rmd <- file.path(components_dir, "supporting_info.Rmd")
+output_rmd <- file.path(components_dir, "supplemental_material.Rmd")
 writeLines(full_content, output_rmd)
-
-#- 8.3.2: Render to PDF in Supporting Information directory
-output_dir <- here::here("Supporting Information")
+#- 8.3.2: Render to PDF in Supplemental directory
+output_dir <- here::here("Supplemental")
 rmarkdown::render(
   input = output_rmd,
   output_dir = output_dir,
-  output_file = "Supporting Information.pdf"
+  output_file = "Supplemental Material.pdf"
 )
