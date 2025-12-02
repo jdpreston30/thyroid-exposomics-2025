@@ -30,7 +30,7 @@ header-includes:
 \end{center}
 
 \begin{center}
-\textbf{\Large SUPPLEMENTAL MATERIAL}
+\textbf{\Large SUPPLEMENTARY MATERIAL}
 \end{center}
 
 \vspace{1em}
@@ -83,17 +83,17 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^1^, Thomas Szabo Yamashita^4^, Sami N.
 
 \quad \textit{Computing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 7 -
 
-\textbf{SUPPLEMENTAL FIGURE 1} \dotfill 8 -
+\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 8 -
 
 \textbf{TABLE 2 ABBREVIATED DICTIONARY} \dotfill 9 -
 
-\textbf{SUPPLEMENTAL TABLE 1.} \textit{The full library of xenobiotic chemicals employed for chemical identification} \dotfill 11 -
+\textbf{SUPPLEMENTARY TABLE 1.} \textit{The full library of xenobiotic chemicals employed for chemical identification} \dotfill 11 -
 
-\textbf{SUPPLEMENTAL TABLE 2.} \textit{Metadata for all chemicals detected in samples} \dotfill 31 -
+\textbf{SUPPLEMENTARY TABLE 2.} \textit{Metadata for all chemicals detected in samples} \dotfill 31 -
 
-\textbf{SUPPLEMENTAL TABLE 3.} \textit{Observed concentrations versus reported literature values} \dotfill 45 -
+\textbf{SUPPLEMENTARY TABLE 3.} \textit{Observed concentrations versus reported literature values} \dotfill 45 -
 
-\textbf{SUPPLEMENTAL TABLE 4.} \textit{Quantitative estimates of chemicals in non-cancer thyroids and tumors} \dotfill 46 -
+\textbf{SUPPLEMENTARY TABLE 4.} \textit{Quantitative estimates of chemicals in non-cancer thyroids and tumors} \dotfill 46 -
 
 \textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 51 -
 

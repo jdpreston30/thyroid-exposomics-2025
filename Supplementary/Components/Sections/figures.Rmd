@@ -1,0 +1,7 @@
+\newpage
+
+\textbf{SUPPLEMENTARY FIGURE 1.} \textit{Classification of detected chemicals.} Chemical superclasses (A) and subclasses (B) of all detected chemicals.
+
+\vspace{0.5em}
+
+\includegraphics[width=\textwidth]{Figures/PDF/S1.pdf}

@@ -41,7 +41,7 @@ plot_class_distribution <- function(class_data, x_max = 100, sup = FALSE) {
   # Calculate appropriate breaks based on x_max
   break_interval <- if (x_max <= 100) 20 else if (x_max <= 200) 50 else 50
   
-  # Adjust font sizes for supplemental figures
+  # Adjust font sizes for supplementary figures
   axis_text_x_size <- 10
   axis_text_y_size <- if (sup) 7 else 10
   axis_title_size <- if (sup) 10 else 12

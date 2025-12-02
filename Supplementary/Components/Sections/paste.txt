@@ -12,7 +12,7 @@ Advanced Carcinogenicity Classification of Select Chemicals	- 5 -
 Quantitative Estimates of Chemical Concentrations in Tissues	- 5 -
 Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids	- 7 -
 Comparing Observed Concentrations to Literature Values for Select Chemicals	- 7 -
-SUPPLEMENTAL FIGURE 1.	- 8 -
+SUPPLEMENTARY FIGURE 1.	- 8 -
 TABLE ABBREVIATION DICTIONARY	- 9 -
 SUPPLEMENTARY TABLE 1. The full library of xenobiotic chemicals employed for chemical identification	- 11 -
 SUPPLEMENTARY TABLE 2. Metadata for all chemicals detected in samples	- 31 -
@@ -110,7 +110,7 @@ Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids
 Targeted quantitative feature tables, which were additionally filtered for detection in relevant standards, were generated for tumors and non-cancer cadaver thyroids, and conversion to PPM was performed as described above. Once spectral intensities were converted to PPM, direct comparisons of chemical concentrations were made only for fragments that were detected in both the tumor and non-cancer thyroid tissues. In cases where multiple fragments were annotated for the same chemical in both tumors and non-cancer thyroids, an ideal fragment was first selected based on the highest percentage of detection in tumors, then the highest percentage of detection in non-cancer thyroids, and finally the greatest mean intensity in tumors. For all matching fragments, the mean, maximum, and theoretical minimum (i.e., half the minimum detectable concentration in either the tumors or non-cancer thyroids) were calculated for tumors (all combined) and non-cancer thyroids. These data, along with percentage detection in tumors and non-cancer thyroids, are reported as PPB below in Supplementary Table 3. It is important to note that means were calculated using half-minimum imputed data, even if features were detected at ‘qualitative’ analysis thresholds. Finally, these values were converted to PPM for a direct comparison of tumors to non-cancer thyroids of all detected IARC Group 1 carcinogens (Figure 3D); however, this comparison was only reported for features that met quantitative criteria in both the tumor and non-cancer thyroid datasets. T-tests were run on log2-transformed data to compute p-values for comparing the means between tumors and non-cancer thyroids for these chemicals.
 Comparing Observed Concentrations to Literature Values for Select Chemicals
 To compare the quantification estimates generated as described above with estimated values in other tissues and matrices, we identified values for select chemicals in the published literature and tabulated our data alongside these reported concentrations (Supplementary Table 2). We prioritized chemicals that were IARC Group 1 carcinogens and polycyclic aromatic hydrocarbon combustion byproducts. For quantitative estimates of 245 individual chemicals, see Supplementary Table 3.
-SUPPLEMENTAL FIGURE 1. Classification of detected chemicals. Chemical superclasses (A) and subclasses (B) of all detected chemicals.
+SUPPLEMENTARY FIGURE 1. Classification of detected chemicals. Chemical superclasses (A) and subclasses (B) of all detected chemicals.
 TABLE ABBREVIATION DICTIONARY
 The supplementary tables have a substantial number of abbreviations, largely for chemical names. A full dictionary of abbreviations relevant to all supplementary tables can be found below: 
 •	9Cl-PF3ONS = 9-Chlorohexadecafluoro-3-oxanone-1-sulfonic acid
