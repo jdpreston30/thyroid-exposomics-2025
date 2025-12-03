@@ -96,7 +96,8 @@ build_table_1 <- function(data, export_path) {
     fontName = "Times New Roman",
     textDecoration = "bold",
     halign = "center",
-    valign = "center"
+    valign = "center",
+    fgFill = "#D9D9D9"  # 64% gray (matches Word)
   )
   
   bold_style <- createStyle(
@@ -155,6 +156,45 @@ build_table_1 <- function(data, export_path) {
     # Columns 2-5 (data values) - plain style
     addStyle(wb, sheet = 1, style = plain_style, rows = row_num, cols = 2:5, gridExpand = TRUE, stack = FALSE)
   }
+  
+  # Merge cells in row below data (no blank row placeholder for Table 1)
+  merge_row_num <- nrow(data_formatted) + 2
+  mergeCells(wb, sheet = 1, cols = 1:5, rows = merge_row_num)
+  
+  # Add footnote text to merged cell
+  footnote_text <- "*All values displayed as mean ± SD for ratio continuous variables or n (%) for dichotomous categorical variables. Percentages for the variant columns were calculated in respect to total patients within a variant (i.e., within column), and percentages for the total column was calculated in respect to the population total."
+  writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
+  
+  # Add style to merged cell with footnote (italic, size 8, left/middle aligned) and double borders
+  merge_cell_style <- createStyle(
+    fontSize = 8,
+    fontName = "Times New Roman",
+    textDecoration = "italic",
+    halign = "left",
+    valign = "center",
+    border = c("top", "bottom"),
+    borderColour = "black",
+    borderStyle = "double",
+    wrapText = TRUE
+  )
+  addStyle(wb, sheet = 1, style = merge_cell_style, rows = merge_row_num, cols = 1:5, gridExpand = TRUE, stack = TRUE)
+  
+  # Set row height for merged cell to add padding (dynamic based on content)
+  setRowHeights(wb, sheet = 1, rows = merge_row_num, heights = 45)
+  
+  # Add borders to header row (top and bottom)
+  header_border_top <- createStyle(
+    border = "top",
+    borderColour = "black",
+    borderStyle = "thin"
+  )
+  header_border_bottom <- createStyle(
+    border = "bottom",
+    borderColour = "black",
+    borderStyle = "thin"
+  )
+  addStyle(wb, sheet = 1, style = header_border_top, rows = 1, cols = 1:5, gridExpand = TRUE, stack = TRUE)
+  addStyle(wb, sheet = 1, style = header_border_bottom, rows = 1, cols = 1:5, gridExpand = TRUE, stack = TRUE)
   
   # Set column widths
   setColWidths(wb, sheet = 1, cols = 1, widths = 30)

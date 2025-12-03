@@ -185,8 +185,8 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
     writeData(wb, sheet = 1, x = result, startRow = 2, colNames = FALSE)
     
     # Create styles
-    header_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center", valign = "bottom")
-    header_style_left <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left", valign = "bottom")
+    header_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center", valign = "bottom", fgFill = "#D9D9D9")
+    header_style_left <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left", valign = "bottom", fgFill = "#D9D9D9")
     table_header_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left", valign = "bottom")
     table_header_style_center <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center", valign = "bottom")
     table_class_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left", valign = "bottom")
@@ -216,7 +216,68 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
         addStyle(wb, sheet = 1, style = subclass_style, rows = row_num, cols = 1)
         addStyle(wb, sheet = 1, style = subclass_style_center, rows = row_num, cols = 2)
       }
+      
     }
+    
+    # Add blank row after data
+    blank_row_num <- nrow(result) + 2
+    writeData(wb, sheet = 1, x = "", startRow = blank_row_num, startCol = 1)
+    
+    # Add double border at bottom of blank row (across all columns)
+    blank_row_border <- createStyle(
+      border = "bottom",
+      borderColour = "black",
+      borderStyle = "double"
+    )
+    addStyle(wb, sheet = 1, style = blank_row_border, rows = blank_row_num, cols = 1:2, gridExpand = TRUE, stack = TRUE)
+    
+    # Merge cells in row below blank row
+    merge_row_num <- blank_row_num + 1
+    mergeCells(wb, sheet = 1, cols = 1:2, rows = merge_row_num)
+    
+    # Add footnote text to merged cell
+    footnote_text <- paste(
+      "*- Includes the organophosphate breakdown product, diethyl phosphate",
+      "†- Includes the pyrethroid breakdown product, 3-phenoxybenzoic acid",
+      "‡- Includes the carbamate breakdown product, aldicarb sulfone",
+      "¶- Includes a triazinone (metribuzin)",
+      "§- Includes the wood preservative breakdown product, pentachloroanisole",
+      "",
+      "Abbreviations: UV = Ultraviolet",
+      sep = "\n"
+    )
+    writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
+    
+    # Add style to merged cell with footnote and double border at bottom
+    merge_cell_style <- createStyle(
+      fontSize = 8,
+      fontName = "Times New Roman",
+      textDecoration = "italic",
+      halign = "left",
+      valign = "center",
+      border = "bottom",
+      borderColour = "black",
+      borderStyle = "double",
+      wrapText = TRUE
+    )
+    addStyle(wb, sheet = 1, style = merge_cell_style, rows = merge_row_num, cols = 1:2, gridExpand = TRUE, stack = TRUE)
+    
+    # Set row height for merged cell to add padding (dynamic based on content)
+    setRowHeights(wb, sheet = 1, rows = merge_row_num, heights = 90)
+    
+    # Add borders to header row (top and bottom)
+    header_border_top <- createStyle(
+      border = "top",
+      borderColour = "black",
+      borderStyle = "thin"
+    )
+    header_border_bottom <- createStyle(
+      border = "bottom",
+      borderColour = "black",
+      borderStyle = "thin"
+    )
+    addStyle(wb, sheet = 1, style = header_border_top, rows = 1, cols = 1:2, gridExpand = TRUE, stack = TRUE)
+    addStyle(wb, sheet = 1, style = header_border_bottom, rows = 1, cols = 1:2, gridExpand = TRUE, stack = TRUE)
     
     # Set column widths
     setColWidths(wb, sheet = 1, cols = 1, widths = 60)

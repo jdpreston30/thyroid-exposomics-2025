@@ -14,7 +14,7 @@ table_2 <- build_table_2(
 )
 #+ 7.3: Build Table 3 (with function); export
 #- 7.3.1: Create table columns and format
-table_3 <- MT_final |>
+table_3_tibble <- MT_final |>
   mutate(
     Table_Class = case_when(
       Table_Class == "Insecticides and Pesticides" ~ "Insecticide/Pesticide",
@@ -59,9 +59,13 @@ table_3 <- MT_final |>
     p_value = round(p_value, 3)
   ) |>
   mutate(short_name = str_replace(short_name, "NA$", "")) |>
-  select(short_name, cas, annot_ident, Table_Class, FTC_let:PTC_let, p_value)
+  arrange(p_value) |>
+  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC_let, `FV-PTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value)
 #- 7.3.2: Build Table 3 with function
-
+table_3 <- build_table_3(
+  data = table_3_tibble,
+  export_path = "Outputs/Tables/T3.xlsx"
+)
 #+ 7.4: ST1- Chemical library (pivoted subid)
 ST1 <- read_excel(config$paths$primary_data, sheet = "library") |>
   filter(Disposition != "Endogenous") |>
