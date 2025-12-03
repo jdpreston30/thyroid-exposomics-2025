@@ -3,3 +3,6 @@ You need to do the following:
 -validate IARC 1 tumor quant comaprisons, add spectra to supplementals
 -MIX LIST needs to be accounted for and revised for creation of ST3 and 4
 -Ensure mix list does not intersect with anyh IARC
+
+- Use open xlsx to write both table 1 and 3 to match the formatting
+- update decimal formatting on tables 1 and 3 to be the middle one thing
