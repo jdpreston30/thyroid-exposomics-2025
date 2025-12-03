@@ -312,8 +312,8 @@ carc_by_variant <- MTi |>
   filter(Variant != "Equal")
 #+ 5.5: Create all variant graphs
 #- 5.5.1: Bar plot for top 5 quant
-p3A <- plot_top5_quant(tumors_quant_sig_top5)
+# p3A <- plot_top5_quant(tumors_quant_sig_top5)
 #- 5.5.2: Heatmap for qualitative features
-p3B <- plot_qualitative_heatmap(qual_i_reordered)
+# p3B <- plot_qualitative_heatmap(qual_i_reordered)
 #- 5.5.3: Balloon plot for usage class vs variant
 p3C <- plot_balloon(balloon_data_graph)

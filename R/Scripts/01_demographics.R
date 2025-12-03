@@ -47,6 +47,5 @@ bins <- demographics |>
   ) |>
   select(Variable, Follicular, FVPTC, Papillary, Total) |>
   arrange(Variable)
-#+ 1.4: Combine and Export
+#+ 1.4: Combine
 demographic_table <- rbind(age, sex, bins)
-write.csv(demographic_table, "Outputs/Tables/T1.csv")

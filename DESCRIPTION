@@ -8,6 +8,7 @@ Depends:
 Imports:
     broom,
     cowplot,
+    openxlsx,
     dplyr,
     forcats,
     ggplot2,

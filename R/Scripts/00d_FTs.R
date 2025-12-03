@@ -82,10 +82,13 @@ tumors_quant_wt_i <- tumor_column |>
   select(-c(weight_mg, patient_ID)) |>
   mutate(across(-variant, ~ log2(.)))
 #- 0d.4.2: Pull endogenous features
+endog_cas <- read_excel(config$paths$chemical_metadata, sheet = "endogenous_excluded_features") |>
+  pull(cas)
+#- 0d.4.3: Get endogenous feature key
 cas_key_endog <- tumor_raw |>
   select(name_sub_lib_id, cas) |>
   filter(cas %in% endog_cas) |>
   pull(name_sub_lib_id)
-#- 0d.4.3: Remove endogenous features from quantitative weighted table
+#- 0d.4.4: Remove endogenous features from quantitative weighted table
 tumors_quant_wt <- tumors_quant_wt_i |>
   select(-any_of(cas_key_endog))
