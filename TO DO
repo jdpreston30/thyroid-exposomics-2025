@@ -1,13 +1,12 @@
-You need to do the following:
 -validate top 5 quant, add spectra to supplementals
 -validate IARC 1 tumor quant comaprisons, add spectra to supplementals
 -MIX LIST needs to be accounted for and revised for creation of ST3 and 4
 -Ensure mix list does not intersect with anyh IARC
-
-- Use open xlsx to write both table 1 and 3 to match the formatting
 - update decimal formatting on tables 1 and 3 to be the middle one thing
 
 -remove non quantittative chemicals from PPM (main figure 3) and PPM tables (3 and 4) in supplementary. Will will determine this, and these will be chemicals which were part of  a mix rather than being a single standard
 - specify this in the methods that we had to remove these chemicals in mixtures. In expanded methods
 -modify figure 3 raw file based on new PPM calc
 -Add Will to author portal file
+
+

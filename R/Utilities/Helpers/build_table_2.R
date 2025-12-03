@@ -1,4 +1,4 @@
-#' Build Hierarchical Table with n (%) Counts
+#' Build Table 3 with n (%) Counts
 #'
 #' Creates a hierarchical table with proper indentation and percentage calculations
 #' at each level (header -> class -> subclass). Orders by count at each level.
@@ -12,14 +12,14 @@
 #'
 #' @return A tibble with two columns: Category (with indentation) and n (%)
 #'
-build_hierarchical_table <- function(data, header_col, class_col, subclass_col, export_path = NULL) {
+build_table_2 <- function(data, header_col, class_col, subclass_col, export_path = NULL) {
   
   # Calculate total n
   total_n <- data |> 
     filter(!is.na(.data[[header_col]])) |> 
     nrow()
   
-  # Get counts for headers
+  # Get counts for headers with custom ordering
   header_counts <- data |>
     filter(!is.na(.data[[header_col]])) |>
     count(.data[[header_col]], name = "n") |>
@@ -29,8 +29,20 @@ build_hierarchical_table <- function(data, header_col, class_col, subclass_col, 
       # Headers always show 1 decimal place
       pct_display = if_else(pct < 5, "< 5%", paste0(round(pct, 1), "%")),
       display = paste0(n, " (", pct_display, ")")
-    ) |>
-    arrange(desc(n))
+    )
+  
+  # Define custom header order based on actual unique values in the data
+  custom_header_order <- c(
+    "Agrochemicals",
+    "Other Chemicals",
+    "Pollutants and Industrial Chemicals"
+  )
+  
+  # Apply custom ordering only if the header exists in the data
+  header_counts <- header_counts |>
+    mutate(Header = factor(Header, levels = custom_header_order)) |>
+    arrange(Header) |>
+    mutate(Header = as.character(Header))
   
   # Get counts for classes within headers
   class_counts <- data |>
@@ -46,7 +58,7 @@ build_hierarchical_table <- function(data, header_col, class_col, subclass_col, 
     ) |>
     mutate(
       pct = n / header_n * 100,
-      pct_display = if_else(pct < 5, "< 5%", paste0(round(pct), "%")),
+      pct_display = if_else(pct < 5, "< 5%", paste0(floor(pct + 0.5), "%")),
       display = paste0(n, " (", pct_display, ")")
     ) |>
     arrange(Header, desc(n))
@@ -82,10 +94,12 @@ build_hierarchical_table <- function(data, header_col, class_col, subclass_col, 
                 paste0(round(pct, 1), "%"), 
                 paste0(floor(pct + 0.5), "%"))  # Standard round half up
       ),
-      display = paste0(n, " (", pct_display, ")")
+      display = paste0(n, " (", pct_display, ")"),
+      # Special flag to force "Other" to the end
+      is_other = Subclass == "Other"
     ) |>
     ungroup() |>
-    arrange(Header, Class, desc(n))
+    arrange(Header, Class, is_other, desc(n))
   
   # Build the hierarchical table
   table_rows <- list()
@@ -102,7 +116,8 @@ build_hierarchical_table <- function(data, header_col, class_col, subclass_col, 
       filter(Header == header) |> 
       arrange(desc(n))
     
-    for (i in 1:nrow(classes)) {
+    if (nrow(classes) > 0) {
+      for (i in 1:nrow(classes)) {
       class_name <- classes$Class[i]
       
       # Add class row (4 spaces)
@@ -111,10 +126,10 @@ build_hierarchical_table <- function(data, header_col, class_col, subclass_col, 
         `n (%)` = classes$display[i]
       )
       
-      # Get subclasses for this class, ordered by count
+      # Get subclasses for this class, ordered by count (with "Other" always last)
       subclasses <- subclass_counts |> 
         filter(Header == header, Class == class_name) |> 
-        arrange(desc(n))
+        arrange(is_other, desc(n))
       
       if (nrow(subclasses) > 0) {
         for (j in 1:nrow(subclasses)) {
@@ -137,6 +152,7 @@ build_hierarchical_table <- function(data, header_col, class_col, subclass_col, 
           )
         }
       }
+    }
     }
   }
   
@@ -161,21 +177,22 @@ build_hierarchical_table <- function(data, header_col, class_col, subclass_col, 
     wb <- createWorkbook()
     addWorksheet(wb, "Table")
     
-    # Write data without column names
+    # Add custom header first (row 1)
+    writeData(wb, sheet = 1, x = "GROUP: Class: Type", startRow = 1, startCol = 1, colNames = FALSE)
+    writeData(wb, sheet = 1, x = "n (%)", startRow = 1, startCol = 2, colNames = FALSE)
+    
+    # Write data starting at row 2 without column names
     writeData(wb, sheet = 1, x = result, startRow = 2, colNames = FALSE)
     
-    # Add custom header
-    writeData(wb, sheet = 1, x = c("Category", "n (%)"), startRow = 1, startCol = 1)
-    
     # Create styles
-    header_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center")
-    header_style_left <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left")
-    table_header_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left")
-    table_header_style_center <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center")
-    table_class_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left")
-    table_class_style_center <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center")
-    subclass_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "italic", halign = "left")
-    subclass_style_center <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "italic", halign = "center")
+    header_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center", valign = "bottom")
+    header_style_left <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left", valign = "bottom")
+    table_header_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left", valign = "bottom")
+    table_header_style_center <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center", valign = "bottom")
+    table_class_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "left", valign = "bottom")
+    table_class_style_center <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "bold", halign = "center", valign = "bottom")
+    subclass_style <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "italic", halign = "left", valign = "bottom")
+    subclass_style_center <- createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "italic", halign = "center", valign = "bottom")
     
     # Apply header style
     addStyle(wb, sheet = 1, style = header_style_left, rows = 1, cols = 1)

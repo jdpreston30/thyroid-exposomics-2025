@@ -14,7 +14,7 @@ sex <- demographics |>
   group_by(variant) |>
   summarise(n_female = sum(sex == "Female"), total = n(), .groups = "drop") |>
   mutate(
-    percent = round((n_female / total) * 100, 1),
+    percent = round((n_female / total) * 100),
     count_percent = paste0(n_female, " (", percent, "%)")
   ) |>
   select(variant, count_percent) |>
@@ -23,7 +23,7 @@ sex <- demographics |>
   bind_cols(
     demographics |>
       summarise(n_female = sum(sex == "Female"), total = n()) |>
-      mutate(Total = paste0(n_female, " (", round((n_female / total) * 100, 1), "%)")) |>
+      mutate(Total = paste0(n_female, " (", round((n_female / total) * 100), "%)")) |>
       select(Total)
   ) |>
   select(Variable, Follicular, FVPTC, Papillary, Total)
@@ -32,7 +32,7 @@ bins <- demographics |>
   group_by(variant, year_bin) |>
   summarise(n = n(), .groups = "drop") |>
   group_by(variant) |>
-  mutate(percent = round((n / sum(n)) * 100, 1)) |>
+  mutate(percent = round((n / sum(n)) * 100)) |>
   ungroup() |>
   mutate(count_percent = paste0(n, " (", percent, "%)")) |>
   select(year_bin, variant, count_percent) |>
@@ -41,7 +41,7 @@ bins <- demographics |>
   left_join(
     demographics |>
       count(year_bin) |>
-      mutate(Total = paste0(n, " (", round((n / sum(n)) * 100, 1), "%)")) |>
+      mutate(Total = paste0(n, " (", round((n / sum(n)) * 100), "%)")) |>
       select(year_bin, Total),
     by = "year_bin"
   ) |>

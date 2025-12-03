@@ -1,15 +1,18 @@
 #* 7: Supplementary Tables
-#+ 7.1: Create Table 1 (Work done in 01_demographics.R)
-write.csv(demographic_table, "Outputs/Tables/T1.csv")
-#+ 7.2: Create Table 2 (with function)
-table_2 <- build_hierarchical_table(
+#+ 7.1: Build Table 1 (with function); export
+table_1 <- build_table_1(
+  data = demographic_table,
+  export_path = "Outputs/Tables/T1.xlsx"
+)
+#+ 7.2: Build Table 2 (with function); export
+table_2 <- build_table_2(
   data = feature_metadata,
   header_col = "Table_Header",
   class_col = "Table_Class",
   subclass_col = "Table_Subclass",
   export_path = "Outputs/Tables/T2.xlsx"
 )
-#+ 7.3: Create subsetted table from master (Table 3)
+#+ 7.3: Build Table 3 (with function); export
 #- 7.3.1: Create table columns and format
 table_3 <- MT_final |>
   mutate(
@@ -57,8 +60,8 @@ table_3 <- MT_final |>
   ) |>
   mutate(short_name = str_replace(short_name, "NA$", "")) |>
   select(short_name, cas, annot_ident, Table_Class, FTC_let:PTC_let, p_value)
-#- 7.3.2: Export table
-write_xlsx(table_3, "Outputs/Tables/T3.xlsx")
+#- 7.3.2: Build Table 3 with function
+
 #+ 7.4: ST1- Chemical library (pivoted subid)
 ST1 <- read_excel(config$paths$primary_data, sheet = "library") |>
   filter(Disposition != "Endogenous") |>

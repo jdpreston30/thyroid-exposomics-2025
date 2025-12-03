@@ -1,6 +1,6 @@
 #* 0c: Load and Clean Clinical Data
 #+ 0c.1: Import clinical demographics data; clean
-demographics <- read_excel(config$paths$clinical_metadata, sheet = "Manifest") |>
+demographics_i <- read_excel(config$paths$clinical_metadata, sheet = "Manifest") |>
   select(ID, variant, sex, age_collection, year_collection) |>
   mutate(year_bin = cut(as.numeric(year_collection),
     breaks = seq(2006, 2022, length.out = 5),
