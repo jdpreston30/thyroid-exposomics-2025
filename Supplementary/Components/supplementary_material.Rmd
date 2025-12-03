@@ -1,3 +1,116 @@
+---
+output:
+  pdf_document:
+    latex_engine: xelatex
+bibliography: "References/suplemental.bib"
+csl: "References/the-lancet.csl"
+header-includes:
+  - \usepackage{fontspec}
+  - \usepackage{graphicx}
+  - \usepackage{pdfpages}
+  - \usepackage{fancyhdr}
+  - \usepackage{setspace}
+  - \usepackage{pdflscape}
+  - \setmainfont{Times New Roman}
+  - \hyphenpenalty=10000
+  - \exhyphenpenalty=10000
+  - \pagestyle{fancy}
+  - \fancyhf{}
+  - \fancyhead[L]{\fontsize{11}{13}\selectfont\textit{Supplementary Material}}
+  - \fancyhead[R]{\fontsize{11}{13}\selectfont\textit{\rightmark}}
+  - \fancyfoot[C]{\fontsize{11}{13}\selectfont-\thepage-}
+  - \renewcommand{\headrulewidth}{0pt}
+  - \renewcommand{\footrulewidth}{0pt}
+  - \renewcommand{\sectionmark}[1]{\markright{#1}}
+  - \singlespacing
+---
+
+\begin{center}
+\textbf{\Large ENVIRONMENTAL CHEMICAL BURDEN IN DIFFERENTIATED THYROID CANCER}
+\end{center}
+
+\begin{center}
+\textbf{\Large SUPPLEMENTARY MATERIAL}
+\end{center}
+
+\vspace{1em}
+
+Joshua D. Preston^1,2,3^, Yongliang Liang^1^, Thomas Szabo Yamashita^4^, Sami N. Teevy^1^, Jaclyn Weinberg^3,5^, William T. Crandall^3,6^, Zachary R. Jarrell^3^, Xin Hu^3,7^, Susan A. Saley^2^, Jennifer M. Robertson^2^, ViLinh Tran^1^, Ance S. Jackson^2^, Snehal S. Patel^7^, David G. Doherty^8^, Neil D. Gross^9^, Myriam Loyo^2^, David Yu^10^, G. Kenneth Haines^11^, Collin J. Weber^2^, and M. Ryan Smith^1,2^
+
+\vspace{1em}
+
+^1^ Nutrition Scientist Training Program, Emory University School of Medicine, Atlanta, GA 30322
+
+^2^ Nutritional and Health Sciences, Laney Graduate School, Emory University, Atlanta, GA 30322
+
+^3^ Division of Pulmonary, Allergy, Critical Care and Sleep Medicine, Department of Medicine, Emory University School of Medicine, Atlanta, GA, USA 30322
+
+^4^ Division of Surgical Oncology, Department of Surgery, Emory University School of Medicine, Atlanta, GA 30322
+
+^5^ Molecular and Systems Pharmacology, Laney Graduate School, Emory University, Atlanta, GA 30322
+
+^6^ Winship Cancer Institute, Emory University, Atlanta, GA 30322
+
+^7^ VA Medical Center Southeast System, Atlanta, GA
+
+\vspace{1em}
+
+\vfill
+
+# TABLE OF CONTENTS
+
+\textbf{EXPANDED METHODS} \dotfill 2 -
+
+\quad \textit{High-Resolution Exposomics} \dotfill 2 -
+
+\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 2 -
+
+\quad \textit{Preprocessing of Exposomics Data} \dotfill 3 -
+
+\quad \textit{Metabolic Annotation of Environmental Chemicals} \dotfill 3 -
+
+\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 3 -
+
+\quad \textit{Online Code and Data Repository} \dotfill 4 -
+
+\quad \textit{Exposome-Wide Association Study} \dotfill 4 -
+
+\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 5 -
+
+\quad \textit{Quantitative Estimates of Chemical Concentration in Tissues} \dotfill 5 -
+
+\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 7 -
+
+\quad \textit{Computing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 7 -
+
+\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 8 -
+
+\textbf{TABLE 2 ABBREVIATED DICTIONARY} \dotfill 9 -
+
+\textbf{SUPPLEMENTARY TABLE 1.} \textit{The full library of xenobiotic chemicals employed for chemical identification} \dotfill 11 -
+
+\textbf{SUPPLEMENTARY TABLE 2.} \textit{Metadata for all chemicals detected in samples} \dotfill 31 -
+
+\textbf{SUPPLEMENTARY TABLE 3.} \textit{Observed concentrations versus reported literature values} \dotfill 45 -
+
+\textbf{SUPPLEMENTARY TABLE 4.} \textit{Quantitative estimates of chemicals in non-cancer thyroids and tumors} \dotfill 46 -
+
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 51 -
+
+\textbf{BIORXIVER PUBLICATION LICENSES} \dotfill 52 -
+
+\newpage
+
+
+
+\newpage
+
+\textbf{SUPPLEMENTARY FIGURE 1.} \textit{Classification of detected chemicals.} Chemical superclasses (A) and subclasses (B) of all detected chemicals.
+
+\vspace{0.5em}
+
+\includegraphics[width=\textwidth]{Figures/PDF/S1.pdf}
+
 \begin{center}
 \textbf{\large EXPANDED METHODS}
 \end{center}
@@ -6,7 +119,7 @@
 
 \textbf{High-Resolution Exposomics}
 
-Prior to processing samples, several individual reference standards were prepared by spiking pure chemical standards into pooled reference plasma to achieve a common concentration of 0·47 ng/mL. A majority of all chemical standards were purchased from AccuStandard (New Haven, CT, USA), Restek (Bellefonte, PA, USA), MilliporeSigma (Burlington, MA, USA), Santa Cruz Biotechnology (Dallas, TX, USA), Wellington Laboratories (Guelph, ON, Canada), Cambridge Isotope Laboratories (Tewksbury, MA, USA). Plasma reference standards and tissue samples were processed using a modified version of the express liquid extraction (XLE) method.[@huScalableWorkflowCharacterize2021] The XLE is optimized for biofluids; however, it was necessary to modify it to ensure analytical consistency across plasma standards and tumor tissue samples, as detailed below.
+Prior to processing samples, several individual reference standards were prepared by spiking pure chemical standards into pooled reference plasma to achieve a common concentration of 0·5 ng/mL. A majority of all chemical standards were purchased from AccuStandard (New Haven, CT, USA), Restek (Bellefonte, PA, USA), MilliporeSigma (Burlington, MA, USA), Santa Cruz Biotechnology (Dallas, TX, USA), Wellington Laboratories (Guelph, ON, Canada), Cambridge Isotope Laboratories (Tewksbury, MA, USA). Plasma reference standards and tissue samples were processed using a modified version of the express liquid extraction (XLE) method.[@huScalableWorkflowCharacterize2021] The XLE is optimized for biofluids; however, it was necessary to modify it to ensure analytical consistency across plasma standards and tumor tissue samples, as detailed below.
 
 First, $\sim$50 mg of tumor or non-tumor cadaver thyroid tissue was cut and placed into a glass vial (13$\times$100 mm), and exact tissue weights were recorded (mean $\pm$ SD = 52·7 $\pm$ 11·3 mg for tumor tissue, 43·1 $\pm$ 4·5 mg for non-cancer cadaver thyroid tissue). Next, 200 $\mu$L of each pooled reference plasma standard (an in-house standard referred to as QStd; see Go et al.[@goReferenceStandardizationMass2015] for a full description of a previous iteration of this standard) was transferred to glass vials (13$\times$100 mm). For tissues, 500 $\mu$L of an extraction buffer comprised of acetone and petroleum ether (1:1 v/v) (MilliporeSigma, Catalog \#184519) with $\sim$2\% internal standard mix, was added to the glass vials containing tissues. For plasma, 200 $\mu$L of extraction buffer containing 2\% internal standard mix was added to the glass vials containing the pooled reference plasma. 50 $\mu$L of formic acid (Emprove\textregistered{} Essential DAC, 98-100\% pure, MilliporeSigma, Catalog \#1002631000) was then added to tissue and plasma standard vials. To the tissue vials, 20 mg of NaCl was added, and 45 $\pm$ 5 mg of MgSO$_4$ ($\geq$99·99\% trace metals basis, Sigma-Aldrich, Catalog \#203726) was added to tissue and plasma standard vials.
 
@@ -97,12 +210,12 @@ These classifications, along with other relevant chemical metadata, can be found
 
 \textbf{Quantitative Estimates of Chemical Concentrations in Tissues}
 
-The SRM used for annotation and identification had a concentration of 0·47 ng/mL for each individual EC. Thus, we used the spectral intensities associated with these known concentrations to establish estimates of chemical concentrations within tissues in parts per million (PPM) and parts per billion (PPB). It should be noted that the original data processing pipeline used a nominal concentration of 0·5 ng/mL for calibration calculations; therefore, a correction factor of 0·94 (0·47/0·5) was applied to all concentration estimates prior to PPM and PPB calculations to account for the true SRM concentration. Importantly, we relied on the following experimental features and assumptions:
+The SRM used for annotation and identification had a concentration of 0·5 ng/mL for each individual EC. Thus, we used the spectral intensities associated with these known concentrations to establish estimates of chemical concentrations within tissues in parts per million (PPM) and parts per billion (PPB). Importantly, we relied on the following experimental features and assumptions:
 
 \begin{itemize}
 \item Tissues are processed via solvent extraction and subsequent solvent evaporation, followed by reconstitution in 50 $\mu$L of isooctane. For the purposes of calculating concentrations in the original samples, we assume 100\% extraction efficiency from tissues and plasma, such that the entire amount of the EC present in the sample is recovered in the isooctane.
-\item A chemical concentration of 0 ng/mL results in an intensity of 0 (i.e., the origin of (0,0)). This is used in combination with the intensity from the known concentration in the SRM (0·47 ng/mL) to establish a two-point standard curve, which assumes linearity.
-\item While each chemical has a concentration in the SRM of 0·47 ng/mL, the concentration in 50 $\mu$L of isooctane is 1·88 ng/mL. This is because 200 $\mu$L of SRM plasma is used, and therefore, 0·094 ng of the total EC of interest is extracted. This is dried after extraction and reconstituted in 50 $\mu$L of isooctane, resulting in a concentration of 1·88 ng/mL in the injected solution.
+\item A chemical concentration of 0 ng/mL results in an intensity of 0 (i.e., the origin of (0,0)). This is used in combination with the intensity from the known concentration in the SRM (0·5 ng/mL) to establish a two-point standard curve, which assumes linearity.
+\item While each chemical has a concentration in the SRM of 0·5 ng/mL, the concentration in 50 $\mu$L of isooctane is 2 ng/mL. This is because 200 $\mu$L of SRM plasma is used, and therefore, 0·1 ng of the total EC of interest is extracted. This is dried after extraction and reconstituted in 50 $\mu$L of isooctane, resulting in a concentration of 2 ng/mL in the injected solution.
 \end{itemize}
 
 Our calculations to estimate tissue concentrations were performed as follows for each individual chemical:
@@ -110,12 +223,12 @@ Our calculations to estimate tissue concentrations were performed as follows for
 \begin{enumerate}
 \item A linear model is fit based on the assumptions discussed above, such that:
 $$y = \beta x$$
-where $y$ is the known concentration of the EC in the SRM (0·47 ng/mL for all ECs analyzed), $x$ is the observed spectral intensity for the given EC, and $\beta$ is the slope of the calibration curve, defined by the line through the origin (0,0) and the point $(x,y)$.
+where $y$ is the known concentration of the EC in the SRM (0·5 ng/mL for all ECs analyzed), $x$ is the observed spectral intensity for the given EC, and $\beta$ is the slope of the calibration curve, defined by the line through the origin (0,0) and the point $(x,y)$.
 
 \item Once the slope ($\beta$) for the specific chemical is established, it is then used to estimate concentration (ng/mL) in the sample ($C_e$) using the following equation:
 $$C_e = \beta I$$
-where $I$ is the observed spectral intensity for the given EC in the sample. However, to determine the true concentration in the isooctane solvent ($C_{es}$), we must scale $C_e$ by a factor of 4 to account for the concentration that occurs during extraction. Specifically, the 200 $\mu$L of plasma standard extracted contains 0·094 ng total of the EC (0·47 ng/mL). Assuming 100\% extraction, this 0·094 ng was then resuspended in 50 $\mu$L isooctane (1·88 ng/mL), Therefore, we use a 4$\times$ scaling factor:
-$$C_{es} = 4C_e$$
+where $I$ is the observed spectral intensity for the given EC in the sample. However, to determine the true concentration in the isooctane solvent ($C_{es}$), we must scale $C_e$ by a factor of 2 to account for the concentration that occurs during extraction. Specifically, the 200 $\mu$L of plasma standard extracted contains 0·1 ng total of the EC (0·5 ng/mL). Assuming 100\% extraction, this 0·1 ng was then resuspended in 50 $\mu$L isooctane (2 ng/mL), Therefore, we use a 2$\times$ scaling factor:
+$$C_{es} = 2C_e$$
 
 \item Next, the $C_{es}$ is converted from ng/mL to mg/L:
 $$C_{es} \text{ (mg/L)} = C_{es} \text{ (ng/mL)} \times \frac{10^3 \text{ mL}}{\text{L}} \times \frac{10^{-6} \text{ mg}}{\text{ng}}$$
@@ -222,7 +335,7 @@ The supplementary tables have a substantial number of abbreviations, largely for
 
 \newpage
 
-\textbf{SUPPLEMENTARY TABLE 1.} \textit{The full library of xenobiotic chemicals employed for chemical identification.} The library of 710 confirmed xenobiotic chemicals employed for chemical identification. All chemicals were present in pooled reference plasma at a concentration of 0·47 ng/mL. There are 710 total unique chemicals (i.e., unique CAS numbers), but for some chemicals, there are multiple fragments from different standards used for identification, thus resulting in 892 total rows in the table. The individual mz columns indicate typical fragments observed for the given chemical.
+\textbf{SUPPLEMENTARY TABLE 1.} \textit{The full library of xenobiotic chemicals employed for chemical identification.} The library of 710 confirmed xenobiotic chemicals employed for chemical identification. All chemicals were present in pooled reference plasma at a concentration of 0·5 ng/mL. There are 710 total unique chemicals (i.e., unique CAS numbers), but for some chemicals, there are multiple fragments from different standards used for identification, thus resulting in 892 total rows in the table. The individual mz columns indicate typical fragments observed for the given chemical.
 
 [INSERT ST1 HERE - TO BE GENERATED PROGRAMMATICALLY]
 

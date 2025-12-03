@@ -14,18 +14,22 @@ weights <- read_excel(config$paths$primary_data, sheet = "tissue_weights") |>
   select(ID, weight_mg) |>
   rename(patient_ID = ID)
 #- 0d.1.5: Import absolute quant data
+# Apply correction factor: original pipeline used 0.5 ng/mL, actual is 0.47 ng/mL
 conc_raw <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary", col_type = "text") |>
   select(name_sub_lib_id, F1:F20) |>
-  mutate(across(-name_sub_lib_id, as.numeric))
+  mutate(across(-name_sub_lib_id, as.numeric)) |>
+  mutate(across(-name_sub_lib_id, ~ .x * (0.47 / 0.5)))
 #- 0d.1.6: Import cadaver control tissue weights; clean
 cadaver_tissue_wts <- read_excel(config$paths$primary_data, sheet = "tissue_weights") |>
   filter(samples == "Control") |>
   select(ID, weight_mg) |>
   rename(control_ID = ID)
 #- 0d.1.7: Import cadaver absolute quant, clean
+# Apply correction factor: original pipeline used 0.5 ng/mL, actual is 0.47 ng/mL
 cadaver_qraw_i <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary.cadaver") |>
   select(name_sub_lib_id, T001:T009) |>
   mutate(across(-name_sub_lib_id, as.numeric)) |>
+  mutate(across(-name_sub_lib_id, ~ .x * (0.47 / 0.5))) |>
   pivot_longer(cols = -name_sub_lib_id, names_to = "control_ID", values_to = "Ce") |>
   mutate(C = as.numeric(gsub(",", "", Ce)))
 #- 0d.1.8: Import in fragment quality info, clean

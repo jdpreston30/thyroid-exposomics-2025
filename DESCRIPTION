@@ -26,6 +26,8 @@ Imports:
     webchem,
     writexl,
     yaml
+Suggests: 
+    jsonlite
 SystemRequirements: 
     TinyTeX (LaTeX distribution) - automatically installed via tinytex::install_tinytex() if not present
 Encoding: UTF-8
