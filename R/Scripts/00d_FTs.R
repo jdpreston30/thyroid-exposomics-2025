@@ -52,6 +52,13 @@ ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
     values_from = tmz
   ) |>
   arrange(cas)
+#- 0d.1.12: Import File List
+file_list <- read_excel(config$paths$primary_data, sheet = "file_list") |>
+  select(file, ID, replicate, study, type) |>
+  group_by(ID, study, type) |>
+  summarize(files = paste(file, collapse = ", "), .groups = "drop")
+#- 0d.1.13: Import GC2 feature list
+GC2_features <- read_csv(config$paths$gc2_features)
 #+ 0d.2: Structure data
 #- 0d.2.1: Pull the tumor columns
 tumor_column <- tumor_raw |>

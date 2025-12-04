@@ -20,15 +20,15 @@ paths:
   # Specific file paths (built from base)
   clinical_metadata: "{base_data_path}/Manifest.xlsx"
   primary_data: "{base_data_path}/primary_data.xlsx"
-  cadaver_sequence: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024/GC097_ThyroidTissue_08222024/Tryroid_Tissue_08222024.csv"
   
   # Raw MS data directories for spectral validation
   tumor_raw_dir: "{base_data_path}/Tumors/GC080_GC1_M524_Thyroid_Tissue_12082022"
-  cadaver_raw_dir: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024"
+  cadaver_raw_dir: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024/ThyroidTissue_08222024"
 
   # Local database paths (relative - same across computers)
   chemical_metadata: "metadata_files/chemical_metadata.xlsx"
   supplementary_tables_raw: "metadata_files/supplementary_tables_raw.xlsx"
+  gc2_features: "metadata_files/GC2_features.csv"
   
   # Output paths (relative to project root)
   output: "./Outputs"

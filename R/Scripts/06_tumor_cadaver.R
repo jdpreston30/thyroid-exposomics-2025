@@ -200,11 +200,11 @@ ppm_ppb_inclusive <- ppm_raw_ctrl |>
   arrange(cas) |>
   select(name_sub_lib_id, pct_det_ctrl, pct_det_tumor, mean_ctrl_PPB:mean_FVPTC_PPB) |>
   mutate(across(mean_ctrl_PPB:mean_FVPTC_PPB, ~ .x * 1000)) # convert to ppb
-#- 7.0.1: Join temp table from 6.4.4 with master table
+#- 6.4.6: Join temp table with master table
 MT_final_i <- MTi |>
   left_join(ppm_ppb_inclusive, by = "name_sub_lib_id") |>
   select(short_name, cas, mode, annot_ident, p_value, highest, FTC:PTC, FTC_let:PTC_let, Carcinogenicity:GHS_var_diff_only, Potential_EDC, usage_class:Table_Class, pct_det_ctrl:mean_FVPTC_PPB)
-#! Did QC to validate top 5 quant
+#! Did QC to validate top 5 quant and IARC group 1 detected in both cadaver and tumor
 #+ 6.5: Pull IARC Group 1 Features
 #- 6.5.1: Get the CAS numbers for IARC 1
 iarc_1 <- feature_metadata |>
@@ -234,51 +234,3 @@ IARC_tumors_ctrl_filtered <- IARC_tumors |>
   ungroup() |>
   filter(pct_NA < 0.3, pct_NA_ctrl < 0.3) |>
   pull(name_sub_lib_id)
-#- 6.5.5: Pull actual features out, transpose for graphing
-IARC_comp <- full_joiner |>
-  select(sample_ID, any_of(IARC_tumors_ctrl_filtered)) |>
-  mutate(across(
-    .cols = -c(sample_ID),
-    .fns = ~ {
-      col_min <- min(.x, na.rm = TRUE)
-      replace(.x, is.na(.x), 0.5 * col_min)
-    }
-  )) |>
-  pivot_longer(-sample_ID, names_to = "name_sub_lib_id", values_to = "value") |>
-  pivot_wider(names_from = sample_ID, values_from = value) |>
-  left_join(cas_key_2, by = "name_sub_lib_id") |>
-  left_join(short_name |> select(cas, annot_ident), by = "cas") |>
-  mutate(Name = if_else(
-    annot_ident == "Annotation",
-    paste0(Name, "\u2020"),
-    Name
-  )) |>
-  select(Name, T001:F20)
-#+ 6.6: IARC Stats (ttest on log transformed)
-# ! Data not shown but listed in manuscript results
-IARC_ttests <- full_joiner |>
-  select(sample_ID, any_of(IARC_tumors_ctrl_filtered)) |>
-  mutate(across(
-    .cols = -c(sample_ID),
-    .fns = ~ {
-      col_min <- min(.x, na.rm = TRUE)
-      replace(.x, is.na(.x), 0.5 * col_min)
-    }
-  )) |>
-  mutate(across(where(is.numeric), ~ log2(. + 1e-6))) |>
-  mutate(group = if_else(str_starts(sample_ID, "T00"), "Control", "Tumor")) |>
-  pivot_longer(
-    cols = where(is.numeric) & !any_of("group"),
-    names_to = "chemical", values_to = "value"
-  ) |>
-  group_by(chemical) |>
-  summarise(
-    p_value = t.test(value ~ group)$p.value,
-    mean_control = mean(value[group == "Control"]),
-    mean_tumor = mean(value[group == "Tumor"]),
-    .groups = "drop"
-  ) |>
-  arrange(p_value)
-#+ 6.7: Make MT Final with QC
-#---------
-# make mt final with removed if needed
