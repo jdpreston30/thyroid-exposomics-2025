@@ -10,6 +10,7 @@ Imports:
     cowplot,
     openxlsx,
     dplyr,
+    readr,
     forcats,
     ggplot2,
     ggtext,

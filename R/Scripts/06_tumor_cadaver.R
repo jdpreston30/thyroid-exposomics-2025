@@ -201,45 +201,22 @@ ppm_ppb_inclusive <- ppm_raw_ctrl |>
   select(name_sub_lib_id, pct_det_ctrl, pct_det_tumor, mean_ctrl_PPB:mean_FVPTC_PPB) |>
   mutate(across(mean_ctrl_PPB:mean_FVPTC_PPB, ~ .x * 1000)) # convert to ppb
 #- 7.0.1: Join temp table from 6.4.4 with master table
-MT_final <- MTi |>
+MT_final_i <- MTi |>
   left_join(ppm_ppb_inclusive, by = "name_sub_lib_id") |>
   select(short_name, cas, mode, annot_ident, p_value, highest, FTC:PTC, FTC_let:PTC_let, Carcinogenicity:GHS_var_diff_only, Potential_EDC, usage_class:Table_Class, pct_det_ctrl:mean_FVPTC_PPB)
-#- 7.0.2: Pull superscript letters off and place on +/- columns
-MT_export <- MT_final |>
-  mutate(
-    FTC_let = case_when(
-      mode == "quantitative" & !is.na(FTC_let) & str_detect(FTC, "±") ~
-        move_superscript(FTC_let, str_trim(str_extract(FTC, "(?<=±).*"))),
-      mode == "qualitative" & is.na(FTC_let) ~ FTC,
-      TRUE ~ FTC_let
-    ),
-    FV_PTC_let = case_when(
-      mode == "quantitative" & !is.na(FV_PTC_let) & str_detect(FV_PTC, "±") ~
-        move_superscript(FV_PTC_let, str_trim(str_extract(FV_PTC, "(?<=±).*"))),
-      mode == "qualitative" & is.na(FV_PTC_let) ~ FV_PTC,
-      TRUE ~ FV_PTC_let
-    ),
-    PTC_let = case_when(
-      mode == "quantitative" & !is.na(PTC_let) & str_detect(PTC, "±") ~
-        move_superscript(PTC_let, str_trim(str_extract(PTC, "(?<=±).*"))),
-      mode == "qualitative" & is.na(PTC_let) ~ PTC,
-      TRUE ~ PTC_let
-    )
-  ) |>
-  select(-c(FTC:PTC)) |>
-  rename(FTC = FTC_let, FV_PTC = FV_PTC_let, PTC = PTC_let)
+#! Did QC to validate top 5 quant
 #+ 6.5: Pull IARC Group 1 Features
 #- 6.5.1: Get the CAS numbers for IARC 1
 iarc_1 <- feature_metadata |>
   filter(IARC_Group == "1") |>
   pull(cas)
 #- 6.5.2: Pull the IARC1s in controls
- IARC_controls <- IARC_controls_i |>
-  filter(!is.na(comp)) |>
-  filter(pct_NA <= 0.5) |>
-  filter(cas %in% iarc_1) |>
-  select(pct_NA, name_sub_lib_id, iMean) |>
-  rename(pct_NA_ctrl = pct_NA, iMean_ctrl = iMean)
+IARC_controls <- IARC_controls_i |>
+filter(!is.na(comp)) |>
+filter(pct_NA <= 0.5) |>
+filter(cas %in% iarc_1) |>
+select(pct_NA, name_sub_lib_id, iMean) |>
+rename(pct_NA_ctrl = pct_NA, iMean_ctrl = iMean)
 #- 6.5.3: Pull the IARC1s in tumors
 IARC_tumors <- IARC_tumors_i |>
   filter(cas %in% iarc_1) |>
@@ -302,3 +279,6 @@ IARC_ttests <- full_joiner |>
     .groups = "drop"
   ) |>
   arrange(p_value)
+#+ 6.7: Make MT Final with QC
+#---------
+# make mt final with removed if needed
