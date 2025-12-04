@@ -41,6 +41,17 @@ fragment_quality_info <- read_excel(config$paths$primary_data, sheet = "lib.subj
 IARC_controls_i <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary.cadaver")
 #- 0d.1.10: Import clean absolute quant for tumor IARCs
 IARC_tumors_i <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary")
+#- 0d.1.11: Import and clean library
+ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
+  filter(Disposition != "Endogenous") |>
+  mutate(subid_col = paste0("mz", subid)) |>
+  select(id, name, short_display_name, trt, monoisotopic, cas, formula, Disposition, subid_col, tmz) |>
+  distinct() |>
+  pivot_wider(
+    names_from = subid_col,
+    values_from = tmz
+  ) |>
+  arrange(cas)
 #+ 0d.2: Structure data
 #- 0d.2.1: Pull the tumor columns
 tumor_column <- tumor_raw |>

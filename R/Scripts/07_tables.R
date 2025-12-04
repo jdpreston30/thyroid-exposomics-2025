@@ -67,16 +67,7 @@ table_3 <- build_table_3(
   export_path = "Outputs/Tables/T3.xlsx"
 )
 #+ 7.4: ST1- Chemical library (pivoted subid)
-ST1 <- read_excel(config$paths$primary_data, sheet = "library") |>
-  filter(Disposition != "Endogenous") |>
-  mutate(subid_col = paste0("mz", subid)) |>
-  select(id, name, short_display_name, trt, monoisotopic, cas, formula, Disposition, subid_col, tmz) |>
-  distinct() |>
-  pivot_wider(
-    names_from = subid_col,
-    values_from = tmz
-  ) |>
-  arrange(cas)
+ST1_import
       #! In excel, then pared down and formatted, but reimporting here to double check the molecular formulas
 #+ 7.7: ST4- Full ppm/ppb table for tumor-cadaver inner join
 ST4 <- ppm_full_table |>

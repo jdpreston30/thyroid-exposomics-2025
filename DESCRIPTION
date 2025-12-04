@@ -15,8 +15,10 @@ Imports:
     ggplot2,
     ggtext,
     here,
+    jsonlite,
     magick,
     multcompView,
+    mzR,
     purrr,
     readxl,
     rmarkdown,
@@ -27,8 +29,8 @@ Imports:
     webchem,
     writexl,
     yaml
-Suggests: 
-    jsonlite
 SystemRequirements: 
-    TinyTeX (LaTeX distribution) - automatically installed via tinytex::install_tinytex() if not present
+    TinyTeX (LaTeX distribution) - automatically installed via tinytex::install_tinytex() if not present,
+    Mono framework - required for ThermoRawFileParser (.raw file conversion),
+    ThermoRawFileParser - converts Thermo .raw files to mzML format (install at ~/bin/ThermoRawFileParser/)
 Encoding: UTF-8

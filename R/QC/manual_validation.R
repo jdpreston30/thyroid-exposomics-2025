@@ -108,19 +108,16 @@ cadaver_top5_iarc <- IARC_controls_i |>
   arrange(cas, id_subid) |>
   arrange(desc(validate_for))
 #+ Create mz reference table
-#- Subset to metadata for tumors
-tumor_features <- tumor_top5_iarc |>
-  select(cas, short_display_name, lib, id, subid, tmz, trt)
-#- Subset to metadata for cadavers
-cadaver_features <- cadaver_top5_iarc |>
-  select(cas, short_display_name, lib, id, subid, tmz, trt)
-#- Bind rows and get distinct
-mz_reference_table <- bind_rows(tumor_features, cadaver_features) |>
-  distinct() |>
-  arrange(short_display_name, id, subid) |>
+mz_reference_table <- read_csv("metadata_files/GC2_features.csv") |>
+  left_join(
+    feature_metadata |> select(cas, short_display_name = Short_display_name),
+    by = "cas"
+  ) |>
+  filter(cas %in% top_5_quant_cas | cas %in% iarc_1_validate) |>
+  select(cas, name, short_display_name, id, trt, subid, tmz)|>
   # Pivot to create mz0, mz1, mz2, etc columns
   pivot_wider(
-    id_cols = c(cas, short_display_name, lib, id, trt),
+    id_cols = c(cas, name, short_display_name, id, trt),
     names_from = subid,
     values_from = tmz,
     names_prefix = "mz",
