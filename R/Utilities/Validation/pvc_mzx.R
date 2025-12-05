@@ -17,6 +17,7 @@
 #' @param study Character string: "tumor" or "cadaver" to determine directory and sample color (default: "tumor")
 #' @param file_list Tibble with columns: ID, type, files (for sample metadata) (default: file_list)
 #' @param selected_features Tibble with columns: source, id, subid, name, tmz, trt, cas (default: selected_gc2_features)
+#' @param standard Logical, whether to include standard plot (default: TRUE). If FALSE, only plots sample spectrum
 #' @param png_name Optional custom filename for PNG output (without .png extension). If NULL (default), no file is saved
 #' @param output_dir Directory to save PNG file (default: "Outputs/Spectra")
 #' @param width Plot width in inches (default: 7)
@@ -27,7 +28,7 @@
 #' @export
 pvc_mzx <- function(id,
                     file_name_sample,
-                    file_name_standard,
+                    file_name_standard = NULL,
                     mzr = NULL,
                     rt,
                     rt_window = 0.1,
@@ -38,6 +39,7 @@ pvc_mzx <- function(id,
                     study = "tumor",
                     file_list = NULL,
                     selected_features = NULL,
+                    standard = TRUE,
                     png_name = NULL,
                     output_dir = "Outputs/Spectra/mzx",
                     width = 3.9,
@@ -210,19 +212,28 @@ pvc_mzx <- function(id,
     return(spectrum_data)
   }
   
-  # Extract data for both files
+  # Extract data for sample
   sample_data <- extract_spectrum(file_name_sample)
   sample_data$type <- "Sample"
   sample_data$plot_intensity <- sample_data$intensity  # Keep positive
   sample_data$color_group <- "Sample"
   
-  standard_data <- extract_spectrum(file_name_standard)
-  standard_data$type <- "Standard"
-  standard_data$plot_intensity <- -standard_data$intensity  # Flip to negative for plotting
-  standard_data$color_group <- "Standard"
-  
-  # Combine data
-  combined_data <- bind_rows(sample_data, standard_data)
+  # Handle standard data based on standard parameter
+  if (standard) {
+    if (is.null(file_name_standard)) {
+      stop("file_name_standard must be provided when standard = TRUE")
+    }
+    standard_data <- extract_spectrum(file_name_standard)
+    standard_data$type <- "Standard"
+    standard_data$plot_intensity <- -standard_data$intensity  # Flip to negative for plotting
+    standard_data$color_group <- "Standard"
+    
+    # Combine data
+    combined_data <- bind_rows(sample_data, standard_data)
+  } else {
+    # Only sample data
+    combined_data <- sample_data
+  }
   
   # Filter to only show peaks matching target m/z values if ppm_filter specified
   # Also assign labels (mz0, mz1, etc.) to matching peaks
@@ -362,10 +373,14 @@ pvc_mzx <- function(id,
     labels_crowded <- FALSE
   }
   
-  # Determine y-axis limits based on max intensity from either side
+  # Determine y-axis limits
   max_sample <- max(abs(combined_data$intensity[combined_data$type == "Sample"]), na.rm = TRUE)
-  max_standard <- max(abs(combined_data$intensity[combined_data$type == "Standard"]), na.rm = TRUE)
-  y_limit <- max(max_sample, max_standard)
+  if (standard) {
+    max_standard <- max(abs(combined_data$intensity[combined_data$type == "Standard"]), na.rm = TRUE)
+    y_limit <- max(max_sample, max_standard)
+  } else {
+    y_limit <- max_sample
+  }
   
   # Get sample metadata
   sample_metadata <- file_list |>
@@ -380,38 +395,64 @@ pvc_mzx <- function(id,
     sample_type <- tools::toTitleCase(sample_type)
   }
   
-  # Get standard ID
-  standard_id <- gsub("_[0-9]+$", "", file_name_standard)
-  
-  # Create dynamic title based on study type
+  # Create dynamic title and subtitle based on whether standard is included
   study_label <- tools::toTitleCase(study)
-  title_text <- sprintf("%s vs. Standard", study_label)
   
-  # Create subtitle with metadata
-  subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  RT: %.2f ± %.2f min", 
-                          sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, rt, rt_window)
+  if (standard) {
+    # Get standard ID
+    standard_id <- gsub("_[0-9]+$", "", file_name_standard)
+    title_text <- sprintf("%s vs. Standard", study_label)
+    subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  RT: %.2f ± %.2f min", 
+                            sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, rt, rt_window)
+  } else {
+    title_text <- sprintf("%s Spectrum", study_label)
+    subtitle_text <- sprintf("Sample: %s (%s)\n%s  |  ID: %s  |  RT: %.2f ± %.2f min", 
+                            sample_id, file_name_sample, ref_row$short_display_name, id, rt, rt_window)
+  }
   
   # Create color scale
   color_values <- c("Sample" = sample_color, "Standard" = standard_color)
   
-  # Create plot with vertical bars (geom_segment for spectral lines)
-  p <- ggplot(combined_data, aes(x = mz, y = plot_intensity, color = color_group)) +
-    geom_segment(aes(xend = mz, yend = 0), linewidth = 1.2) +
-    geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.8) +
-    scale_color_manual(values = color_values, guide = "none") +
-    scale_x_continuous(limits = mzr, expand = expansion(mult = c(0.05, 0.05), add = 0)) +
-    scale_y_continuous(
-      expand = expansion(mult = c(0.05, 0.05), add = 0),
-      limits = c(-y_limit, y_limit),
-      labels = function(x) abs(x),
-      n.breaks = 8
-    ) +
-    labs(
-      title = title_text,
-      subtitle = subtitle_text,
-      x = "m/z",
-      y = sprintf("\u2190 Standard  |  %s \u2192", study_label)
-    ) +
+  # Create plot with conditional formatting based on standard parameter
+  if (standard) {
+    # Mirrored plot
+    p <- ggplot(combined_data, aes(x = mz, y = plot_intensity, color = color_group)) +
+      geom_segment(aes(xend = mz, yend = 0), linewidth = 1.2) +
+      geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.8) +
+      scale_color_manual(values = color_values, guide = "none") +
+      scale_x_continuous(limits = mzr, expand = expansion(mult = c(0.05, 0.05), add = 0)) +
+      scale_y_continuous(
+        expand = expansion(mult = c(0.05, 0.05), add = 0),
+        limits = c(-y_limit, y_limit),
+        labels = function(x) abs(x),
+        n.breaks = 8
+      ) +
+      labs(
+        title = title_text,
+        subtitle = subtitle_text,
+        x = "m/z",
+        y = sprintf("\u2190 Standard  |  %s \u2192", study_label)
+      )
+  } else {
+    # Single spectrum plot
+    p <- ggplot(combined_data, aes(x = mz, y = plot_intensity, color = color_group)) +
+      geom_segment(aes(xend = mz, yend = 0), linewidth = 1.2) +
+      scale_color_manual(values = color_values, guide = "none") +
+      scale_x_continuous(limits = mzr, expand = expansion(mult = c(0.05, 0.05), add = 0)) +
+      scale_y_continuous(
+        expand = expansion(mult = c(0.05, 0.05), add = 0),
+        limits = c(0, y_limit),
+        n.breaks = 8
+      ) +
+      labs(
+        title = title_text,
+        subtitle = subtitle_text,
+        x = "m/z",
+        y = "Intensity"
+      )
+  }
+  
+  p <- p +
     # Add m/z labels above sample peaks if ppm_filter was used
     {if (!is.null(mz_labels) && nrow(mz_labels) > 0 && labels_crowded) {
       # Create combined label for clustered peaks and separate labels for outliers

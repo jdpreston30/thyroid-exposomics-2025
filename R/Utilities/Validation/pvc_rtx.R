@@ -13,6 +13,10 @@
 #' @param source Character string: "IARC" or "quant" to resolve which tmz/trt to use if multiple exist (default: NULL uses first)
 #' @param ppm_tolerance Numeric mass tolerance in ppm (default: 5)
 #' @param rtr Optional numeric vector c(min, max) to override dynamic RT range
+#' @param standard Logical, whether to include standard plot (default: TRUE). If FALSE, only plots sample chromatogram
+#' @param show_lib_rt Logical, whether to show library RT in subtitle (default: TRUE). If FALSE, omits "Lib RT = X.XX" from subtitle
+#' @param stick Logical, whether to plot as vertical sticks (default: FALSE). If TRUE, uses geom_segment instead of geom_line
+#' @param max_i Logical, whether to use maximum intensity (default: FALSE). If TRUE, uses max instead of mean when aggregating peaks within ppm tolerance
 #' @param png_name Optional custom filename for PNG output (without .png extension). If NULL (default), no file is saved
 #' @param output_dir Directory to save PNG file (default: "Outputs/Spectra")
 #' @param width Plot width in inches (default: 6)
@@ -23,7 +27,7 @@
 #' @export
 pvc_rtx <- function(id,
                  file_name_sample,
-                 file_name_standard,
+                 file_name_standard = NULL,
                  reference_table = NULL,
                  study = "tumor",
                  file_list = NULL,
@@ -31,6 +35,10 @@ pvc_rtx <- function(id,
                  source = NULL,
                  ppm_tolerance = 5,
                  rtr = NULL,
+                 standard = TRUE,
+                 show_lib_rt = TRUE,
+                 stick = FALSE,
+                 max_i = FALSE,
                  png_name = NULL,
                  output_dir = "Outputs/Spectra/rtx",
                  width = 3.9,
@@ -139,7 +147,7 @@ pvc_rtx <- function(id,
     header_info <- mzR::header(ms_data)
     
     # Function to extract XIC
-    extract_xic <- function(ms_data, header_info, target_mz, ppm_tol, rt_range) {
+    extract_xic <- function(ms_data, header_info, target_mz, ppm_tol, rt_range, use_max) {
       ms1_scans <- header_info[header_info$msLevel == 1, ]
       ms1_scans <- ms1_scans[ms1_scans$retentionTime >= rt_range[1] * 60 & 
                              ms1_scans$retentionTime <= rt_range[2] * 60, ]
@@ -152,7 +160,23 @@ pvc_rtx <- function(id,
       xic_data <- lapply(ms1_scans$seqNum, function(scan_num) {
         spectrum <- mzR::peaks(ms_data, scan_num)
         mz_match <- abs(spectrum[, 1] - target_mz) <= mz_tol_da
-        intensity <- if (sum(mz_match) > 0) sum(spectrum[mz_match, 2]) else 0
+        
+        # Aggregate intensity based on use_max parameter
+        if (sum(mz_match) > 0) {
+          matched_intensities <- spectrum[mz_match, 2]
+          # Debug: print if multiple peaks found
+          if (length(matched_intensities) > 1) {
+            cat(sprintf("Scan %d: Found %d peaks, ", scan_num, length(matched_intensities)))
+            if (use_max) {
+              cat(sprintf("using max=%.0f (mean would be %.0f)\n", max(matched_intensities), mean(matched_intensities)))
+            } else {
+              cat(sprintf("using mean=%.0f (max would be %.0f)\n", mean(matched_intensities), max(matched_intensities)))
+            }
+          }
+          intensity <- if (use_max) max(matched_intensities) else mean(matched_intensities)
+        } else {
+          intensity <- 0
+        }
         
         data.frame(
           scan = scan_num,
@@ -167,7 +191,7 @@ pvc_rtx <- function(id,
     
     # Extract XICs for all target m/z values
     all_xics <- lapply(seq_along(target_mzs), function(i) {
-      xic <- extract_xic(ms_data, header_info, target_mzs[i], ppm_tolerance, rt_range)
+      xic <- extract_xic(ms_data, header_info, target_mzs[i], ppm_tolerance, rt_range, max_i)
       xic$mz_index <- i - 1
       xic
     })
@@ -180,25 +204,35 @@ pvc_rtx <- function(id,
     return(chromatogram_data)
   }
   
-  # Extract data for both files
+  # Extract data for sample
   sample_data <- extract_chromatogram(file_name_sample)
   sample_data$type <- "Sample"
   sample_data$plot_intensity <- sample_data$intensity  # Keep positive
   
-  standard_data <- extract_chromatogram(file_name_standard)
-  standard_data$type <- "Standard"
-  standard_data$plot_intensity <- -standard_data$intensity  # Flip to negative for plotting
-  
-  # Determine y-axis limits based on max intensity from either side
-  max_sample <- max(abs(sample_data$intensity), na.rm = TRUE)
-  max_standard <- max(abs(standard_data$intensity), na.rm = TRUE)
-  y_limit <- max(max_sample, max_standard)
-  
-  # Combine data
-  combined_data <- bind_rows(sample_data, standard_data)
+  # Handle standard data based on standard parameter
+  if (standard) {
+    if (is.null(file_name_standard)) {
+      stop("file_name_standard must be provided when standard = TRUE")
+    }
+    standard_data <- extract_chromatogram(file_name_standard)
+    standard_data$type <- "Standard"
+    standard_data$plot_intensity <- -standard_data$intensity  # Flip to negative for plotting
+    
+    # Determine y-axis limits based on max intensity from either side
+    max_sample <- max(abs(sample_data$intensity), na.rm = TRUE)
+    max_standard <- max(abs(standard_data$intensity), na.rm = TRUE)
+    y_limit <- max(max_sample, max_standard)
+    
+    # Combine data
+    combined_data <- bind_rows(sample_data, standard_data)
+  } else {
+    # Only sample data
+    y_limit <- max(abs(sample_data$intensity), na.rm = TRUE)
+    combined_data <- sample_data
+  }
   
   # Create labels with asterisk for target m/z
-  combined_data$mz_label <- sprintf("mz%d: %.2f", 
+  combined_data$mz_label <- sprintf("mz%d: %.4f", 
                                     combined_data$mz_index, 
                                     combined_data$mz)
   
@@ -224,45 +258,98 @@ pvc_rtx <- function(id,
     sample_type <- tools::toTitleCase(sample_type)
   }
   
-  # Get standard ID
-  standard_id <- gsub("_[0-9]+$", "", file_name_standard)
-  
-  # Create dynamic title based on study type
+  # Create dynamic title and subtitle based on whether standard is included
   study_label <- tools::toTitleCase(study)
-  title_text <- sprintf("%s vs. Standard", study_label)
   
-  # Create subtitle with metadata (add library RT if available)
-  if (!is.null(library_trt)) {
-    subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  %d ppm  |  Lib RT = %.2f", 
-                            sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, ppm_tolerance, library_trt)
+  if (standard) {
+    # Get standard ID
+    standard_id <- gsub("_[0-9]+$", "", file_name_standard)
+    title_text <- sprintf("%s vs. Standard", study_label)
+    
+    # Create subtitle with metadata (add library RT if available and show_lib_rt is TRUE)
+    if (!is.null(library_trt) && show_lib_rt) {
+      subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  %d ppm  |  Lib RT = %.2f", 
+                              sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, ppm_tolerance, library_trt)
+    } else {
+      subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  %d ppm", 
+                              sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, ppm_tolerance)
+    }
   } else {
-    subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  %d ppm", 
-                            sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, ppm_tolerance)
+    title_text <- sprintf("%s Chromatogram", study_label)
+    
+    # Create subtitle with metadata (add library RT if available and show_lib_rt is TRUE)
+    if (!is.null(library_trt) && show_lib_rt) {
+      subtitle_text <- sprintf("Sample: %s (%s)\n%s  |  ID: %s  |  %d ppm  |  Lib RT = %.2f", 
+                              sample_id, file_name_sample, ref_row$short_display_name, id, ppm_tolerance, library_trt)
+    } else {
+      subtitle_text <- sprintf("Sample: %s (%s)\n%s  |  ID: %s  |  %d ppm", 
+                              sample_id, file_name_sample, ref_row$short_display_name, id, ppm_tolerance)
+    }
   }
   
-  # Create plot
-  p <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-    geom_line(linewidth = 0.8) +
-    geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.8) +
-    scale_color_brewer(palette = "Set1") +
-    {if (manual_rt_override) {
-      scale_x_continuous(limits = rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0))
+  # Create plot with conditional formatting based on standard and stick parameters
+  if (standard) {
+    # Mirrored plot
+    if (stick) {
+      p <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+        geom_segment(aes(xend = rt, yend = 0), linewidth = 0.8) +
+        geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.8)
     } else {
-      scale_x_continuous(expand = expansion(mult = c(0.05, 0.05), add = 0))
-    }} +
-    scale_y_continuous(
-      expand = expansion(mult = c(0.05, 0.05), add = 0),
-      limits = c(-y_limit, y_limit),
-      labels = function(x) abs(x),
-      n.breaks = 8
-    ) +
-    labs(
-      title = title_text,
-      subtitle = subtitle_text,
-      x = "Retention Time (minutes)",
-      y = sprintf("\u2190 Standard  |  %s \u2192", study_label),
-      color = NULL
-    ) +
+      p <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+        geom_line(linewidth = 0.8) +
+        geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.8)
+    }
+    p <- p +
+      scale_color_brewer(palette = "Set1") +
+      {if (manual_rt_override) {
+        scale_x_continuous(limits = rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0))
+      } else {
+        scale_x_continuous(expand = expansion(mult = c(0.05, 0.05), add = 0))
+      }} +
+      scale_y_continuous(
+        expand = expansion(mult = c(0.05, 0.05), add = 0),
+        limits = c(-y_limit, y_limit),
+        labels = function(x) abs(x),
+        n.breaks = 8
+      ) +
+      labs(
+        title = title_text,
+        subtitle = subtitle_text,
+        x = "Retention Time (minutes)",
+        y = sprintf("\u2190 Standard  |  %s \u2192", study_label),
+        color = NULL
+      )
+  } else {
+    # Single chromatogram plot
+    if (stick) {
+      p <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = mz_label)) +
+        geom_segment(aes(xend = rt, yend = 0), linewidth = 0.8)
+    } else {
+      p <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = mz_label)) +
+        geom_line(linewidth = 0.8)
+    }
+    p <- p +
+      scale_color_brewer(palette = "Set1") +
+      {if (manual_rt_override) {
+        scale_x_continuous(limits = rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0))
+      } else {
+        scale_x_continuous(expand = expansion(mult = c(0.05, 0.05), add = 0))
+      }} +
+      scale_y_continuous(
+        expand = expansion(mult = c(0.05, 0.05), add = 0),
+        limits = c(0, y_limit),
+        n.breaks = 8
+      ) +
+      labs(
+        title = title_text,
+        subtitle = subtitle_text,
+        x = "Retention Time (minutes)",
+        y = "Intensity",
+        color = NULL
+      )
+  }
+  
+  p <- p +
     coord_cartesian(clip = "off") +
     theme_classic(base_size = 12, base_family = "Arial") +
     theme(
@@ -295,10 +382,15 @@ pvc_rtx <- function(id,
   
   # Add library RT marker as red tick on x-axis if available
   if (!is.null(library_trt)) {
-    p <- p + 
-      annotate("segment", x = library_trt, xend = library_trt, 
-               y = -y_limit * 1.05, yend = -y_limit * 0.95, 
-               color = "red", linewidth = 1.2)
+    if (standard) {
+      p <- p + 
+        annotate("segment", x = library_trt, xend = library_trt, 
+                 y = -y_limit * 1.05, yend = -y_limit * 0.95, 
+                 color = "red", linewidth = 1.2)
+    } else {
+      p <- p + 
+        geom_vline(xintercept = library_trt, linetype = "dashed", color = "red", linewidth = 0.8)
+    }
   }
   
   # Save plot to PNG only if png_name is provided
