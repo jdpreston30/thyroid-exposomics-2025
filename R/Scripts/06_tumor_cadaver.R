@@ -150,7 +150,7 @@ ppm_full_table <- ppm_raw_ctrl |>
   select(Name, cas, annot_ident, IARC_Group, pct_det_ctrl, pct_det_tumor, half_min, max_value, name_sub_lib_id, mean_ctrl:mean_FVPTC, T001:F20) |>
   arrange(cas)
 #- 6.4.3: Create a pivoted version for subsequent analysis
-full_joiner <- ppm_full_table |>
+full_joiner_i <- ppm_full_table |>
   select(name_sub_lib_id, T001:F20) |>
   pivot_longer(
     cols = -name_sub_lib_id,

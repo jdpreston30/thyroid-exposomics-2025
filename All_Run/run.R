@@ -14,11 +14,11 @@ source("R/Scripts/05_variant_vis.R")
 source("R/Scripts/06_tumor_cadaver.R")
 source("R/Scripts/07_validation_prep.R")
 source("R/Scripts/08_validation_spectra.R")
-source("R/Scripts/11_render_figures.R")
-source("R/Scripts/12_supplementary_create.R")
-
 source("R/Scripts/09_IARC.R")
 source("R/Scripts/10_tables.R")
-
+source("R/Scripts/11_supplementary_tables.R")
+source("R/Scripts/12_render_figures.R")
+source("R/Scripts/13_render_supplementary_figures.R")
+source("R/Scripts/14_construct_supplementary.R")
 }
 
