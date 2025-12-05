@@ -13,15 +13,15 @@
 #' @param source Character string: "IARC" or "quant" to resolve which tmz/trt to use if multiple exist (default: NULL uses first)
 #' @param ppm_tolerance Numeric mass tolerance in ppm (default: 5)
 #' @param rtr Optional numeric vector c(min, max) to override dynamic RT range
-#' @param png_name Optional custom filename for PNG output (without .png extension). If NULL, uses default naming: id_sample_replicate_std_replicate.png
+#' @param png_name Optional custom filename for PNG output (without .png extension). If NULL (default), no file is saved
 #' @param output_dir Directory to save PNG file (default: "Outputs/Spectra")
 #' @param width Plot width in inches (default: 6)
 #' @param height Plot height in inches (default: 6)
 #'
-#' @return ggplot object (also saves to PNG)
+#' @return ggplot object (saves to PNG only if png_name is provided)
 #'
 #' @export
-pvcd <- function(id,
+pvc_rtx <- function(id,
                  file_name_sample,
                  file_name_standard,
                  reference_table = NULL,
@@ -32,9 +32,9 @@ pvcd <- function(id,
                  ppm_tolerance = 5,
                  rtr = NULL,
                  png_name = NULL,
-                 output_dir = "Outputs/Spectra",
-                 width = 7,
-                 height = 6) {
+                 output_dir = "Outputs/Spectra/rtx",
+                 width = 3.9,
+                 height = 3.25) {
   
   # Use defaults from environment if not provided
   if (is.null(reference_table)) {
@@ -229,15 +229,15 @@ pvcd <- function(id,
   
   # Create dynamic title based on study type
   study_label <- tools::toTitleCase(study)
-  title_text <- sprintf("%s vs Standard", study_label)
+  title_text <- sprintf("%s vs. Standard", study_label)
   
   # Create subtitle with metadata (add library RT if available)
   if (!is.null(library_trt)) {
-    subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s  |  ID: %s  |  %d ppm  |  Lib RT = %.2f", 
-                            sample_id, file_name_sample, file_name_standard, id, ppm_tolerance, library_trt)
+    subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  %d ppm  |  Lib RT = %.2f", 
+                            sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, ppm_tolerance, library_trt)
   } else {
-    subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s  |  ID: %s  |  %d ppm", 
-                            sample_id, file_name_sample, file_name_standard, id, ppm_tolerance)
+    subtitle_text <- sprintf("Sample: %s (%s)  |  Standard: %s\n%s  |  ID: %s  |  %d ppm", 
+                            sample_id, file_name_sample, file_name_standard, ref_row$short_display_name, id, ppm_tolerance)
   }
   
   # Create plot
@@ -246,7 +246,7 @@ pvcd <- function(id,
     geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.8) +
     scale_color_brewer(palette = "Set1") +
     {if (manual_rt_override) {
-      scale_x_continuous(limits = rt_range, expand = expansion(mult = c(0.01, 0.01), add = 0))
+      scale_x_continuous(limits = rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0))
     } else {
       scale_x_continuous(expand = expansion(mult = c(0.05, 0.05), add = 0))
     }} +
@@ -257,10 +257,10 @@ pvcd <- function(id,
       n.breaks = 8
     ) +
     labs(
-      title = sprintf("%s (%s)", ref_row$short_display_name, title_text),
+      title = title_text,
       subtitle = subtitle_text,
       x = "Retention Time (minutes)",
-      y = sprintf("\u2190 Standard Intensity              %s Intensity \u2192", study_label),
+      y = sprintf("\u2190 Standard  |  %s \u2192", study_label),
       color = NULL
     ) +
     coord_cartesian(clip = "off") +
@@ -269,22 +269,24 @@ pvcd <- function(id,
       plot.margin = margin(20, 20, 20, 20),
       plot.background = element_rect(fill = "transparent", color = NA),
       panel.background = element_rect(fill = "transparent", color = NA),
-      legend.position = "top",
-      legend.justification = "center",
-      legend.direction = "horizontal",
-      legend.text = element_text(size = 7.5, face = "plain", family = "Arial"),
+      legend.position = c(0.02, 0.98),
+      legend.justification = c(0, 1),
+      legend.direction = "vertical",
+      legend.text = element_text(size = 6, face = "plain", family = "Arial"),
       legend.title = element_blank(),
       legend.background = element_rect(fill = "transparent", color = NA),
       legend.key = element_rect(fill = "transparent", color = NA),
-      legend.key.size = unit(0.6, "cm"),
-      legend.spacing.x = unit(0.3, "cm"),
-      legend.box.margin = margin(-5, 0, -10, 0),
-      plot.title = element_text(hjust = 0.5, face = "bold", size = 12),
-      plot.subtitle = element_text(hjust = 0.5, face = "italic", size = 8, color = "black", lineheight = 1.2, margin = margin(0, 0, 0, 0)),
-      axis.text.x = element_text(face = "bold", color = "black", size = 10),
-      axis.text.y = element_text(face = "bold", color = "black", size = 10),
-      axis.title.x = element_text(face = "bold", color = "black", size = 12),
-      axis.title.y = element_text(face = "bold", color = "black", size = 12, margin = margin(r = 10)),
+      legend.key.size = unit(0.3, "cm"),
+      legend.key.height = unit(0.3, "cm"),
+      legend.spacing.y = unit(-0.1, "cm"),
+      legend.box.margin = margin(2, 2, 2, 2),
+      legend.margin = margin(2, 2, 2, 2),
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 10, margin = margin(0, 0, 2, 0)),
+      plot.subtitle = element_text(hjust = 0.5, face = "italic", size = 6, color = "black", lineheight = 1.2, margin = margin(0, 0, 10, 0)),
+      axis.text.x = element_text(face = "bold", color = "black", size = 8),
+      axis.text.y = element_text(face = "bold", color = "black", size = 8),
+      axis.title.x = element_text(face = "bold", color = "black", size = 10),
+      axis.title.y = element_text(face = "bold", color = "black", size = 10, margin = margin(r = 10)),
       axis.ticks.length = unit(0.15, "cm"),
       axis.line = element_line(color = "black", linewidth = 0.8),
       axis.ticks = element_line(color = "black", linewidth = 0.8)
@@ -299,19 +301,18 @@ pvcd <- function(id,
                color = "red", linewidth = 1.2)
   }
   
-  # Determine output filename
+  # Save plot to PNG only if png_name is provided
   if (!is.null(png_name)) {
-    # Use custom name provided by user
-    output_filename <- paste0(png_name, ".png")
-  } else {
-    # Use default naming convention
-    sample_replicate <- sub(".*_([0-9]+)$", "\\1", file_name_sample)
-    standard_replicate <- sub(".*_([0-9]+)$", "\\1", file_name_standard)
-    output_filename <- sprintf("%s_%s_%s_std_%s.png", id, sample_id, sample_replicate, standard_replicate)
+    # Ensure filename has .png extension
+    if (!grepl("\\.png$", png_name, ignore.case = TRUE)) {
+      output_filename <- paste0(png_name, ".png")
+    } else {
+      output_filename <- png_name
+    }
+    
+    # Save plot to PNG
+    print_to_png(p, output_filename, width = width, height = height, dpi = 300, output_dir = output_dir)
   }
-  
-  # Save plot to PNG
-  print_to_png(p, output_filename, width = width, height = height, output_dir = output_dir)
   
   return(invisible(p))
 }
