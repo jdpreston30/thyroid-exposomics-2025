@@ -1,10 +1,10 @@
-#* 7: Supplementary Tables
-#+ 7.1: Build Table 1 (with function); export
+#* 10: Supplementary Tables
+#+ 10.1: Build Table 1 (with function); export
 table_1 <- build_table_1(
   data = demographic_table,
   export_path = "Outputs/Tables/T1.xlsx"
 )
-#+ 7.2: Build Table 2 (with function); export
+#+ 10.2: Build Table 2 (with function); export
 table_2 <- build_table_2(
   data = feature_metadata,
   header_col = "Table_Header",
@@ -12,8 +12,8 @@ table_2 <- build_table_2(
   subclass_col = "Table_Subclass",
   export_path = "Outputs/Tables/T2.xlsx"
 )
-#+ 7.3: Build Table 3 (with function); export
-#- 7.3.1: Create table columns and format
+#+ 10.3: Build Table 3 (with function); export
+#- 10.3.1: Create table columns and format
 table_3_tibble <- MT_final |>
   mutate(
     Table_Class = case_when(
@@ -61,19 +61,8 @@ table_3_tibble <- MT_final |>
   mutate(short_name = str_replace(short_name, "NA$", "")) |>
   arrange(p_value) |>
   select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC_let, `FV-PTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value)
-#- 7.3.2: Build Table 3 with function
+#- 10.3.2: Build Table 3 with function
 table_3 <- build_table_3(
   data = table_3_tibble,
   export_path = "Outputs/Tables/T3.xlsx"
 )
-#+ 7.4: ST1- Chemical library (pivoted subid)
-ST1_import
-      #! In excel, then pared down and formatted, but reimporting here to double check the molecular formulas
-#+ 7.7: ST4- Full ppm/ppb table for tumor-cadaver inner join
-ST4 <- ppm_full_table |>
-  select(Name:mean_tumor, mean_FTC, mean_FVPTC, mean_PTC, -c(T001:F20, name_sub_lib_id)) |>
-  mutate(across(half_min:mean_FVPTC, ~ .x * 1000)) |>
-  mutate(across(
-    half_min:mean_PTC,
-    ~ sapply(.x, format_ppb_value)
-  ))

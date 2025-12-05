@@ -1,26 +1,5 @@
-
-#- 6.5.5: Pull actual features out, transpose for graphing
-IARC_comp <- full_joiner |>
-  select(sample_ID, any_of(IARC_tumors_ctrl_filtered)) |>
-  mutate(across(
-    .cols = -c(sample_ID),
-    .fns = ~ {
-      col_min <- min(.x, na.rm = TRUE)
-      replace(.x, is.na(.x), 0.5 * col_min)
-    }
-  )) |>
-  pivot_longer(-sample_ID, names_to = "name_sub_lib_id", values_to = "value") |>
-  pivot_wider(names_from = sample_ID, values_from = value) |>
-  left_join(cas_key_2, by = "name_sub_lib_id") |>
-  left_join(short_name |> select(cas, annot_ident), by = "cas") |>
-  mutate(Name = if_else(
-    annot_ident == "Annotation",
-    paste0(Name, "\u2020"),
-    Name
-  )) |>
-  select(Name, T001:F20)
-#+ 6.6: IARC Stats (ttest on log transformed)
-# ! Data not shown but listed in manuscript results
+#* 9: Tumor v Control IARC Analysis
+#+ 9.1: IARC Stats (ttest on log transformed)
 IARC_ttests <- full_joiner |>
   select(sample_ID, any_of(IARC_tumors_ctrl_filtered)) |>
   mutate(across(
@@ -44,6 +23,18 @@ IARC_ttests <- full_joiner |>
     .groups = "drop"
   ) |>
   arrange(p_value)
-#+ 6.7: Make MT Final with QC
-#---------
-# make mt final with removed if needed
+#+ 9.2: Graph tumor v cadaver IARC1
+#- 9.2.1: Get p-value from IARC_ttests
+toluidine_p <- IARC_ttests |> 
+  filter(chemical == "o-Toluidine_0_BP3.GC2_CP3017") |> 
+  pull(p_value)
+#- 9.2.2: Subset plot data plot
+p3D_data <- full_joiner %>%
+  select(tumor_vs_ctrl, `o-Toluidine_0_BP3.GC2_CP3017`) %>%
+  rename(concentration = `o-Toluidine_0_BP3.GC2_CP3017`)
+#- 9.2.3: Create plot
+{
+source("R/Utilities/Visualization/plot_iarc.R")
+p3D <- plot_iarc(p3D_data, chemical_name = "o-Toluidine", p_value = toluidine_p)
+source("temp3.R")
+}

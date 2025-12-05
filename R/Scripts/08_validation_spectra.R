@@ -68,3 +68,13 @@ s2.5.2 <- pvc_mzx("CP2187", "BL_12082022_011", "BP2-1_1", rt = 18.05, rt_window 
 s3.2.2 <- pvc_mzx("CP3017", "BL_08222024_ThyroidTssue_003", "BP3-1_2", source = "IARC", study = "cadaver", rt = 7.85, rt_window = 0.15, ppm_filter = 1000, png_name = "iarc_cadaver_toluidine_mz")
 #_Tumor
 s3.1.2 <- pvc_mzx("CP3017", "BL_12082022_093", "BP3-1_2", source = "IARC", study = "tumor", rt = 8.2, rt_window = 0.1, ppm_filter = 1000, block_label = "top", png_name = "iarc_tumor_toluidine")
+#+ 8.6: Modify MT_final per validation results
+MT_final <- MT_final_i
+#+ 8.7: Modify cadaver/tumor comparisons by validation results
+cadaver_iarc_keep <- cadaver_iarc |>
+  filter(cas == "95-53-4") |>
+  pull(name_sub_lib_id)
+#- 8.6.2: full_joiner_i
+full_joiner <- full_joiner_i |>
+  select(sample_ID, variant, tumor_vs_ctrl, any_of(cadaver_iarc_keep))
+  
