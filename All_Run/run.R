@@ -14,15 +14,11 @@ source("R/Scripts/05_variant_vis.R")
 source("R/Scripts/06_tumor_cadaver.R")
 source("R/Scripts/07_validation_prep.R")
 source("R/Scripts/08_validation_spectra.R")
+source("R/Scripts/11_render_figures.R")
+source("R/Scripts/12_supplementary_create.R")
+
 source("R/Scripts/09_IARC.R")
 source("R/Scripts/10_tables.R")
-source("R/Scripts/11_render_figures.R")
-# source("R/Scripts/12_supplementary_create.R")
-# source("R/Scripts/03_annotated_bars.R")
-# source("R/Scripts/04_assign_plots.R")
-# source("R/Scripts/05_render_figures.R")
-# source("R/Scripts/06_tables.R")
-# source("R/Scripts/07_data_not_shown.R")
-# source("R/Scripts/08_supporting_info.R")
-# source("R/Scripts/09_session_info.R")
+
 }
+

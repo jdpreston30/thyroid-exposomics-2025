@@ -11,13 +11,14 @@
 -Add Will to author portal file
 -superscript all symnbols in tables 1-3 (esp 3)
 -offload mzml folders from your laptop
+-turn off the line numbers on supplementarycreation 12
 
 
-#- 8.4.2: o-Toluidine
-pvc_rtx("CP3017", "BL_12082022_093", "BP3-1_2", rtr = c(8.05, 8.25),ppm_tolerance = 1000, png_name = "quant_o-Toluidine")
-#- 8.4.3: Cyfluthrin
-pvc_rtx("CP3153", "BL_12082022_021", "BP3-1_1", rtr = c(8.05, 8.25), ppm_tolerance = 1000, png_name = "quant_Cyfluthrin")
-#- 8.4.4: Guthion
-pvc_rtx("CP2002", "BL_12082022_001", "BP2-1_2", rtr = c(15.05, 15.2), ppm_tolerance = 1000, png_name = "quant_Guthion")
-#- 8.4.5: DNOP
-pvc_rtx("CP2187", "BL_12082022_011", "BP2-1_1", rtr = c(17.75, 18.15), ppm_tolerance = 100, png_name = "quant_DNOP")
+
+
+
+
+
+
+
+

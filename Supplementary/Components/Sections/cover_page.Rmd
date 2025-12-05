@@ -2,7 +2,7 @@
 output:
   pdf_document:
     latex_engine: xelatex
-bibliography: "References/suplemental.bib"
+bibliography: "References/supplementary.bib"
 csl: "References/the-lancet.csl"
 header-includes:
   - \usepackage{fontspec}
@@ -11,93 +11,108 @@ header-includes:
   - \usepackage{fancyhdr}
   - \usepackage{setspace}
   - \usepackage{pdflscape}
+  - \usepackage[absolute]{textpos}
+  - \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
   - \setmainfont{Times New Roman}
   - \hyphenpenalty=10000
   - \exhyphenpenalty=10000
   - \pagestyle{fancy}
   - \fancyhf{}
-  - \fancyhead[L]{\fontsize{11}{13}\selectfont\textit{Supplementary Material}}
-  - \fancyhead[R]{\fontsize{11}{13}\selectfont\textit{\rightmark}}
-  - \fancyfoot[C]{\fontsize{11}{13}\selectfont-\thepage-}
+  - \fancyhead[L]{\fontsize{10}{12}\selectfont\textit{Preston et al., Environmental Chemical Burden in Thyroid Tumors}}
+  - \fancyhead[R]{\fontsize{10}{12}\selectfont\textit{\rightmark}}
+  - \fancyfoot[C]{\fontsize{10}{12}\selectfont-\thepage-}
   - \renewcommand{\headrulewidth}{0pt}
   - \renewcommand{\footrulewidth}{0pt}
-  - \renewcommand{\sectionmark}[1]{\markright{#1}}
+  - \renewcommand{\sectionmark}[1]{\markright{\textit{#1}}}
   - \singlespacing
+  - \AtBeginDocument{\fontsize{10}{12}\selectfont}
+  - \raggedright
 ---
 
+\thispagestyle{plain}
+
 \begin{center}
-\textbf{\Large ENVIRONMENTAL CHEMICAL BURDEN IN DIFFERENTIATED THYROID CANCER}
+{\fontsize{14}{16.8}\selectfont\textit{SUPPLEMENTARY MATERIAL FOR:}}
 \end{center}
 
 \begin{center}
-\textbf{\Large SUPPLEMENTARY MATERIAL}
+{\fontsize{14}{16.8}\selectfont\textbf{ENVIRONMENTAL CHEMICAL BURDEN IN DIFFERENTIATED\\[0.5em]THYROID CANCER}}
 \end{center}
 
-\vspace{1em}
+\vspace{0.5em}
 
-Joshua D. Preston^1,2,3^, Yongliang Liang^1^, Thomas Szabo Yamashita^4^, Sami N. Teevy^1^, Jaclyn Weinberg^3,5^, William T. Crandall^3,6^, Zachary R. Jarrell^3^, Xin Hu^3,7^, Susan A. Saley^2^, Jennifer M. Robertson^2^, ViLinh Tran^1^, Ance S. Jackson^2^, Snehal S. Patel^7^, David G. Doherty^8^, Neil D. Gross^9^, Myriam Loyo^2^, David Yu^10^, G. Kenneth Haines^11^, Collin J. Weber^2^, and M. Ryan Smith^1,2^
+Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N. Teeny^3^, Jaclyn Weinberg^3,5^, William J. Crandall^3,5^, Zachery R. Jarrell^3^, Xin Hu^3,6^, Susan A. Safley^4^, Jennifer M. Robertson^7^, ViLinh Tran^3^, Anee S. Jackson^4^, Snehal G. Patel^4^, Collin J. Weber^4^, Jyotirmay Sharma^4^, Neil D. Saunders^4^, Young-Mi Go^3^, Dean P. Jones^3^, and M. Ryan Smith^3,8^
 
-\vspace{1em}
+\vspace{0.5em}
 
-^1^ Nutrition Scientist Training Program, Emory University School of Medicine, Atlanta, GA 30322
+\begingroup
+\fontsize{8}{9.6}\selectfont
+1- Medical Scientist Training Program, Emory University School of Medicine, Atlanta, GA 30322
 
-^2^ Nutritional and Health Sciences, Laney Graduate School, Emory University, Atlanta, GA 30322
+2- Nutrition and Health Sciences, Laney Graduate School, Emory University, Atlanta, GA 30322
 
-^3^ Division of Pulmonary, Allergy, Critical Care and Sleep Medicine, Department of Medicine, Emory University School of Medicine, Atlanta, GA, USA 30322
+3- Division of Pulmonary, Allergy, Critical Care and Sleep Medicine, Department of Medicine, Emory University School of Medicine, Atlanta, GA, USA 30322
 
-^4^ Division of Surgical Oncology, Department of Surgery, Emory University School of Medicine, Atlanta, GA 30322
+4- Division of General and GI Surgery, Department of Surgery, Emory University School of Medicine, Atlanta, GA 30322
 
-^5^ Molecular and Systems Pharmacology, Laney Graduate School, Emory University, Atlanta, GA 30322
+5- Molecular and Systems Pharmacology, Laney Graduate School, Emory University, Atlanta, GA 30322
 
-^6^ Winship Cancer Institute, Emory University, Atlanta, GA 30322
+6- Gangarosa Department of Environmental Health, Rollins School of Public Health, Emory University, Atlanta, GA 30322
 
-^7^ VA Medical Center Southeast System, Atlanta, GA
+7- Winship Cancer Institute, Emory University, Atlanta, GA 30322
 
-\vspace{1em}
+8- VA Healthcare System of Atlanta, Decatur, GA 30033
+\endgroup
 
-\vfill
+\vspace{2em}
 
-# TABLE OF CONTENTS
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{TABLE OF CONTENTS}}
 
-\textbf{EXPANDED METHODS} \dotfill 2 -
+\vspace{0.5em}
 
-\quad \textit{High-Resolution Exposomics} \dotfill 2 -
+\fontsize{10}{11}\selectfont
 
-\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 2 -
+\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 2
 
-\quad \textit{Preprocessing of Exposomics Data} \dotfill 3 -
+\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 3-4
 
-\quad \textit{Metabolic Annotation of Environmental Chemicals} \dotfill 3 -
+\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 5
 
-\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 3 -
+\textbf{EXPANDED METHODS} \dotfill 6-11
 
-\quad \textit{Online Code and Data Repository} \dotfill 4 -
+\quad \textit{High-Resolution Exposomics} \dotfill 6
 
-\quad \textit{Exposome-Wide Association Study} \dotfill 4 -
+\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 6
 
-\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 5 -
+\quad \textit{Preprocessing of Exposomics Data} \dotfill 7
 
-\quad \textit{Quantitative Estimates of Chemical Concentration in Tissues} \dotfill 5 -
+\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 7
 
-\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 7 -
+\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 7
 
-\quad \textit{Computing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 7 -
+\quad \textit{Online Code and Data Repository} \dotfill 8
 
-\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 8 -
+\quad \textit{Exposome-Wide Association Study} \dotfill 8
 
-\textbf{TABLE 2 ABBREVIATED DICTIONARY} \dotfill 9 -
+\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 9
 
-\textbf{SUPPLEMENTARY TABLE 1.} \textit{The full library of xenobiotic chemicals employed for chemical identification} \dotfill 11 -
+\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues} \dotfill 9
 
-\textbf{SUPPLEMENTARY TABLE 2.} \textit{Metadata for all chemicals detected in samples} \dotfill 31 -
+\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 11
 
-\textbf{SUPPLEMENTARY TABLE 3.} \textit{Observed concentrations versus reported literature values} \dotfill 45 -
+\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 11
 
-\textbf{SUPPLEMENTARY TABLE 4.} \textit{Quantitative estimates of chemicals in non-cancer thyroids and tumors} \dotfill 46 -
+\textbf{SUPPLEMENTARY TABLE 1} \dotfill 12-31
 
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 51 -
+\textbf{SUPPLEMENTARY TABLE 2} \dotfill 32-45
 
-\textbf{BIORXIVER PUBLICATION LICENSES} \dotfill 52 -
+\textbf{SUPPLEMENTARY TABLE 3} \dotfill 46
+
+\textbf{SUPPLEMENTARY TABLE 4} \dotfill 47
+
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 48-51
+
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 52
 
 \newpage
 
