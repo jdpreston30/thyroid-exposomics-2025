@@ -465,3 +465,4 @@ rtx <- function(validation_list,
   
   return(invisible(compound_plots))
 }
+
