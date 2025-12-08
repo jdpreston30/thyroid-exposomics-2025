@@ -51,10 +51,13 @@ iarc_cadaver_validation <- rtx(
   plot_height = 3.25,
   rt_lookup = "sample"
 )
-#+ 8.4: List of Validated Chemicals (Variant)
+#+ 8.4: List of Validated Chemicals
+#- 8.4.0: Read in manual validation results
+variant_diff_valid <- read_xlsx("metadata_files/manual_validation.csv", sheet = "variant_diff")
 #- 8.4.1: Construct list of validated chemicals
-
 #- 8.4.2: Construct list of validation graphs to dipslay
 #+ 8.5: List of Validated Chemicals (IARC)
+#- 8.5.0: Read in manual validation results
+iarc_valid <- read_xlsx("metadata_files/manual_validation.csv", sheet = "iarc")
 #- 8.5.1: Construct list of validated chemicals
 #- 8.5.2: Construct list of validation graphs to dipslay
