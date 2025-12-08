@@ -10,6 +10,7 @@
 #' @param mzr Numeric vector c(min, max) for m/z range on x-axis. If NULL (default), calculated from reference table mz0-mz3 values
 #' @param rt Numeric value for target retention time in minutes (REQUIRED)
 #' @param rt_window Numeric value for +/- window around rt in minutes (default: 0.1)
+#' @param display_mode Character string: "avg" (default) to average intensity across RT window, "max" to use maximum intensity
 #' @param ppm_filter Numeric ppm tolerance to filter peaks matching mz0-mz3 from reference table. If NULL (default), shows all peaks
 #' @param block_label Character string: "bottom" (default) places clustered labels below standard spectrum, "top" places them above sample spectrum
 #' @param source Character string: "IARC" or "quant" to resolve which feature to mark with asterisk if multiple exist (default: NULL uses first)
@@ -32,6 +33,7 @@ pvc_mzx <- function(id,
                     mzr = NULL,
                     rt,
                     rt_window = 0.1,
+                    display_mode = "avg",
                     ppm_filter = NULL,
                     block_label = "bottom",
                     source = NULL,
@@ -195,16 +197,31 @@ pvc_mzx <- function(id,
     # Combine all spectra
     combined_spectrum <- do.call(rbind, all_spectra)
     
-    # Average intensities for overlapping m/z values (bin by 0.01 Da)
+    # Aggregate intensities for overlapping m/z values (bin by 0.01 Da)
     combined_spectrum$mz_bin <- round(combined_spectrum$mz, 2)
-    spectrum_data <- combined_spectrum |>
-      group_by(mz_bin) |>
-      summarise(
-        mz = mean(mz),
-        intensity = mean(intensity),
-        .groups = "drop"
-      ) |>
-      select(mz, intensity)
+    
+    # Use display_mode to determine aggregation method
+    if (display_mode == "max") {
+      spectrum_data <- combined_spectrum |>
+        group_by(mz_bin) |>
+        summarise(
+          mz = mean(mz),
+          intensity = max(intensity),
+          .groups = "drop"
+        ) |>
+        select(mz, intensity)
+    } else if (display_mode == "avg") {
+      spectrum_data <- combined_spectrum |>
+        group_by(mz_bin) |>
+        summarise(
+          mz = mean(mz),
+          intensity = mean(intensity),
+          .groups = "drop"
+        ) |>
+        select(mz, intensity)
+    } else {
+      stop("display_mode must be 'avg' or 'max'")
+    }
     
     # Close mzML file
     mzR::close(ms_data)

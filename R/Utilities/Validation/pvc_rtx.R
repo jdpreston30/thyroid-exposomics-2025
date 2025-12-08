@@ -12,7 +12,8 @@
 #' @param selected_features Tibble with columns: source, id, subid, name, tmz, trt, cas (default: selected_gc2_features)
 #' @param source Character string: "IARC" or "quant" to resolve which tmz/trt to use if multiple exist (default: NULL uses first)
 #' @param ppm_tolerance Numeric mass tolerance in ppm (default: 5)
-#' @param rtr Optional numeric vector c(min, max) to override dynamic RT range
+#' @param rtr Optional single RT value (numeric) or RT range vector c(min, max). If single value, rt_window is applied to create range
+#' @param rt_window Numeric buffer to add/subtract from single RT value (default: 10/60 = 0.1667 minutes). Ignored if rtr is a vector
 #' @param standard Logical, whether to include standard plot (default: TRUE). If FALSE, only plots sample chromatogram
 #' @param show_lib_rt Logical, whether to show library RT in subtitle (default: TRUE). If FALSE, omits "Lib RT = X.XX" from subtitle
 #' @param stick Logical, whether to plot as vertical sticks (default: FALSE). If TRUE, uses geom_segment instead of geom_line
@@ -35,6 +36,7 @@ pvc_rtx <- function(id,
                  source = NULL,
                  ppm_tolerance = 5,
                  rtr = NULL,
+                 rt_window = 10/60,
                  standard = TRUE,
                  show_lib_rt = TRUE,
                  stick = FALSE,
@@ -103,7 +105,13 @@ pvc_rtx <- function(id,
   manual_rt_override <- !is.null(rtr)
   
   if (!is.null(rtr)) {
-    rt_range <- rtr
+    # If rtr is a single value, apply rt_window to create range
+    if (length(rtr) == 1) {
+      rt_range <- c(rtr - rt_window, rtr + rt_window)
+    } else {
+      # Use provided range as-is
+      rt_range <- rtr
+    }
   } else {
     # Determine RT range based on study
     rt_range_str <- if (study == "tumor") {

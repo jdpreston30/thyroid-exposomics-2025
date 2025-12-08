@@ -121,7 +121,8 @@ build_validation_table <- function(validate_ids,
       relocate(short_name, .after = id)
   }
   
-  # Add file-specific RT range vectors
+  # Add file-specific RT values and RT range vectors
+  buffer <- 10/60  # Default buffer for rt_window
   validate_wide <- validate_wide_ii |>
     rowwise() |>
     mutate(
@@ -132,8 +133,16 @@ build_validation_table <- function(validate_ids,
       f4_rt = get_rt_range(id, file4, rt_data = rt_data),
       f5_rt = get_rt_range(id, file5, rt_data = rt_data),
       f6_rt = get_rt_range(id, file6, rt_data = rt_data),
-      s1_rt = if (length(standard_files_vec[[1]]) >= 1) get_rt_range(id, standard_files_vec[[1]][1], rt_data = rt_data) else NA_character_,
-      s2_rt = if (length(standard_files_vec[[1]]) >= 2) get_rt_range(id, standard_files_vec[[1]][2], rt_data = rt_data) else NA_character_
+      s1_rt = if (length(standard_files_vec[[1]]) >= 1) get_rt_range(id, standard_files_vec[[1]][1], rt_data = rt_data) else NA_real_,
+      s2_rt = if (length(standard_files_vec[[1]]) >= 2) get_rt_range(id, standard_files_vec[[1]][2], rt_data = rt_data) else NA_real_,
+      f1_rt_range = if (!is.na(f1_rt)) sprintf("c(%.2f, %.2f)", f1_rt - buffer, f1_rt + buffer) else NA_character_,
+      f2_rt_range = if (!is.na(f2_rt)) sprintf("c(%.2f, %.2f)", f2_rt - buffer, f2_rt + buffer) else NA_character_,
+      f3_rt_range = if (!is.na(f3_rt)) sprintf("c(%.2f, %.2f)", f3_rt - buffer, f3_rt + buffer) else NA_character_,
+      f4_rt_range = if (!is.na(f4_rt)) sprintf("c(%.2f, %.2f)", f4_rt - buffer, f4_rt + buffer) else NA_character_,
+      f5_rt_range = if (!is.na(f5_rt)) sprintf("c(%.2f, %.2f)", f5_rt - buffer, f5_rt + buffer) else NA_character_,
+      f6_rt_range = if (!is.na(f6_rt)) sprintf("c(%.2f, %.2f)", f6_rt - buffer, f6_rt + buffer) else NA_character_,
+      s1_rt_range = if (!is.na(s1_rt)) sprintf("c(%.2f, %.2f)", s1_rt - buffer, s1_rt + buffer) else NA_character_,
+      s2_rt_range = if (!is.na(s2_rt)) sprintf("c(%.2f, %.2f)", s2_rt - buffer, s2_rt + buffer) else NA_character_
     ) |>
     ungroup() |>
     select(-standard_files_vec) |>
