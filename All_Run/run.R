@@ -11,7 +11,7 @@ source("R/Scripts/01_demographics.R")
 source("R/Scripts/02_detection.R")
 source("R/Scripts/03_classes.R")
 source("R/Scripts/04_variant_stats.R")
-source("R/Scripts/05_variant_vis.R")
+source("R/Scripts/05_variant_vis_prep.R")
 source("R/Scripts/06_tumor_cadaver.R")
 source("R/Scripts/07_validation_prep.R")
 source("R/Scripts/08_validation_spectra.R")
@@ -22,4 +22,3 @@ source("R/Scripts/12_render_figures.R")
 source("R/Scripts/13_render_supplementary_figures.R")
 source("R/Scripts/14_construct_supplementary.R")
 }
-

@@ -1,7 +1,7 @@
-get_rt_range <- function(id_val, file_name, buffer = 0.25) {
+get_rt_range <- function(id_val, file_name, buffer = 10/60, rt_data = tumor_rt_long) {
   if (is.na(file_name)) return(NA_character_)
   # Look up all id_subid values that match this compound (e.g., CP3017_0, CP3017_1, etc.)
-  rt_val <- tumor_rt_long |>
+  rt_val <- rt_data |>
     filter(grepl(paste0("^", id_val, "_"), id_subid), file == file_name) |>
     pull(rt) |>
     first()

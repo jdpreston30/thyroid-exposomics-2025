@@ -32,7 +32,7 @@ paths:
   # Local database paths (relative - same across computers)
   chemical_metadata: "metadata_files/chemical_metadata.xlsx"
   supplementary_tables_raw: "metadata_files/supplementary_tables_raw.xlsx"
-  gc2_features: "metadata_files/GC2_features.csv"
+  manual_validation: "metadata_files/manual_validation.csv"
   
   # Output paths (relative to project root)
   output: "./Outputs"
