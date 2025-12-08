@@ -12,15 +12,14 @@ library(ggtext)
 #' for each sample/standard combination, compiling them into a single PDF with 
 #' S1/S2 grid layout and labeled plot identifiers.
 #'
-#' @param validation_list Tibble with columns: order, id, short_name, monoisotopic, tumor_rt_range, 
+#' @param validation_list Tibble with columns: order, id, short_name, monoisotopic, compound_rt_range, 
 #'   mz0-mz3, standards (comma-separated), file1-file6, asterisk, f1_rt-f6_rt, s1_rt-s2_rt
 #' @param study Character string: "tumor" or "cadaver" to determine directory (default: "tumor")
 #' @param iterate_through Integer: how many of the top sample files to process (default: 5, dynamic based on sample_top_files list)
 #' @param output_dir Required character string: output directory for final PDF
 #' @param pdf_name Character string: name of output PDF file (default: "validation_spectra.pdf")
 #' @param ppm_tolerance Numeric mass tolerance in ppm (default: 5)
-#' @param rtr Optional numeric vector c(min, max) to override dynamic RT range (default: NULL uses tumor_rt_range from validation_list)
-#' @param rt_lookup Character: "range" uses tumor_rt_range (default), "sample" uses file-specific RT ranges with ±0.5 minute buffer
+#' @param rt_lookup Character: "range" uses compound_rt_range (default), "sample" uses file-specific RT ranges
 #' @param stick Logical, whether to plot as vertical sticks (default: FALSE)
 #' @param max_i Logical, whether to use maximum intensity (default: FALSE)
 #' @param plot_width Plot width in inches (default: 3.9)
@@ -35,7 +34,6 @@ rtx <- function(validation_list,
                  output_dir,
                  pdf_name = "validation_spectra.pdf",
                  ppm_tolerance = 5,
-                 rtr = NULL,
                  rt_lookup = "range",
                  stick = FALSE,
                  max_i = FALSE,
@@ -171,22 +169,16 @@ rtx <- function(validation_list,
     }
     
     # Determine base RT range (used as fallback in "sample" mode or primary in "range" mode)
-    manual_rt_override <- !is.null(rtr)
+    rt_range_str <- row$compound_rt_range
     
-    if (!is.null(rtr)) {
-      base_rt_range <- rtr
-    } else {
-      rt_range_str <- row$tumor_rt_range
-      
-      if (is.na(rt_range_str)) {
-        warning(sprintf("No RT range found for ID '%s' - skipping", id_val))
-        next
-      }
-      
-      # Parse RT range string to numeric vector and expand by 0.2 on both ends
-      base_rt_range <- eval(parse(text = rt_range_str))
-      base_rt_range <- c(base_rt_range[1] - 0.2, base_rt_range[2] + 0.2)
+    if (is.na(rt_range_str)) {
+      warning(sprintf("No RT range found for ID '%s' - skipping", id_val))
+      next
     }
+    
+    # Parse RT range string to numeric vector and expand by 0.2 on both ends
+    base_rt_range <- eval(parse(text = rt_range_str))
+    base_rt_range <- c(base_rt_range[1] - 0.2, base_rt_range[2] + 0.2)
     
     # Parse standards (comma-separated)
     standards <- strsplit(row$standards, ", ")[[1]]
@@ -204,29 +196,28 @@ rtx <- function(validation_list,
       cat(sprintf("  Sample %d/%d: %s\n", sample_idx, length(samples_to_process), sample_file))
       
       # Determine RT range for this sample file
+      sample_rt_range <- base_rt_range  # Default to base range
       if (rt_lookup == "sample") {
         # Look up file-specific RT range
         rt_col_name <- paste0("f", sample_idx, "_rt")
         if (rt_col_name %in% names(row)) {
           rt_range_str <- row[[rt_col_name]]
           if (!is.na(rt_range_str)) {
-            # Parse and apply ±0.5 minute buffer
-            rt_range <- eval(parse(text = rt_range_str))
-            rt_range <- c(rt_range[1] - 0.5, rt_range[2] + 0.5)
+            # Parse the stored RT range (already has buffer from get_rt_range)
+            sample_rt_range <- eval(parse(text = rt_range_str))
+            cat(sprintf("    Using file-specific RT range: [%.2f, %.2f]\n", sample_rt_range[1], sample_rt_range[2]))
           } else {
             warning(sprintf("No RT range for sample %d in ID '%s' - using base range", sample_idx, id_val))
-            rt_range <- base_rt_range
           }
         } else {
           warning(sprintf("Column '%s' not found for ID '%s' - using base range", rt_col_name, id_val))
-          rt_range <- base_rt_range
         }
       } else {
-        rt_range <- base_rt_range
+        cat(sprintf("    Using base RT range: [%.2f, %.2f]\n", sample_rt_range[1], sample_rt_range[2]))
       }
       
       # Extract sample data
-      sample_data <- extract_chromatogram(sample_file, target_mzs, rt_range, ppm_tolerance, max_i)
+      sample_data <- extract_chromatogram(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
       
       if (is.null(sample_data)) {
         warning(sprintf("Skipping sample %s - file not found", sample_file))
@@ -242,11 +233,9 @@ rtx <- function(validation_list,
         
         cat(sprintf("    Standard %d/%d: %s\n", std_idx, length(standards), standard_file))
         
-        # Standards always use base_rt_range (never file-specific)
-        rt_range <- base_rt_range
-        
+        # Standards use the same RT range as the sample for consistent plotting
         # Extract standard data
-        standard_data <- extract_chromatogram(standard_file, target_mzs, rt_range, ppm_tolerance, max_i)
+        standard_data <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
         
         if (is.null(standard_data)) {
           warning(sprintf("Skipping standard %s - file not found", standard_file))
@@ -256,10 +245,10 @@ rtx <- function(validation_list,
         standard_data$type <- "Standard"
         standard_data$plot_intensity <- -standard_data$intensity
         
-        # Determine y-axis limits
+        # Determine y-axis limits (add 5% buffer above max)
         max_sample <- max(abs(sample_data$intensity), na.rm = TRUE)
         max_standard <- max(abs(standard_data$intensity), na.rm = TRUE)
-        y_limit <- max(max_sample, max_standard)
+        y_limit <- max(max_sample, max_standard) * 1.05
         
         # Combine data
         combined_data <- bind_rows(sample_data, standard_data)
@@ -301,13 +290,9 @@ rtx <- function(validation_list,
         
         p <- p +
           scale_color_brewer(palette = "Set1") +
-          {if (manual_rt_override) {
-            scale_x_continuous(limits = rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0))
-          } else {
-            scale_x_continuous(expand = expansion(mult = c(0.05, 0.05), add = 0))
-          }} +
+          scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0)) +
           scale_y_continuous(
-            expand = expansion(mult = c(0.05, 0.05), add = 0),
+            expand = c(0, 0),
             limits = c(-y_limit, y_limit),
             labels = function(x) abs(x),
             n.breaks = 8
@@ -351,7 +336,9 @@ rtx <- function(validation_list,
         
         # Store plot in compound structure with label (for PDF layout)
         plot_label <- sprintf("F%d_S%d", sample_idx, std_idx)
-        plot_tag <- sprintf("F%d_S%d_%s", sample_idx, std_idx, id_val)
+        # Add study prefix (T_ for tumor, C_ for cadaver)
+        study_prefix <- if (study == "cadaver") "C_" else "T_"
+        plot_tag <- sprintf("%sF%d_S%d_%s", study_prefix, sample_idx, std_idx, id_val)
         
         # Store both the plot and metadata for PDF modification
         compound_plots[[id_val]]$plots[[plot_label]] <- list(

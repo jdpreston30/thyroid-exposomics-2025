@@ -16,8 +16,7 @@ wipe hx.txt from history
 - clean pdf tools from renv
 - Delete pvc rtx , pvc rtx multi, pvc mzx if not used
 - Delete/redo gc2_features if no longer using
-
-
+- Specify we didnt do PCBs in IRAC1
 
 
 
