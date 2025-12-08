@@ -201,9 +201,19 @@ ppm_ppb_inclusive <- ppm_raw_ctrl |>
   select(name_sub_lib_id, pct_det_ctrl, pct_det_tumor, mean_ctrl_PPB:mean_FVPTC_PPB) |>
   mutate(across(mean_ctrl_PPB:mean_FVPTC_PPB, ~ .x * 1000)) # convert to ppb
 #- 6.4.6: Join temp table with master table
-MT_final_i <- MTi |>
+MT_final_ii <- MTi |>
   left_join(ppm_ppb_inclusive, by = "name_sub_lib_id") |>
-  select(short_name, cas, mode, annot_ident, p_value, highest, FTC:PTC, FTC_let:PTC_let, Carcinogenicity:GHS_var_diff_only, Potential_EDC, usage_class:Table_Class, pct_det_ctrl:mean_FVPTC_PPB)
+  select(short_name, cas, name_sub_lib_id,subid, mode, annot_ident, p_value, highest, FTC:PTC, FTC_let:PTC_let, Carcinogenicity:GHS_var_diff_only, Potential_EDC, usage_class:Table_Class, pct_det_ctrl:mean_FVPTC_PPB)
+#- 6.4.7: Pull metadata for fragments to IDs
+ID_to_frag_cadaver <- IARC_controls_i |>
+  select(id, name_sub_lib_id)
+ID_to_frag_tumor <- tumor_raw |>
+  select(id, name_sub_lib_id)
+#- 6.4.7: Create initial MT_final_i pending validation
+MT_final_i <- MT_final_ii |>
+  left_join(ID_to_frag_tumor, by = "name_sub_lib_id") |>
+  relocate(id, .after = name_sub_lib_id) |>
+  mutate(id_subid = paste0(id, "_", subid))
 #! Did QC to validate top 5 quant and IARC group 1 detected in both cadaver and tumor
 #+ 6.5: Pull IARC Group 1 Features
 #- 6.5.1: Get the CAS numbers for IARC 1
@@ -215,22 +225,27 @@ IARC_controls <- IARC_controls_i |>
 filter(!is.na(comp)) |>
 filter(pct_NA <= 0.5) |>
 filter(cas %in% iarc_1) |>
-select(pct_NA, name_sub_lib_id, iMean) |>
+select(pct_NA, name_sub_lib_id, id, iMean) |>
 rename(pct_NA_ctrl = pct_NA, iMean_ctrl = iMean)
 #- 6.5.3: Pull the IARC1s in tumors
 IARC_tumors <- IARC_tumors_i |>
   filter(cas %in% iarc_1) |>
   filter(pct_NA <= 0.7) |>
-  select(cas, pct_NA, name, name_sub_lib_id, iMean) |>
+  select(cas, pct_NA, name, name_sub_lib_id, id, iMean) |>
   arrange(name)
 #- 6.5.4: Determine the matches, filter to 30% NA quant, pull features
-IARC_tumors_ctrl_filtered <- IARC_tumors |>
+IARC_tumors_ctrl_filtered_id_frag <- IARC_tumors |>
   left_join(IARC_controls, by = "name_sub_lib_id") |>
-  select(cas, name, name_sub_lib_id, pct_NA, pct_NA_ctrl, iMean, iMean_ctrl) |>
+  select(cas, name, name_sub_lib_id, id = id.x, pct_NA, pct_NA_ctrl, iMean, iMean_ctrl) |>
   filter(!is.na(pct_NA_ctrl)) |>
   group_by(cas) |>
   arrange(pct_NA, pct_NA_ctrl, desc(iMean)) |>
   slice(1) |>
   ungroup() |>
-  filter(pct_NA < 0.3, pct_NA_ctrl < 0.3) |>
+  filter(pct_NA < 0.3, pct_NA_ctrl < 0.3)
+#- 6.5.5: Pull the name_sub_lib_id
+IARC_tumors_ctrl_filtered <- IARC_tumors_ctrl_filtered_id_frag |>
   pull(name_sub_lib_id)
+#- 6.5.5: Pull ID
+IARC_tumors_ctrl_filtered_id <- IARC_tumors_ctrl_filtered_id_frag |>
+  pull(id)

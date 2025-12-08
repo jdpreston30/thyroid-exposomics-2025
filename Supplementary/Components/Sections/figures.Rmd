@@ -9,7 +9,7 @@
 \vspace{0.5em}
 
 \begin{center}
-\includegraphics[width=0.8\textwidth]{Figures/PDF/S1.pdf}
+\includegraphics[width=0.88\textwidth]{Figures/PDF/S1.pdf}
 \end{center}
 
 \newpage
@@ -21,7 +21,7 @@
 \noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of select chemical identifications in thyroid tumor samples.} Mirrored plots comparing sample spectra (top, positive y-axis) to reference standard spectra (bottom, negative y-axis, flipped) for the top five quantitative mode chemicals from figure 3A: (A) 2,6-DCP-4'-NPE, (B) Cyfluthrin, (C) Guthion, (D) o-Toluidine, and (E) DNOP. For each chemical, the left panel shows retention time (RT) chromatograms with extracted ion chromatograms (EIC) for library m/z fragments, while the right panel shows mass spectra extracted within a RT window around the target peak. The Y axis on all plots represents intensity. Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3A. Figures A-C are displayed below and D-E are displayed on the following page.}
 
 \begin{center}
-\includegraphics[width=0.8\textwidth]{Figures/PDF/S2.1.pdf}
+\includegraphics[width=0.88\textwidth]{Figures/PDF/S2.1.pdf}
 \end{center}
 
 \newpage
@@ -33,7 +33,7 @@
 \vspace{0.5em}
 
 \begin{center}
-\includegraphics[width=0.8\textwidth]{Figures/PDF/S2.2.pdf}
+\includegraphics[width=0.88\textwidth]{Figures/PDF/S2.2.pdf}
 \end{center}
 
 \newpage
@@ -45,5 +45,5 @@
 \noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of o-Toluidine in tumor and non-cancer cadaver thyroid tissues.} Mirrored plots comparing sample spectra (top, positive y-axis) to reference standard spectra (bottom, negative y-axis, flipped) for o-Toluidine detected in (A) thyroid tumor tissue and (B) non-cancer cadaver thyroid tissue. Note that tumor and cadaver samples were analyzed in separate batches. For each tissue type, the left panel shows retention time (RT) chromatograms with extracted ion chromatograms (EIC) for library m/z fragments, while the right panel shows mass spectra extracted within a RT window around the target peak. The Y axis on all plots represents intensity. Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3D.}
 
 \begin{center}
-\includegraphics[width=0.8\textwidth]{Figures/PDF/S3.pdf}
+\includegraphics[width=0.88\textwidth]{Figures/PDF/S3.pdf}
 \end{center}

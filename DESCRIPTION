@@ -13,6 +13,7 @@ Imports:
     readr,
     forcats,
     ggplot2,
+    gridExtra,
     ggtext,
     here,
     jsonlite,
