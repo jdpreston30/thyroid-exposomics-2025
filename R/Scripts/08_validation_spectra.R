@@ -9,91 +9,55 @@ file_inventory <- convert_raw_to_mzml(
 )
 #! Function will skip if already completed
 #+ 8.2: Manual Validation (Variant Differences)
-#- 8.2.1: Run RTX
-variant_validation <- rtx(
+#- 8.2.1: Run combined RTX + MZX
+variant_validation <- rtx_mzx(
   validation_list = vv_wide,
   study = "tumor",
   iterate_through = 6,
   output_dir = "Outputs/Validation",
-  pdf_name = "tumor_spectra.pdf",
+  pdf_name = "tumor_validation.pdf",
   ppm_tolerance = 5,
+  rt_tolerance = 10/60,
+  rt_lookup = "sample",
+  display_mode = "max",
   stick = FALSE,
   max_i = FALSE,
   plot_width = 3.9,
-  plot_height = 3.25,
-  rt_lookup = "sample"
-)
-#- 8.2.2: Run MZX
-variant_validation_mzx <- mzx(
-  validation_list = vv_wide,
-  study = "tumor",
-  iterate_through = 6,
-  output_dir = "Outputs/Validation",
-  pdf_name = "tumor_spectra_mzx.pdf",
-  ppm_filter = 5,
-  display_mode = "max",
-  block_label = "bottom",
-  plot_width = 3.9,
-  plot_height = 3.25,
-  rt_lookup = "sample"
+  plot_height = 3.25
 )
 #+ 8.3: IARC Chemicals Validation (Tumor)
-#- 8.3.1: Run RTX
-iarc_tumor_validation <- rtx(
+#- 8.3.1: Run combined RTX + MZX
+iarc_tumor_validation <- rtx_mzx(
   validation_list = iv_wide,
   study = "tumor",
   iterate_through = 6,
   output_dir = "Outputs/Validation",
-  pdf_name = "iarc_tumor_spectra.pdf",
+  pdf_name = "iarc_tumor_validation.pdf",
   ppm_tolerance = 5,
+  rt_tolerance = 10/60,
+  rt_lookup = "sample",
+  display_mode = "max",
   stick = FALSE,
   max_i = FALSE,
   plot_width = 3.9,
-  plot_height = 3.25,
-  rt_lookup = "sample"
-)
-#- 8.3.2: Run MZX
-iarc_tumor_validation_mzx <- mzx(
-  validation_list = iv_wide,
-  study = "tumor",
-  iterate_through = 6,
-  output_dir = "Outputs/Validation",
-  pdf_name = "iarc_tumor_spectra_mzx.pdf",
-  ppm_filter = 5,
-  display_mode = "max",
-  block_label = "bottom",
-  plot_width = 3.9,
-  plot_height = 3.25,
-  rt_lookup = "sample"
+  plot_height = 3.25
 )
 #+ 8.4: IARC Chemicals Validation (Cadaver)
-#- 8.4.1: Run RTX
-iarc_cadaver_validation <- rtx(
+#- 8.4.1: Run combined RTX + MZX
+iarc_cadaver_validation <- rtx_mzx(
   validation_list = ic_wide,
   study = "cadaver",
   iterate_through = 6,
   output_dir = "Outputs/Validation",
-  pdf_name = "iarc_cadaver_spectra.pdf",
+  pdf_name = "iarc_cadaver_validation.pdf",
   ppm_tolerance = 5,
+  rt_tolerance = 10/60,
+  rt_lookup = "sample",
+  display_mode = "max",
   stick = FALSE,
   max_i = FALSE,
   plot_width = 3.9,
-  plot_height = 3.25,
-  rt_lookup = "sample"
-)
-#- 8.4.2: Run MZX
-iarc_cadaver_validation_mzx <- mzx(
-  validation_list = ic_wide,
-  study = "cadaver",
-  iterate_through = 6,
-  output_dir = "Outputs/Validation",
-  pdf_name = "iarc_cadaver_spectra_mzx.pdf",
-  ppm_filter = 5,
-  display_mode = "max",
-  block_label = "bottom",
-  plot_width = 3.9,
-  plot_height = 3.25,
-  rt_lookup = "sample"
+  plot_height = 3.25
 )
 #+ 8.5: List of Validated Chemicals
 #- 8.5.0: Read in manual validation results
