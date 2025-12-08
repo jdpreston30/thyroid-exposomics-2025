@@ -2,6 +2,11 @@
 output:
   pdf_document:
     latex_engine: xelatex
+geometry:
+  - margin=0.5in
+  - headheight=14pt
+  - headsep=0.15in
+  - footskip=12pt
 bibliography: "References/supplementary.bib"
 csl: "References/the-lancet.csl"
 header-includes:

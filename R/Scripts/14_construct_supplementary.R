@@ -1,7 +1,7 @@
 #* 14: Construct Supplementary Material PDF
 #+ 14.1: Configuration
 #- 14.1.1: Set line numbering (TRUE to enable, FALSE to disable)
-add_line_numbers <- TRUE
+add_line_numbers <- FALSE
 #+ 14.2: Read Component Files
 #- 14.2.1: Define paths to all component files
 components_dir <- here::here("Supplementary", "Components")

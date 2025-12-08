@@ -24,6 +24,10 @@ paths:
   # Raw MS data directories for spectral validation
   tumor_raw_dir: "{base_data_path}/Tumors/GC080_GC1_M524_Thyroid_Tissue_12082022"
   cadaver_raw_dir: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024/ThyroidTissue_08222024"
+  
+  # PeakWalk data directories
+  peakwalk_tumor_dir: "{base_data_path}/PeakWalk_12_5_24/Tumors"
+  peakwalk_cadaver_dir: "{base_data_path}/PeakWalk_12_5_24/Cadaver"
 
   # Local database paths (relative - same across computers)
   chemical_metadata: "metadata_files/chemical_metadata.xlsx"

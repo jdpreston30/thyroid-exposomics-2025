@@ -265,16 +265,17 @@ balloon_data_graph <- balloon_data |>
     usage_class = factor(usage_class, levels = usage_class_order)
   )
 #+ 5.5: Carcinogen class per GHS+IARC
-#- 5.5.1: Apply classification function
+#- 5.5.1: Apply classification function; add back subids
 MTi <- MTii |>
   mutate(
     Carcinogenicity = mapply(
       classify_carcinogenicity,
       ghs = GHS_var_diff_only,
       iarc = IARC_Group
-    )
+    ),
+    subid = as.numeric(sub("^[^_]+_([0-9]+)_.*", "\\1", name_sub_lib_id))
   ) |>
-  select(short_name, highest, Carcinogenicity, IARC_Group, GHS_var_diff_only, everything()) |>
+  select(short_name, highest, Carcinogenicity, IARC_Group, GHS_var_diff_only, name_sub_lib_id, subid, everything()) |>
   arrange(Carcinogenicity)
 #- 5.5.2: Leftjoin and summarize
 carc_by_variant <- MTi |>
