@@ -255,14 +255,17 @@ rtx_mzx <- function(validation_list,
       
       if (rt_lookup == "sample") {
         rt_col_name <- paste0("f", sample_idx, "_rt")
-        if (rt_col_name %in% names(row)) {
-          rt_range_str <- row[[rt_col_name]]
-          if (!is.na(rt_range_str)) {
-            sample_rt_range <- eval(parse(text = rt_range_str))
-            sample_rt <- mean(sample_rt_range)
-            cat(sprintf("    Using file-specific RT: %.3f min, range: [%.2f, %.2f]\n", 
-                        sample_rt, sample_rt_range[1], sample_rt_range[2]))
-          }
+        rt_range_col_name <- paste0("f", sample_idx, "_rt_range")
+        
+        if (rt_col_name %in% names(row) && !is.na(row[[rt_col_name]])) {
+          sample_rt <- row[[rt_col_name]]
+        }
+        
+        if (rt_range_col_name %in% names(row) && !is.na(row[[rt_range_col_name]])) {
+          rt_range_str <- row[[rt_range_col_name]]
+          sample_rt_range <- eval(parse(text = rt_range_str))
+          cat(sprintf("    Using file-specific RT: %.3f min, range: [%.2f, %.2f]\n", 
+                      sample_rt, sample_rt_range[1], sample_rt_range[2]))
         }
       }
       
@@ -308,6 +311,16 @@ rtx_mzx <- function(validation_list,
         y_limit_chrom <- max(max_sample_chrom, max_standard_chrom) * 1.05
         
         combined_chrom <- bind_rows(sample_chrom, standard_chrom)
+        
+        # Filter to only rows with non-zero intensity (detected fragments)
+        combined_chrom <- combined_chrom |>
+          filter(intensity > 0)
+        
+        if (nrow(combined_chrom) == 0) {
+          warning(sprintf("No fragments detected for %s in %s vs %s", id_val, sample_file, standard_file))
+          next
+        }
+        
         combined_chrom$mz_label <- sprintf("mz%d: %.4f", combined_chrom$mz_index, combined_chrom$mz)
         
         # Add asterisks
@@ -336,7 +349,7 @@ rtx_mzx <- function(validation_list,
         }
         
         p_rtx <- p_rtx +
-          scale_color_brewer(palette = "Set1") +
+          scale_color_viridis_d(option = "turbo", end = 0.9) +
           scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0)) +
           scale_y_continuous(
             expand = c(0, 0),
@@ -388,6 +401,16 @@ rtx_mzx <- function(validation_list,
         y_limit_spec <- max(max_sample_spec, max_standard_spec) * 1.05
         
         combined_spec <- bind_rows(sample_spec, standard_spec)
+        
+        # Filter to only rows with non-zero intensity (detected fragments)
+        combined_spec <- combined_spec |>
+          filter(intensity > 0)
+        
+        if (nrow(combined_spec) == 0) {
+          warning(sprintf("No fragments detected in spectrum for %s in %s vs %s", id_val, sample_file, standard_file))
+          next
+        }
+        
         combined_spec$mz_label <- sprintf("mz%d: %.4f", combined_spec$mz_index, combined_spec$target_mz)
         
         # Add asterisks
@@ -406,7 +429,7 @@ rtx_mzx <- function(validation_list,
         p_mzx <- ggplot(combined_spec, aes(x = mz, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
           geom_segment(aes(xend = mz, yend = 0), linewidth = 0.4) +
           geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4) +
-          scale_color_brewer(palette = "Set1") +
+          scale_color_viridis_d(option = "turbo", end = 0.9) +
           scale_x_continuous(expand = expansion(mult = c(0.05, 0.05), add = 0)) +
           scale_y_continuous(
             expand = c(0, 0),
