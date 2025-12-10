@@ -33,6 +33,8 @@ paths:
   chemical_metadata: "metadata_files/chemical_metadata.xlsx"
   supplementary_tables_raw: "metadata_files/supplementary_tables_raw.xlsx"
   manual_validation: "metadata_files/manual_validation.csv"
+  gc2_features: "metadata_files/GC2_features.csv"
+  variant_validation: "{user_home}/{onedrive_path}/Research/Manuscripts and Projects/Active Projects/Thyroid Exposomics Paper/MANUSCRIPT SUBMISSIONS/Thyroid Lancet/variant_validation.xlsx"
   
   # Output paths (relative to project root)
   output: "./Outputs"
