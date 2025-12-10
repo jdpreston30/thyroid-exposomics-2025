@@ -1,0 +1,79 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# R
+.Rhistory
+.RData
+.Rproj.user
+.Rapp.history
+*_cache/
+/cache
+*.utf8.md
+*.knit.md
+.Renviron
+
+# RStudio
+.Rproj.user/
+
+# renv
+renv/library/
+renv/local/
+renv/staging/
+
+# Outputs (if not tracking)
+*.pdf
+*.png
+*.svg
+*.html
+
+# Temporary files
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Data files (adjust as needed)
+*.csv.gz
+*.xlsx~
+~$*.xlsx
+
+# System files
+.fuse_hidden*
