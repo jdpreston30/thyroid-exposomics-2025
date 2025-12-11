@@ -10,66 +10,39 @@ file_inventory <- convert_raw_to_mzml(
 #! Function will skip if already completed
 #+ 8.2: Manual Validation (on 4-fragment versions)
 #- 8.2.1: Variant Differences Chemicals
-variant_validation <- rtx_mzx(
-  validation_list = vv_wide_i,
-  study = "tumor",
+variant_rtx <- rtx(
+  validation_list = vv_wide,
   iterate_through = 6,
-  output_dir = "Outputs/Validation/4_fragment",
-  pdf_name = "tumor_validation.pdf",
-  ppm_tolerance = 5,
-  rt_tolerance = 10/60,
-  rt_lookup = "sample",
-  display_mode = "avg",
-  stick = FALSE,
-  max_i = FALSE,
-  plot_width = 3.9,
-  plot_height = 3.25
+  output_dir = "Outputs/Validation/",
+  pdf_name = "variant_rtx.pdf",
+  rt_lookup = "sample"
 )
 #- 8.2.2: IARC Tumor
-iarc_tumor_validation <- rtx_mzx(
-  validation_list = iv_wide_i,
-  study = "tumor",
+iarc_tumor_rtx <- rtx(
+  validation_list = iv_wide,
   iterate_through = 6,
-  output_dir = "Outputs/Validation/4_fragment",
-  pdf_name = "iarc_tumor_validation.pdf",
-  ppm_tolerance = 5,
-  rt_tolerance = 10/60,
-  rt_lookup = "sample",
-  display_mode = "max",
-  stick = FALSE,
-  max_i = FALSE,
-  plot_width = 3.9,
-  plot_height = 3.25
+  output_dir = "Outputs/Validation",
+  pdf_name = "iarc_tumor_rtx.pdf",
+  rt_lookup = "sample"
 )
 #- 8.2.3: IARC Cadaver
-iarc_cadaver_validation <- rtx_mzx(
-  validation_list = ic_wide_i,
+iarc_cadaver_rtx <- rtx(
+  validation_list = ic_wide,
   study = "cadaver",
-  iterate_through = 6,
-  output_dir = "Outputs/Validation/4_fragment",
-  pdf_name = "iarc_cadaver_validation.pdf",
-  ppm_tolerance = 5,
-  rt_tolerance = 10/60,
-  rt_lookup = "sample",
-  display_mode = "max",
-  stick = FALSE,
-  max_i = FALSE,
-  plot_width = 3.9,
-  plot_height = 3.25
+  iterate_through = 7,
+  output_dir = "Outputs/Validation",
+  pdf_name = "iarc_cadaver_rtx.pdf",
+  rt_lookup = "sample"
 )
 #+ 8.3: 
-validation_check
-
 
 
 #!!!!!!!!!!!!!
 #+ 8.5: List of Validated Chemicals
 #- 8.5.0: Read in manual validation results
-variant_diff_valid <- read_xlsx("metadata_files/manual_validation.csv", sheet = "variant_diff")
 #- 8.5.1: Construct list of validated chemicals
 #- 8.5.2: Construct list of validation graphs to dipslay
 #+ 8.6: List of Validated Chemicals (IARC)
 #- 8.6.0: Read in manual validation results
-iarc_valid <- read_xlsx("metadata_files/manual_validation.csv", sheet = "iarc")
 #- 8.6.1: Construct list of validated chemicals
 #- 8.6.2: Construct list of validation graphs to dipslay
