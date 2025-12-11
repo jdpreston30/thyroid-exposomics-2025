@@ -13,7 +13,7 @@ file_inventory <- convert_raw_to_mzml(
 rtx(
   validation_list = vv_wide,
   iterate_through = 6,
-  output_dir = "Outputs/Validation/",
+  output_dir = "Outputs/Validation/initial_compile",
   pdf_name = "variant_rtx.pdf",
   rt_lookup = "sample",
   save_rds = TRUE,
@@ -26,7 +26,7 @@ rtx(
 rtx(
   validation_list = iv_wide,
   iterate_through = 6,
-  output_dir = "Outputs/Validation",
+  output_dir = "Outputs/Validation/initial_compile",
   pdf_name = "iarc_tumor_rtx.pdf",
   rt_lookup = "sample",
   save_rds = TRUE,
@@ -40,7 +40,7 @@ rtx(
   validation_list = ic_wide,
   study = "cadaver",
   iterate_through = 7,
-  output_dir = "Outputs/Validation",
+  output_dir = "Outputs/Validation/initial_compile",
   pdf_name = "iarc_cadaver_rtx.pdf",
   rt_lookup = "sample",
   save_rds = TRUE,
@@ -49,40 +49,19 @@ rtx(
   use_parallel = TRUE,
   n_cores = 8
 )
-#+ 8.3: Manually examine problematic plots
+#+ 8.3: Manually copy over raw validation plots to repo
 #- 8.3.0: Read in manual validation results
-validation_check_files <- validation_check |>
+raw_validation_files <- validation_check |>
   filter(!state %in% c("failed", "not used")) |>
   mutate(rt_range = (rtu-rtl)/2) |>
   select(-c(to_do, note, rtl, rtu)) |>
   arrange(order)
-#- 8.3.1: Pull all those files to repo
+#- 8.3.1: Pull all those files to repo (skip if already present)
 copy_raw_validation_plots(
-  validation_curated = validation_check_files,
+  validation_curated = raw_validation_files,
   config = config,
   output_dir = config$paths$validation_plots_raw
 )
-#- 8.3.1: Set vector of problematic plots
-problematic_ids <- c("CP2382", "CP3007", "CP2486", "CP2212", "CP1090", "CP3113", 
-                     "CP3193", "CP3182", "CP3148", "CP2365", "CP3174", "CP3017", 
-                     "CP3021", "CP2487", "CP1016", "CP2107", "CP3066")
-#- 8.3.0: Read in manual validation results
-validation_check_curate <- validation_check |>
-  filter(state == "final") |>
-  mutate(rt_range = (rtu-rtl)/2) |>
-  select(-c(to_do, note, rtl, rtu)) |>
-  arrange(order)
-#- 8.3.2: Set vector of problematic plots
-validation_check_problems <- validation_check |>
-  filter(id %in% problematic_ids)
-copy_raw_validation_plots(
-  validation_curated = validation_check_curate,
-  config = config,
-  output_dir = config$paths$validation_plots_raw
-)
-#+ 8.4: Bring in and make copies of validation plots, change x axis
-
-
 #- 8.3.2: Read all copied RDS files into a single object
 rds_dir <- config$paths$validation_plots_raw
 rds_files <- list.files(rds_dir, pattern = "\\.rds$", full.names = TRUE)
@@ -96,19 +75,57 @@ for (rds_file in rds_files) {
   validation_plots[[plot_tag]] <- plot_data
   cat(sprintf("  Loaded: %s\n", plot_tag))
 }
-#- 8.3.3: Adjust x-axis RT ranges for each plot
-source("R/Utilities/Validation/adjust_validation_plot_ranges.R")
+#- 8.3.2: Modify x-axis ranges for validation plots
 validation_plots_adjusted <- adjust_validation_plot_ranges(
   validation_plots = validation_plots,
-  validation_curated = validation_check_curate
+  validation_curated = raw_validation_files
 )
+#- 8.3.3: Make vector of plots to adjust
+adjust_ids <- c("CP2382", "CP3007", "CP2486", "CP2212", "CP1090", "CP3113", 
+                     "CP3193", "CP3182", "CP3148", "CP2365", "CP3174", "CP3017", 
+                     "CP3021", "CP2487", "CP2107", "CP3066")
+#- 8.3.4: Pull all plots for each ID into separate lists
+aps <- list()
+for (id in adjust_ids) {
+  id_plots <- validation_plots_adjusted[grepl(paste0("_", id, "$"), names(validation_plots_adjusted))]
+  if (length(id_plots) > 0) {
+    aps[[id]] <- id_plots
+    cat(sprintf("Pulled %d plots for %s\n", length(id_plots), id))
+  }
+}
+#+ 8.4: Manual edits for problematic plots
+#- 8.4.1: MEHP (CP2382)
+aps$CP2382
+#- 8.4.2: MDA (CP3007)
+aps$CP3007
+#- 8.4.3: Molinate (CP2486)
+aps$CP2486
+#- 8.4.4: 2-Nitroaniline (CP2212)
+aps$CP2212
+#- 8.4.5: Methoxychlor (CP1090)
+aps$CP1090
+#- 8.4.6: Atrazine (CP3113)
+aps$CP3113
+#- 8.4.7: N-MeFOSAA (CP3193)
+aps$CP3193
+#- 8.4.8: TEEP (CP3182)
+aps$CP3182
+#- 8.4.9: Menthone (CP3148)
+aps$CP3148
+#- 8.4.10: Prosulfuron (CP2365)
+aps$CP2365
+#- 8.4.11: Resmethrin (CP3174)
+aps$CP3174
+#- 8.4.12: o-Toluidine (CP3017)
+aps$CP3017
+#- 8.4.13: o-Anisidine (CP3021)
+aps$CP3021
+#- 8.4.14: Vernolate (CP2487)
+aps$CP2487
+#- 8.4.16: Bupirimate (CP2107)
+aps$CP2107
+#- 8.4.17: o-Cresol (CP3066)
+aps$CP3066
 
-#!!!!!!!!!!!!!
-#+ 8.5: List of Validated Chemicals
-#- 8.5.0: Read in manual validation results
-#- 8.5.1: Construct list of validated chemicals
-#- 8.5.2: Construct list of validation graphs to dipslay
-#+ 8.6: List of Validated Chemicals (IARC)
-#- 8.6.0: Read in manual validation results
-#- 8.6.1: Construct list of validated chemicals
-#- 8.6.2: Construct list of validation graphs to dipslay
+#+ 8.5: Create individual fragment plots
+#- 8.5.1: CP2487 (Vernolate) - separate fragments
