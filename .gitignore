@@ -68,3 +68,8 @@ renv/staging/
 
 # System files
 .fuse_hidden*
+
+# Validation RDS files
+Outputs/Validation/RDS/variant_rtx/
+Outputs/Validation/RDS/iarc_tumor_rtx/
+Outputs/Validation/RDS/iarc_cadaver_rtx/

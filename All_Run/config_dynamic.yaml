@@ -20,7 +20,8 @@ paths:
   # Specific file paths (built from base)
   clinical_metadata: "{base_data_path}/Manifest.xlsx"
   primary_data: "{base_data_path}/primary_data.xlsx"
-  
+  validation_plot_directory: "{base_data_path}/validation_plots"
+
   # Raw MS data directories for spectral validation
   tumor_raw_dir: "{base_data_path}/Tumors/GC080_GC1_M524_Thyroid_Tissue_12082022"
   cadaver_raw_dir: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024/ThyroidTissue_08222024"
@@ -34,11 +35,13 @@ paths:
   supplementary_tables_raw: "metadata_files/supplementary_tables_raw.xlsx"
   manual_validation: "metadata_files/manual_validation.csv"
   gc2_features: "metadata_files/GC2_features.csv"
-  variant_validation: "{user_home}/{onedrive_path}/Research/Manuscripts and Projects/Active Projects/Thyroid Exposomics Paper/MANUSCRIPT SUBMISSIONS/Thyroid Lancet/variant_validation.xlsx"
+  gc2_expanded: metadata_files/expanded_GC2.csv
+  variant_validation: "metadata_files/variant_validation.xlsx"
   
   # Output paths (relative to project root)
   output: "./Outputs"
   figures: "{figures_path}"
+  validation_plots_raw: "Outputs/Validation/ggplot_objects_raw"
   
   # Script and utility paths
   scripts: "R/Scripts/"

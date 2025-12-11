@@ -60,7 +60,7 @@ file_list <- read_excel(config$paths$primary_data, sheet = "file_list") |>
 #- 0d.1.13: Import GC2 feature list
 GC2_features <- read_csv(config$paths$gc2_features)
 #- 0d.1.14: Import expanded library
-expanded_lib <- read_xlsx(config$paths$variant_validation, sheet = "expanded")
+expanded_lib <- read_csv(config$paths$gc2_expanded)
 #- 0d.1.15: Validation
 validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
 #+ 0d.2: Structure data
