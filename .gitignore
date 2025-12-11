@@ -51,11 +51,6 @@ renv/library/
 renv/local/
 renv/staging/
 
-# Outputs (if not tracking)
-*.pdf
-*.png
-*.svg
-*.html
 
 # Temporary files
 *~
@@ -70,10 +65,6 @@ renv/staging/
 .idea/
 *.iml
 
-# Data files (adjust as needed)
-*.csv.gz
-*.xlsx~
-~$*.xlsx
 
 # System files
 .fuse_hidden*
