@@ -6,42 +6,34 @@ library(gridExtra)
 library(grid)
 library(ggtext)
 
-#' Combined Batch Validation: Chromatogram + Spectrum PDF Generator
+#' Batch RTX Validation: Chromatogram PDF Generator
 #'
-#' Creates side-by-side plots of RT chromatograms (left) and m/z spectra (right)
-#' for each sample/standard combination, compiling them into a single PDF.
+#' Creates retention time chromatogram plots comparing sample vs standard,
+#' compiling them into a single PDF with 6 plots per page (3 rows x 2 columns).
 #'
 #' @param validation_list Tibble with columns: order, id, short_name, monoisotopic, compound_rt_range, 
-#'   mz0-mz3, standards (comma-separated), file1-file6, asterisk, f1_rt-f6_rt, s1_rt-s2_rt
+#'   mz0-mz3, standards (comma-separated), file1-file6, asterisk, f1_rt_range-f6_rt_range
 #' @param study Character string: "tumor" or "cadaver" to determine directory (default: "tumor")
 #' @param iterate_through Integer: how many of the top sample files to process (default: 5)
 #' @param output_dir Required character string: output directory for final PDF
-#' @param pdf_name Character string: name of output PDF file (default: "validation_combined.pdf")
-#' @param ppm_tolerance Numeric mass tolerance in ppm for both RTX and MZX (default: 5)
-#' @param rt_tolerance Numeric: RT window in minutes for MZX spectrum extraction (default: 0.1667 = 10 seconds)
+#' @param pdf_name Character string: name of output PDF file (default: "rtx_validation.pdf")
+#' @param ppm_tolerance Numeric mass tolerance in ppm (default: 5)
 #' @param rt_lookup Character: "range" uses compound_rt_range (default), "sample" uses file-specific RT ranges
-#' @param display_mode Character: "max" uses maximum intensity in RT window, "avg" uses average (default: "max")
-#' @param stick Logical, whether to plot RTX as vertical sticks (default: FALSE)
-#' @param max_i Logical, whether to use maximum intensity for RTX (default: FALSE)
-#' @param plot_width Plot width in inches (default: 3.9)
-#' @param plot_height Plot height in inches (default: 3.25)
+#' @param stick Logical, whether to plot as vertical sticks (default: FALSE)
+#' @param max_i Logical, whether to use maximum intensity (default: FALSE)
 #'
 #' @return Named list of all plots (invisibly)
 #'
 #' @export
-rtx_mzx <- function(validation_list,
-                    study = "tumor",
-                    iterate_through = 5,
-                    output_dir,
-                    pdf_name = "validation_combined.pdf",
-                    ppm_tolerance = 5,
-                    rt_tolerance = 10/60,
-                    rt_lookup = "range",
-                    display_mode = "max",
-                    stick = FALSE,
-                    max_i = FALSE,
-                    plot_width = 3.9,
-                    plot_height = 3.25) {
+rtx <- function(validation_list,
+                study = "tumor",
+                iterate_through = 5,
+                output_dir,
+                pdf_name = "rtx_validation.pdf",
+                ppm_tolerance = 5,
+                rt_lookup = "range",
+                stick = FALSE,
+                max_i = FALSE) {
   
   # Check required parameter
   if (missing(output_dir)) {
@@ -55,10 +47,6 @@ rtx_mzx <- function(validation_list,
   
   if (!rt_lookup %in% c("range", "sample")) {
     stop("rt_lookup must be either 'range' or 'sample'")
-  }
-  
-  if (!display_mode %in% c("max", "avg")) {
-    stop("display_mode must be either 'max' or 'avg'")
   }
   
   # Get directory paths from config
@@ -76,7 +64,7 @@ rtx_mzx <- function(validation_list,
   
   mzml_dir <- file.path(raw_dir, "mzML_validation")
   
-  # Helper function to extract chromatogram data (for RTX)
+  # Helper function to extract chromatogram data
   extract_chromatogram <- function(file_name, target_mzs, rt_range, ppm_tol, use_max) {
     mzml_file <- paste0(file_name, ".mzML")
     mzml_path <- file.path(mzml_dir, mzml_file)
@@ -130,71 +118,11 @@ rtx_mzx <- function(validation_list,
     return(chromatogram_data)
   }
   
-  # Helper function to extract spectrum at RT (for MZX)
-  extract_spectrum_at_rt <- function(file_name, target_rt, rt_tol, target_mzs, ppm_filter, display_mode) {
-    mzml_file <- paste0(file_name, ".mzML")
-    mzml_path <- file.path(mzml_dir, mzml_file)
-    
-    if (!file.exists(mzml_path)) {
-      warning(sprintf("mzML file not found: %s - skipping", mzml_path))
-      return(NULL)
-    }
-    
-    ms_data <- mzR::openMSfile(mzml_path)
-    header_info <- mzR::header(ms_data)
-    
-    ms1_scans <- header_info[header_info$msLevel == 1, ]
-    rt_window <- c((target_rt - rt_tol) * 60, (target_rt + rt_tol) * 60)
-    scans_in_window <- ms1_scans[ms1_scans$retentionTime >= rt_window[1] & 
-                                   ms1_scans$retentionTime <= rt_window[2], ]
-    
-    if (nrow(scans_in_window) == 0) {
-      warning(sprintf("No scans found in RT window [%.3f, %.3f] for %s", 
-                      target_rt - rt_tol, target_rt + rt_tol, file_name))
-      mzR::close(ms_data)
-      return(NULL)
-    }
-    
-    all_spectra <- lapply(scans_in_window$seqNum, function(scan_num) {
-      mzR::peaks(ms_data, scan_num)
-    })
-    
-    combined_mz <- unlist(lapply(all_spectra, function(s) s[, 1]))
-    combined_intensity <- unlist(lapply(all_spectra, function(s) s[, 2]))
-    
-    if (display_mode == "max") {
-      spectrum_df <- data.frame(mz = combined_mz, intensity = combined_intensity) |>
-        group_by(mz = round(mz, 4)) |>
-        summarize(intensity = max(intensity), .groups = "drop")
-    } else {
-      spectrum_df <- data.frame(mz = combined_mz, intensity = combined_intensity) |>
-        group_by(mz = round(mz, 4)) |>
-        summarize(intensity = mean(intensity), .groups = "drop")
-    }
-    
-    filtered_spectrum <- do.call(rbind, lapply(seq_along(target_mzs), function(i) {
-      target_mz <- target_mzs[i]
-      mz_window <- target_mz * ppm_filter / 1e6
-      mz_range <- c(target_mz - mz_window, target_mz + mz_window)
-      
-      in_range <- spectrum_df$mz >= mz_range[1] & spectrum_df$mz <= mz_range[2]
-      if (sum(in_range) == 0) return(NULL)
-      
-      df <- spectrum_df[in_range, ]
-      df$mz_index <- i - 1
-      df$target_mz <- target_mz
-      df
-    }))
-    
-    mzR::close(ms_data)
-    return(filtered_spectrum)
-  }
-  
   # Initialize plot storage
   compound_plots <- list()
   
   # Main iteration loop
-  cat(sprintf("\nStarting combined RTX+MZX validation for %d compounds...\n", nrow(validation_list)))
+  cat(sprintf("\nStarting RTX validation for %d compounds...\n", nrow(validation_list)))
   
   for (row_idx in 1:nrow(validation_list)) {
     row <- validation_list[row_idx, ]
@@ -224,7 +152,7 @@ rtx_mzx <- function(validation_list,
       next
     }
     
-    # Get base RT range and RT
+    # Get base RT range
     rt_range_str <- row$compound_rt_range
     if (is.na(rt_range_str)) {
       warning(sprintf("No RT range found for ID '%s' - skipping", id_val))
@@ -233,7 +161,6 @@ rtx_mzx <- function(validation_list,
     
     base_rt_range <- eval(parse(text = rt_range_str))
     base_rt_range_expanded <- c(base_rt_range[1] - 0.2, base_rt_range[2] + 0.2)
-    base_rt <- mean(base_rt_range)
     
     # Parse standards
     standards <- strsplit(row$standards, ", ")[[1]]
@@ -249,31 +176,23 @@ rtx_mzx <- function(validation_list,
       
       cat(sprintf("  Sample %d/%d: %s\n", sample_idx, length(samples_to_process), sample_file))
       
-      # Determine RT range and RT point for this sample
+      # Determine RT range for this sample
       sample_rt_range <- base_rt_range_expanded
-      sample_rt <- base_rt
       
       if (rt_lookup == "sample") {
-        rt_col_name <- paste0("f", sample_idx, "_rt")
         rt_range_col_name <- paste0("f", sample_idx, "_rt_range")
-        
-        if (rt_col_name %in% names(row) && !is.na(row[[rt_col_name]])) {
-          sample_rt <- row[[rt_col_name]]
-        }
-        
         if (rt_range_col_name %in% names(row) && !is.na(row[[rt_range_col_name]])) {
           rt_range_str <- row[[rt_range_col_name]]
           sample_rt_range <- eval(parse(text = rt_range_str))
-          cat(sprintf("    Using file-specific RT: %.3f min, range: [%.2f, %.2f]\n", 
-                      sample_rt, sample_rt_range[1], sample_rt_range[2]))
+          cat(sprintf("    Using file-specific RT range: [%.2f, %.2f]\n", 
+                      sample_rt_range[1], sample_rt_range[2]))
         }
       }
       
-      # Extract BOTH chromatogram and spectrum for sample
+      # Extract chromatogram for sample
       sample_chrom <- extract_chromatogram(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
-      sample_spec <- extract_spectrum_at_rt(sample_file, sample_rt, rt_tolerance, target_mzs, ppm_tolerance, display_mode)
       
-      if (is.null(sample_chrom) || is.null(sample_spec)) {
+      if (is.null(sample_chrom)) {
         warning(sprintf("Skipping sample %s - data extraction failed", sample_file))
         next
       }
@@ -281,29 +200,22 @@ rtx_mzx <- function(validation_list,
       sample_chrom$type <- "Sample"
       sample_chrom$plot_intensity <- sample_chrom$intensity
       
-      sample_spec$type <- "Sample"
-      sample_spec$plot_intensity <- sample_spec$intensity
-      
       # Iterate through standards
       for (std_idx in seq_along(standards)) {
         standard_file <- standards[std_idx]
         
         cat(sprintf("    Standard %d/%d: %s\n", std_idx, length(standards), standard_file))
         
-        # Extract BOTH chromatogram and spectrum for standard
+        # Extract chromatogram for standard
         standard_chrom <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
-        standard_spec <- extract_spectrum_at_rt(standard_file, sample_rt, rt_tolerance, target_mzs, ppm_tolerance, display_mode)
         
-        if (is.null(standard_chrom) || is.null(standard_spec)) {
+        if (is.null(standard_chrom)) {
           warning(sprintf("Skipping standard %s - data extraction failed", standard_file))
           next
         }
         
         standard_chrom$type <- "Standard"
         standard_chrom$plot_intensity <- -standard_chrom$intensity
-        
-        standard_spec$type <- "Standard"
-        standard_spec$plot_intensity <- -standard_spec$intensity
         
         # === CREATE RTX PLOT (Chromatogram) ===
         max_sample_chrom <- max(abs(sample_chrom$intensity), na.rm = TRUE)
@@ -350,7 +262,9 @@ rtx_mzx <- function(validation_list,
         
         p_rtx <- p_rtx +
           scale_color_viridis_d(option = "turbo", end = 0.9) +
-          scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0)) +
+          scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0),
+                           breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
+                           minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)) +
           scale_y_continuous(
             expand = c(0, 0),
             limits = c(-y_limit_chrom, y_limit_chrom),
@@ -358,8 +272,8 @@ rtx_mzx <- function(validation_list,
             n.breaks = 8
           ) +
           labs(
-            title = "RTX (Chromatogram)",
-            subtitle = sprintf("Sample: %s  |  Standard: %s", sample_id, standard_file),
+            title = short_name,
+            subtitle = sprintf("Sample: %s  |  Standard: %s  |  RT = %.3f min", sample_id, standard_file, mean(sample_rt_range)),
             x = "Retention Time (min)",
             y = sprintf("\u2190 Std  |  %s \u2192", tools::toTitleCase(study)),
             color = NULL
@@ -367,6 +281,8 @@ rtx_mzx <- function(validation_list,
           coord_cartesian(clip = "off") +
           theme_classic(base_size = 12) +
           theme(
+            panel.grid.major.x = element_line(color = "gray90", linewidth = 0.2),
+            panel.grid.minor.x = element_line(color = "gray90", linewidth = 0.2),
             plot.margin = margin(20, 10, 20, 20),
             plot.background = element_rect(fill = "transparent", color = NA),
             panel.background = element_rect(fill = "transparent", color = NA),
@@ -395,102 +311,19 @@ rtx_mzx <- function(validation_list,
           ) +
           guides(color = guide_legend(override.aes = list(linewidth = 0.4)))
         
-        # === CREATE MZX PLOT (Spectrum) ===
-        max_sample_spec <- max(abs(sample_spec$intensity), na.rm = TRUE)
-        max_standard_spec <- max(abs(standard_spec$intensity), na.rm = TRUE)
-        y_limit_spec <- max(max_sample_spec, max_standard_spec) * 1.05
-        
-        combined_spec <- bind_rows(sample_spec, standard_spec)
-        
-        # Filter to only rows with non-zero intensity (detected fragments)
-        combined_spec <- combined_spec |>
-          filter(intensity > 0)
-        
-        if (nrow(combined_spec) == 0) {
-          warning(sprintf("No fragments detected in spectrum for %s in %s vs %s", id_val, sample_file, standard_file))
-          next
-        }
-        
-        combined_spec$mz_label <- sprintf("mz%d: %.4f", combined_spec$mz_index, combined_spec$target_mz)
-        
-        # Add asterisks
-        if (!is.na(row$asterisk)) {
-          marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
-          for (marked_mz in marked_mzs) {
-            mz_num <- as.numeric(gsub("mz", "", marked_mz))
-            combined_spec$mz_label <- ifelse(
-              combined_spec$mz_index == mz_num,
-              paste0(combined_spec$mz_label, " **\\***"),
-              combined_spec$mz_label
-            )
-          }
-        }
-        
-        p_mzx <- ggplot(combined_spec, aes(x = mz, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-          geom_segment(aes(xend = mz, yend = 0), linewidth = 0.4) +
-          geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4) +
-          scale_color_viridis_d(option = "turbo", end = 0.9) +
-          scale_x_continuous(expand = expansion(mult = c(0.05, 0.05), add = 0)) +
-          scale_y_continuous(
-            expand = c(0, 0),
-            limits = c(-y_limit_spec, y_limit_spec),
-            labels = function(x) abs(x),
-            n.breaks = 8
-          ) +
-          labs(
-            title = "MZX (Spectrum)",
-            subtitle = sprintf("RT: %.3f min  |  %d ppm", sample_rt, ppm_tolerance),
-            x = "m/z",
-            y = sprintf("\u2190 Std  |  %s \u2192", tools::toTitleCase(study)),
-            color = NULL
-          ) +
-          coord_cartesian(clip = "off") +
-          theme_classic(base_size = 12) +
-          theme(
-            plot.margin = margin(20, 20, 20, 10),
-            plot.background = element_rect(fill = "transparent", color = NA),
-            panel.background = element_rect(fill = "transparent", color = NA),
-            legend.position = "top",
-            legend.justification = "left",
-            legend.direction = "horizontal",
-            legend.text = ggtext::element_markdown(size = 5),
-            legend.title = element_blank(),
-            legend.background = element_rect(fill = "transparent", color = NA),
-            legend.key = element_rect(fill = "transparent", color = NA),
-            legend.key.size = unit(0.25, "cm"),
-            legend.key.width = unit(0.25, "cm"),
-            legend.spacing.x = unit(0.05, "cm"),
-            legend.box.margin = margin(0, 0, 2, 0),
-            legend.margin = margin(0, 0, 0, 0),
-            plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
-            plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6, 
-                                                     color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0)),
-            axis.text.x = element_text(face = "bold", color = "black", size = 7),
-            axis.text.y = element_text(face = "bold", color = "black", size = 7),
-            axis.title.x = element_text(face = "bold", color = "black", size = 9),
-            axis.title.y = element_text(face = "bold", color = "black", size = 9, margin = margin(r = 8)),
-            axis.ticks.length = unit(0.15, "cm"),
-            axis.line = element_line(color = "black", linewidth = 0.4),
-            axis.ticks = element_line(color = "black", linewidth = 0.4)
-          ) +
-          guides(color = guide_legend(override.aes = list(linewidth = 0.4)))
-        
-        # Store both plots
+        # Store plot
         plot_label <- sprintf("F%d_S%d", sample_idx, std_idx)
-        study_prefix <- if (study == "cadaver") "C_" else "T_"
-        plot_tag_rtx <- sprintf("%sF%d_S%d_%s", study_prefix, sample_idx, std_idx, id_val)
-        plot_tag_mzx <- sprintf("%sF%d_S%d_%s_spectra", study_prefix, sample_idx, std_idx, id_val)
+        plot_tag <- sprintf("F%d_S%d_%s", sample_idx, std_idx, id_val)
         
         compound_plots[[id_val]]$plots[[plot_label]] <- list(
-          plot_rtx = p_rtx,
-          plot_mzx = p_mzx,
+          plot = p_rtx,
           sample_id = sample_id,
           standard_file = standard_file,
-          plot_tag_rtx = plot_tag_rtx,
-          plot_tag_mzx = plot_tag_mzx
+          plot_tag = plot_tag,
+          rt_range = sample_rt_range
         )
         
-        cat(sprintf("      Created plots: %s\n", plot_label))
+        cat(sprintf("      Created plot: %s\n", plot_label))
       }
     }
   }
@@ -511,7 +344,7 @@ rtx_mzx <- function(validation_list,
     
     if (length(plots) == 0) next
     
-    cat(sprintf("  Adding %s (%s): %d plot pairs\n", compound$short_name, compound$id, length(plots)))
+    cat(sprintf("  Adding %s (%s): %d plots\n", compound$short_name, compound$id, length(plots)))
     
     # Sort plot labels
     plot_labels <- names(plots)
@@ -520,54 +353,36 @@ rtx_mzx <- function(validation_list,
       as.numeric(gsub("F([0-9]+)_S([0-9]+)", "\\2", plot_labels))
     )]
     
-    # Modify plots for PDF: add red tags to both RTX and MZX subtitles
-    pdf_plot_pairs <- lapply(plot_labels, function(label) {
+    # Modify plots for PDF: add red tags to subtitles
+    pdf_plots <- lapply(plot_labels, function(label) {
       plot_info <- plots[[label]]
-      p_rtx <- plot_info$plot_rtx
-      p_mzx <- plot_info$plot_mzx
+      p <- plot_info$plot
       sample_id <- plot_info$sample_id
       standard_file <- plot_info$standard_file
-      plot_tag_rtx <- plot_info$plot_tag_rtx
-      plot_tag_mzx <- plot_info$plot_tag_mzx
+      plot_tag <- plot_info$plot_tag
       
-      # Modify RTX plot: add red tag (chromatogram tag)
-      new_subtitle_rtx <- sprintf("Sample: %s  |  Standard: %s  |  <span style='color:red;'>%s</span>",
-                                  sample_id, standard_file, plot_tag_rtx)
+      # Add plot tag to subtitle
+      new_subtitle <- sprintf("Sample: %s  |  Standard: %s  |  RT = %.3f min  |  %s",
+                              sample_id, standard_file, mean(compound$plots[[label]]$rt_range), plot_tag)
       
-      p_rtx <- p_rtx +
-        labs(subtitle = new_subtitle_rtx) +
+      p <- p +
+        labs(subtitle = new_subtitle) +
         theme(
           plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6,
                                                    color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0))
         )
       
-      # Modify MZX plot: add red tag (spectrum tag with _spectra suffix)
-      # Extract RT from existing subtitle
-      existing_subtitle <- p_mzx$labels$subtitle
-      new_subtitle_mzx <- sprintf("%s  |  <span style='color:red;'>%s</span>",
-                                  existing_subtitle, plot_tag_mzx)
-      
-      p_mzx <- p_mzx +
-        labs(subtitle = new_subtitle_mzx) +
-        theme(
-          plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6,
-                                                   color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0))
-        )
-      
-      list(rtx = p_rtx, mzx = p_mzx)
+      p
     })
     
-    # Create pages: 3 rows per page, each row has RTX (left) and MZX (right)
-    pairs_per_page <- 3
-    n_pages <- ceiling(length(pdf_plot_pairs) / pairs_per_page)
+    # Create pages: 6 plots per page (3 rows x 2 columns)
+    plots_per_page <- 6
+    n_pages <- ceiling(length(pdf_plots) / plots_per_page)
     
     for (page_num in 1:n_pages) {
-      start_idx <- (page_num - 1) * pairs_per_page + 1
-      end_idx <- min(page_num * pairs_per_page, length(pdf_plot_pairs))
-      page_pairs <- pdf_plot_pairs[start_idx:end_idx]
-      
-      # Flatten into alternating RTX, MZX for grid (row1: RTX, MZX; row2: RTX, MZX; row3: RTX, MZX)
-      page_plots <- unlist(lapply(page_pairs, function(pair) list(pair$rtx, pair$mzx)), recursive = FALSE)
+      start_idx <- (page_num - 1) * plots_per_page + 1
+      end_idx <- min(page_num * plots_per_page, length(pdf_plots))
+      page_plots <- pdf_plots[start_idx:end_idx]
       
       # Create title
       if (n_pages == 1) {
@@ -582,7 +397,7 @@ rtx_mzx <- function(validation_list,
         x = 0.5, y = 0.95, just = "top"
       )
       
-      # Create grid: 2 columns (RTX, MZX) x up to 3 rows
+      # Create grid: 2 columns x 3 rows
       grid_plot <- gridExtra::arrangeGrob(
         grobs = page_plots,
         ncol = 2,
