@@ -1,4 +1,5 @@
 #* 7: Manual Spectral Validation QC
+#+ 7.0: Change 
 #+ 7.1: Pull variant comparison features that need validation
 #- 7.1.0: Pull the id_subid for all variant features from MT_final_i
 fragements_variant_pull <- MT_final_i |> pull(id_subid)
@@ -9,14 +10,14 @@ variant_validate_ids <- MT_final_i |>
 variant_validate_order <- MT_final_i |>
   mutate(order = row_number()) |>
   select(id, order)
-#- 7.1.3: Build validation table using helper function; add asterisk
+#- 7.1.3: Build validation table using helper function
 vv_wide_base <- build_validation_table(
   validate_ids = variant_validate_ids,
   validate_order = variant_validate_order,
   source_label = "diff_variant",
   short_name_join = MT_final_i
 )
-#- 7.1.4: Add asterisk marking for significant fragments
+#- 7.1.4: Add asterisk marking for significant fragments (using actual m/z values)
 vv_wide_i <- vv_wide_base |>
   # Create id_subid combinations for each mz column to check against fragements_variant_pull
   rowwise() |>
@@ -25,7 +26,10 @@ vv_wide_i <- vv_wide_base |>
     asterisk = {
       # Get all mz column names (mz0, mz1, etc.)
       mz_cols <- names(vv_wide_base)[grepl("^mz[0-9]+$", names(vv_wide_base))]
-      marked_mzs <- character(0)
+      marked_mz_values <- numeric(0)
+      
+      # Get current row as a list to access columns by name
+      current_row <- pick(everything())
       
       for (mz_col in mz_cols) {
         # Extract subid from column name (mz0 -> 0, mz1 -> 1, etc.)
@@ -34,12 +38,15 @@ vv_wide_i <- vv_wide_base |>
         id_subid_check <- paste0(id, "_", subid)
         # Check if this fragment is significant
         if (id_subid_check %in% fragements_variant_pull) {
-          marked_mzs <- c(marked_mzs, mz_col)
+          # Get the actual m/z value from this column
+          mz_value <- current_row[[mz_col]]
+          if (!is.na(mz_value)) {
+            marked_mz_values <- c(marked_mz_values, mz_value)
+          }
         }
       }
-      
-      if (length(marked_mzs) > 0) {
-        paste(marked_mzs, collapse = ", ")
+      if (length(marked_mz_values) > 0) {
+        paste(marked_mz_values, collapse = ", ")
       } else {
         NA_character_
       }
@@ -133,7 +140,7 @@ merged_fragments <- bind_rows(
   # Filter out emz fragments when potential_duplicate is "Y", keep original mz fragments
   filter(!(potential_duplicate == "Y" & grepl("^emz", fragment)))
 #- 7.4.7: Convert back to wide format with proper numbering
-expanded_validation <- merged_fragments |>
+expanded_validation_i <- merged_fragments |>
   group_by(id) |>
   # Sort: original mz fragments first (by name), then emz fragments
   arrange(id, !grepl("^mz", fragment), fragment) |>
@@ -157,30 +164,155 @@ expanded_validation <- merged_fragments |>
   left_join(validation_combined |> select(id, short_name, monoisotopic), by = "id") |>
   # Reorder columns: id, short_name, monoisotopic, then all mz columns
   select(id, short_name, monoisotopic, starts_with("mz"))
+#- 7.4.8: Reorganize fragments to ensure mz0 is always monoisotopic
+expanded_validation <- expanded_validation_i |>
+  rowwise() |>
+  mutate(
+    # Get all mz values and check if monoisotopic matches any within 20 ppm
+    mz_values = list(c_across(starts_with("mz"))),
+    ppm_diffs = list(abs(mz_values - monoisotopic) / monoisotopic * 1e6),
+    min_ppm = min(ppm_diffs, na.rm = TRUE),
+    matches_fragment = min_ppm <= 20,
+    match_position = if_else(matches_fragment, which.min(ppm_diffs), NA_integer_)
+  ) |>
+  ungroup() |>
+  # Now reorganize based on match results
+  mutate(
+    # Get mz column names dynamically
+    across(starts_with("mz"), ~., .names = "original_{.col}")
+  ) |>
+  rowwise() |>
+  mutate(
+    # Reorganize based on match scenario
+    reorganized_mz = list({
+      current_mz <- c_across(starts_with("original_mz"))
+      
+      if (matches_fragment && match_position == 1) {
+        # Scenario 1: Monoisotopic already matches mz0, no action needed
+        current_mz
+      } else if (matches_fragment && match_position > 1) {
+        # Scenario 2: Monoisotopic matches a different column (e.g., mz4)
+        # Move matched value to position 1, shift others up, fill gap
+        matched_value <- current_mz[match_position]
+        # Remove the matched position and shift everything down to fill gap
+        before_match <- current_mz[1:(match_position - 1)]
+        after_match <- if (match_position < length(current_mz)) {
+          current_mz[(match_position + 1):length(current_mz)]
+        } else {
+          numeric(0)
+        }
+        # New order: matched value first, then all others (gap filled)
+        c(matched_value, before_match, after_match)
+      } else {
+        # Scenario 3: Monoisotopic doesn't match any fragment
+        # Add monoisotopic as new mz0, shift everything up
+        c(monoisotopic, current_mz)
+      }
+    })
+  ) |>
+  ungroup() |>
+  # Extract reorganized values back into individual mz columns
+  mutate(
+    mz0 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 1, .x[1], NA_real_)),
+    mz1 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 2, .x[2], NA_real_)),
+    mz2 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 3, .x[3], NA_real_)),
+    mz3 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 4, .x[4], NA_real_)),
+    mz4 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 5, .x[5], NA_real_)),
+    mz5 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 6, .x[6], NA_real_)),
+    mz6 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 7, .x[7], NA_real_)),
+    mz7 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 8, .x[8], NA_real_)),
+    mz8 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 9, .x[9], NA_real_)),
+    mz9 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 10, .x[10], NA_real_))
+  ) |>
+  # Clean up temporary columns
+  select(id, short_name, monoisotopic, starts_with("mz")) |>
+  select(-starts_with("original_")) |>
+  # Special case: Remove 105.0699 from CP3017 and shift fragments down
+  #! Removed CP3017 specific fragment due to adding too much noise
+  rowwise() |>
+  mutate(
+    # For CP3017, identify and remove the 105.0699 fragment
+    fragments_to_keep = if (id == "CP3017") {
+      list({
+        all_mz <- c_across(starts_with("mz"))
+        # Remove 105.0699 (within small tolerance)
+        all_mz[is.na(all_mz) | abs(all_mz - 105.0699) > 0.0001]
+      })
+    } else {
+      list(c_across(starts_with("mz")))
+    }
+  ) |>
+  ungroup() |>
+  # Reassign mz columns with filtered/shifted values
+  mutate(
+    mz0 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 1, .x[1], NA_real_)),
+    mz1 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 2, .x[2], NA_real_)),
+    mz2 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 3, .x[3], NA_real_)),
+    mz3 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 4, .x[4], NA_real_)),
+    mz4 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 5, .x[5], NA_real_)),
+    mz5 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 6, .x[6], NA_real_)),
+    mz6 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 7, .x[7], NA_real_)),
+    mz7 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 8, .x[8], NA_real_)),
+    mz8 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 9, .x[9], NA_real_)),
+    mz9 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 10, .x[10], NA_real_))
+  ) |>
+  # Clean up temporary columns
+  select(id, short_name, monoisotopic, starts_with("mz"))
+#- 7.4.9: Verification: Check that mz0 now matches monoisotopic within 20 ppm for all compounds
+monoisotopic_verification <- expanded_validation |>
+  mutate(
+    mz0_ppm_diff = abs(mz0 - monoisotopic) / monoisotopic * 1e6,
+    mz0_matches_monoisotopic = mz0_ppm_diff <= 20
+  ) |>
+  select(id, short_name, monoisotopic, mz0, mz0_ppm_diff, mz0_matches_monoisotopic)
 #+ 7.5: Create final versions with expanded fragments
 #+ 7.5: Update validation tables with expanded fragments
-#! Removed CP3017 mz5 due to adding too much noise
 #- 7.5.1: Update variant validation table
 vv_wide <- vv_wide_i |>
-  select(-starts_with("mz")) |> # Remove old mz columns
+  select(-starts_with("mz"), -asterisk) |> # Remove old mz columns and asterisk
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
   ) |>
-  mutate(mz5 = ifelse(id == "CP3017", NA_real_, mz5))
+  # Convert asterisk from m/z values back to column names
+  rowwise() |>
+  mutate(
+    asterisk = if (!is.na(vv_wide_i$asterisk[vv_wide_i$id == id])) {
+      # Get the original asterisk values (m/z values as string)
+      original_asterisk <- vv_wide_i$asterisk[vv_wide_i$id == id]
+      # Split into individual m/z values
+      asterisk_mz_values <- as.numeric(strsplit(original_asterisk, ", ")[[1]])
+      # Find which columns match these m/z values
+      current_mz <- c_across(starts_with("mz"))
+      matched_cols <- character(0)
+      for (mz_val in asterisk_mz_values) {
+        # Find which column position matches this m/z (within small tolerance)
+        match_pos <- which(abs(current_mz - mz_val) < 0.0001)
+        if (length(match_pos) > 0) {
+          matched_cols <- c(matched_cols, paste0("mz", match_pos[1] - 1))
+        }
+      }
+      if (length(matched_cols) > 0) {
+        paste(matched_cols, collapse = ", ")
+      } else {
+        NA_character_
+      }
+    } else {
+      NA_character_
+    }
+  ) |>
+  ungroup()
 #- 7.5.2: Update IARC tumor validation table
 iv_wide <- iv_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
-  ) |>
-  mutate(mz5 = ifelse(id == "CP3017", NA_real_, mz5))
+  )
 #- 7.5.3: Update IARC cadaver validation table
 ic_wide <- ic_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
-  ) |>
-  mutate(mz5 = ifelse(id == "CP3017", NA_real_, mz5))
+  )

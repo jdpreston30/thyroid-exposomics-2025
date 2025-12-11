@@ -38,10 +38,7 @@ invisible(lapply(core_packages, function(pkg) {
   cat("  ✓", pkg, "\n")
 }))
 cat("✅ All packages loaded successfully!\n")
-#+ 0a.4: Set display options for numeric precision
-options(pillar.sigfig = 7)
-cat("✅ Display options configured (7 significant figures)\n")
-#+ 0a.5: Check TinyTeX installation for PDF rendering
+#+ 0a.4: Check TinyTeX installation for PDF rendering
 if (!tinytex::is_tinytex()) {
   cat("⚠️  TinyTeX not found. Installing...\n")
   tinytex::install_tinytex()

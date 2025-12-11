@@ -54,7 +54,7 @@ analysis:
   tibble_options:
     print_max: 100
     print_min: 100
-    sigfig: 3
+    sigfig: 7
     
   # Data.table preferences  
   datatable_options:
