@@ -38,38 +38,72 @@ copy_raw_validation_plots <- function(validation_curated,
     row <- validation_curated[i, ]
     source_type <- row$source
     plot_tag <- row$plot
+    id_val <- row$id
     
     # Determine source folder
     folder_name <- source_to_folder[[source_type]]
     
     if (is.null(folder_name)) {
-      warning(sprintf("Unknown source type '%s' for %s - skipping", source_type, plot_tag))
+      warning(sprintf("Unknown source type '%s' - skipping", source_type))
       next
     }
     
-    # Construct source path
-    source_file <- file.path(rds_base_dir, folder_name, paste0(plot_tag, ".rds"))
-    
-    # Check if source file exists
-    if (!file.exists(source_file)) {
-      warning(sprintf("Source file not found: %s - skipping", source_file))
-      next
+    # If plot is NA, find all RDS files matching the ID pattern
+    if (is.na(plot_tag)) {
+      source_dir <- file.path(rds_base_dir, folder_name)
+      all_files <- list.files(source_dir, pattern = "\\.rds$", full.names = FALSE)
+      # Match files that contain the ID (e.g., "F1_S1_CP2382.rds", "F2_S3_CP2382.rds")
+      matching_files <- all_files[grepl(paste0("_", id_val, "\\.rds$"), all_files)]
+      
+      if (length(matching_files) == 0) {
+        warning(sprintf("No files found for ID '%s' in %s - skipping", id_val, folder_name))
+        next
+      }
+      
+      cat(sprintf("[%d/%d] Found %d files for ID %s\n", i, nrow(validation_curated), 
+                  length(matching_files), id_val))
+      
+      # Copy all matching files
+      for (file_name in matching_files) {
+        source_file <- file.path(source_dir, file_name)
+        dest_file <- file.path(output_dir, file_name)
+        
+        # Skip if file exists and overwrite is FALSE
+        if (!overwrite && file.exists(dest_file)) {
+          cat(sprintf("  Skipped (exists): %s\n", file_name))
+          next
+        }
+        
+        file.copy(source_file, dest_file, overwrite = TRUE)
+        files_copied <- files_copied + 1
+        cat(sprintf("  Copied: %s\n", file_name))
+      }
+    } else {
+      # Original logic for specific plot_tag
+      # Construct source path
+      source_file <- file.path(rds_base_dir, folder_name, paste0(plot_tag, ".rds"))
+      
+      # Check if source file exists
+      if (!file.exists(source_file)) {
+        warning(sprintf("Source file not found: %s - skipping", source_file))
+        next
+      }
+      
+      # Construct destination path
+      dest_file <- file.path(output_dir, paste0(plot_tag, ".rds"))
+      
+      # Skip if file exists and overwrite is FALSE
+      if (!overwrite && file.exists(dest_file)) {
+        cat(sprintf("[%d/%d] Skipped (exists): %s\n", i, nrow(validation_curated), plot_tag))
+        next
+      }
+      
+      # Copy file
+      file.copy(source_file, dest_file, overwrite = TRUE)
+      files_copied <- files_copied + 1
+      
+      cat(sprintf("[%d/%d] Copied: %s\n", i, nrow(validation_curated), plot_tag))
     }
-    
-    # Construct destination path
-    dest_file <- file.path(output_dir, paste0(plot_tag, ".rds"))
-    
-    # Skip if file exists and overwrite is FALSE
-    if (!overwrite && file.exists(dest_file)) {
-      cat(sprintf("[%d/%d] Skipped (exists): %s\n", i, nrow(validation_curated), plot_tag))
-      next
-    }
-    
-    # Copy file
-    file.copy(source_file, dest_file, overwrite = TRUE)
-    files_copied <- files_copied + 1
-    
-    cat(sprintf("[%d/%d] Copied: %s\n", i, nrow(validation_curated), plot_tag))
   }
   
   cat(sprintf("\nCompleted copying %d RDS files to: %s\n", files_copied, output_dir))
