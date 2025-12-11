@@ -6,13 +6,15 @@
 #' @param validation_curated Tibble with columns: source, plot
 #' @param config List: configuration object with paths$validation_plot_directory
 #' @param output_dir Character string: destination directory for copied files
+#' @param overwrite Logical: if FALSE, skip files that already exist in output_dir
 #'
 #' @return Invisible NULL
 #'
 #' @export
 copy_raw_validation_plots <- function(validation_curated,
                                       config,
-                                      output_dir = "Outputs/Validation/ggplot_objects_raw") {
+                                      output_dir = "Outputs/Validation/ggplot_objects_raw",
+                                      overwrite = TRUE) {
   
   # Map source types to their RDS folders
   source_to_folder <- list(
@@ -56,6 +58,12 @@ copy_raw_validation_plots <- function(validation_curated,
     
     # Construct destination path
     dest_file <- file.path(output_dir, paste0(plot_tag, ".rds"))
+    
+    # Skip if file exists and overwrite is FALSE
+    if (!overwrite && file.exists(dest_file)) {
+      cat(sprintf("[%d/%d] Skipped (exists): %s\n", i, nrow(validation_curated), plot_tag))
+      next
+    }
     
     # Copy file
     file.copy(source_file, dest_file, overwrite = TRUE)
