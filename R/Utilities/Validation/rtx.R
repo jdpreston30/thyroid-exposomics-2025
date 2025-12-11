@@ -250,6 +250,17 @@ rtx <- function(validation_list,
         
         sample_id <- gsub("_[0-9]+$", "", sample_file)
         
+        # Define fixed color palette for mz indices
+        mz_colors <- c("mz0" = "black", "mz1" = "red", "mz2" = "gold", "mz3" = "blue")
+        
+        # Create named vector for actual mz_labels present in the data
+        mz_labels_present <- unique(combined_chrom$mz_label)
+        mz_indices_present <- unique(combined_chrom$mz_index)
+        color_mapping <- setNames(
+          mz_colors[paste0("mz", mz_indices_present)],
+          mz_labels_present
+        )
+        
         if (stick) {
           p_rtx <- ggplot(combined_chrom, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
             geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4) +
@@ -261,7 +272,7 @@ rtx <- function(validation_list,
         }
         
         p_rtx <- p_rtx +
-          scale_color_viridis_d(option = "turbo", end = 0.9) +
+          scale_color_manual(values = color_mapping) +
           scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0),
                            breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
                            minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)) +
