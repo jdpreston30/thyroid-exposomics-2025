@@ -135,10 +135,20 @@ merged_fragments <- bind_rows(
 #- 7.4.7: Convert back to wide format with proper numbering
 expanded_validation <- merged_fragments |>
   group_by(id) |>
-  # Arrange by original fragment priority (mz before emz) and then by mz value
-  arrange(id, !grepl("^mz", fragment), mz) |>
-  # Renumber fragments sequentially starting from 0
-  mutate(fragment_num = paste0("mz", row_number() - 1)) |>
+  # Sort: original mz fragments first (by name), then emz fragments
+  arrange(id, !grepl("^mz", fragment), fragment) |>
+  mutate(
+    is_original = grepl("^mz", fragment),
+    max_mz_num = max(as.numeric(gsub("mz", "", fragment[grepl("^mz", fragment)])), na.rm = TRUE),
+    emz_counter = cumsum(!is_original)
+  ) |>
+  mutate(
+    fragment_num = if_else(
+      is_original,
+      fragment,  # Keep original mz0, mz1, mz2, mz3 names
+      paste0("mz", max_mz_num + emz_counter)  # Number emz starting after last original mz
+    )
+  ) |>
   ungroup() |>
   select(id, fragment_num, mz) |>
   # Pivot to wide format (will create as many columns as needed)
@@ -149,24 +159,28 @@ expanded_validation <- merged_fragments |>
   select(id, short_name, monoisotopic, starts_with("mz"))
 #+ 7.5: Create final versions with expanded fragments
 #+ 7.5: Update validation tables with expanded fragments
+#! Removed CP3017 mz5 due to adding too much noise
 #- 7.5.1: Update variant validation table
 vv_wide <- vv_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
-  )
+  ) |>
+  mutate(mz5 = ifelse(id == "CP3017", NA_real_, mz5))
 #- 7.5.2: Update IARC tumor validation table
 iv_wide <- iv_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
-  )
+  ) |>
+  mutate(mz5 = ifelse(id == "CP3017", NA_real_, mz5))
 #- 7.5.3: Update IARC cadaver validation table
 ic_wide <- ic_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
-  )
+  ) |>
+  mutate(mz5 = ifelse(id == "CP3017", NA_real_, mz5))
