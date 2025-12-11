@@ -8,6 +8,8 @@ Depends:
 Imports:
     broom,
     cowplot,
+    doParallel,
+    foreach,
     openxlsx,
     dplyr,
     readr,
