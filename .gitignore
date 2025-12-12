@@ -62,7 +62,6 @@ renv/staging/
 
 # Validation files (generated outputs, transferred to OneDrive)
 Outputs/Validation/temp_RDS/
-Outputs/Validation/ggplot_objects_raw/
 
 # IDE
 .vscode/

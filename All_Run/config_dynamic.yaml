@@ -42,7 +42,6 @@ paths:
   # Output paths (relative to project root)
   output: "./Outputs"
   figures: "{figures_path}"
-  validation_plots_raw: "Outputs/Validation/ggplot_objects_raw"
   
   # Script and utility paths
   scripts: "R/Scripts/"
