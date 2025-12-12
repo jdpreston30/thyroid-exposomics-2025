@@ -60,8 +60,9 @@ renv/staging/
 *.bak
 *.log
 
-# Validation temp RDS files (transferred to OneDrive)
+# Validation files (generated outputs, transferred to OneDrive)
 Outputs/Validation/temp_RDS/
+Outputs/Validation/ggplot_objects_raw/
 
 # IDE
 .vscode/
