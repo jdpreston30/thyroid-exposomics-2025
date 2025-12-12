@@ -980,26 +980,75 @@ rtx <- function(validation_list,
       
       success_count <- 0
       fail_count <- 0
+      failed_files <- character(0)
       
+      # First pass: transfer all files
       for (local_file in local_files) {
         dest_file <- file.path(onedrive_dir, basename(local_file))
-        copy_success <- tryCatch({
-          file.copy(local_file, dest_file, overwrite = TRUE)
-          TRUE
-        }, error = function(e) {
-          FALSE
+        
+        # Attempt copy (may timeout but still succeed)
+        suppressWarnings({
+          tryCatch({
+            file.copy(local_file, dest_file, overwrite = TRUE)
+          }, error = function(e) {
+            # Ignore errors, will verify existence below
+          })
         })
         
-        if (copy_success) {
+        # Verify file actually exists at destination (more reliable than file.copy return value)
+        if (file.exists(dest_file)) {
           success_count <- success_count + 1
         } else {
           fail_count <- fail_count + 1
+          failed_files <- c(failed_files, local_file)
         }
       }
       
       cat(sprintf("✓ Transferred %d/%d files to OneDrive\n", success_count, length(local_files)))
+      
+      # Retry failed transfers with exponential backoff
       if (fail_count > 0) {
-        cat(sprintf("⚠️  %d files failed to transfer\n", fail_count))
+        cat(sprintf("⚠️  %d files failed to transfer, retrying...\n", fail_count))
+        max_retries <- 3
+        retry_count <- 0
+        
+        while (length(failed_files) > 0 && retry_count < max_retries) {
+          retry_count <- retry_count + 1
+          wait_time <- 2^retry_count  # 2, 4, 8 seconds
+          cat(sprintf("   Retry %d/%d (waiting %d seconds)...\n", retry_count, max_retries, wait_time))
+          Sys.sleep(wait_time)
+          
+          still_failed <- character(0)
+          for (local_file in failed_files) {
+            dest_file <- file.path(onedrive_dir, basename(local_file))
+            
+            # Attempt copy
+            suppressWarnings({
+              tryCatch({
+                file.copy(local_file, dest_file, overwrite = TRUE)
+              }, error = function(e) {
+                # Ignore errors, will verify existence below
+              })
+            })
+            
+            # Verify file actually exists at destination
+            if (file.exists(dest_file)) {
+              success_count <- success_count + 1
+              fail_count <- fail_count - 1
+              cat(sprintf("   ✓ Retry succeeded: %s\n", basename(local_file)))
+            } else {
+              still_failed <- c(still_failed, local_file)
+            }
+          }
+          failed_files <- still_failed
+        }
+        
+        if (fail_count > 0) {
+          cat(sprintf("⚠️  %d files still failed after %d retries\n", fail_count, max_retries))
+          cat(sprintf("   Failed files remain in: %s\n", local_dir))
+        } else {
+          cat(sprintf("✓ All retries succeeded! %d/%d files transferred\n", success_count, length(local_files)))
+        }
       }
       
 
