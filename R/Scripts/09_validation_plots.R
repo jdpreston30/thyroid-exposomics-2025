@@ -1,27 +1,31 @@
 #* 9: Validation Plots Adjustment and Manual Review
-#+ 9.4: Read validation plots, compile, adjust x ranges
-#!!!!!
-validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
-#- 9.4.0: Read in manual validation results metadata
-validation_check_files <- validation_check |>
-  filter(!state %in% c("failed", "not used")) |>
-  mutate(rt_range = (rtu-rtl)/2) |>
-  select(-c(modification, note, rtl, rtu)) |>
-  arrange(order)
-#- 9.4.1: Derive a list of all unique plots to read in
-variant_plot_list <- validation_check_files %>%
-  filter(source != "IARC") %>%
-  pull(plot) %>%
-  str_split(",\\s*") %>%
-  unlist() %>%
-  unique()
-#- 9.3.2: Read validation plots directly from OneDrive
-validation_plots <- read_validation_plots(
-  plot_names = variant_plot_list,
-  onedrive_base_path = config$paths$validation_plot_directory_onedrive,
-  parallel = FALSE
-)
-#- 9.3.3: Adjust x-axis RT ranges for each plot
+#+ 9.1: Load compiled validation plots
+{
+  if (exists("validation_plots")) {
+    cat("⚠️  validation_plots already exists in environment.\n")
+    response <- readline(prompt = "Reload from RDS? (y/n): ")
+    if (tolower(trimws(response)) != "y") {
+      cat("⏭️  Skipping reload, using existing validation_plots\n")
+    } else {
+      compiled_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "validation_plots_compiled.rds")
+      if (file.exists(compiled_rds_path)) {
+        validation_plots <- readRDS(compiled_rds_path)
+        cat(sprintf("✓ Loaded %d validation plots from compiled RDS\n", length(validation_plots)))
+      } else {
+        warning("⚠️  Compiled validation plots RDS not found. Run section 8.4.3 to create it.")
+      }
+    }
+  } else {
+    compiled_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "validation_plots_compiled.rds")
+    if (file.exists(compiled_rds_path)) {
+      validation_plots <- readRDS(compiled_rds_path)
+      cat(sprintf("✓ Loaded %d validation plots from compiled RDS\n", length(validation_plots)))
+    } else {
+      warning("⚠️  Compiled validation plots RDS not found. Run section 8.4.3 to create it.")
+    }
+  }
+}
+#+ 9.2: Adjust x-axis RT ranges for each plot
 validation_plots_adjusted <- adjust_validation_plot_ranges(
   validation_plots = validation_plots,
   validation_curated = validation_check_files

@@ -66,6 +66,32 @@ compile_validation_pdf(
   pdf_name = "variant_rtx.pdf",
   add_plot_tags = TRUE
 )
+#+ 8.4: Read validation plots, compile, adjust x ranges
+#!!!!!
+validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
+#- 8.4.0: Read in manual validation results metadata
+validation_check_files <- validation_check |>
+  filter(!state %in% c("failed", "not used")) |>
+  mutate(rt_range = (rtu-rtl)/2) |>
+  select(-c(modification, note, rtl, rtu)) |>
+  arrange(order)
+#- 8.4.1: Derive a list of all unique plots to read in
+variant_plot_list <- validation_check_files %>%
+  filter(source != "IARC") %>%
+  pull(plot) %>%
+  str_split(",\\s*") %>%
+  unlist() %>%
+  unique()
+#- 8.4.2: Read validation plots directly from OneDrive
+validation_plots <- read_validation_plots(
+  plot_names = variant_plot_list,
+  onedrive_base_path = config$paths$validation_plot_directory_onedrive,
+  parallel = FALSE
+)
+#- 8.4.3: Save compiled RDS to OneDrive (run manually)
+compiled_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "validation_plots_compiled.rds")
+saveRDS(validation_plots, compiled_rds_path)
+cat(sprintf("✓ Saved compiled RDS: %s\n", compiled_rds_path))
 } else {
   cat("⏭️  Skipping validation step (config$run_validation_step = FALSE)\n")
 }
