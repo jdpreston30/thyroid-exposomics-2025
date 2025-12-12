@@ -89,7 +89,8 @@ validation_plots <- read_validation_plots(
   parallel = FALSE
 )
 #- 8.4.3: Save compiled RDS to OneDrive (run manually)
-compiled_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "validation_plots_compiled.rds")
+compiled_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "validation_plots_compiled.rds")
+dir.create(dirname(compiled_rds_path), showWarnings = FALSE, recursive = TRUE)
 saveRDS(validation_plots, compiled_rds_path)
 cat(sprintf("✓ Saved compiled RDS: %s\n", compiled_rds_path))
 } else {
