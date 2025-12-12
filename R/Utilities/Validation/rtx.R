@@ -71,7 +71,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
       mz_val <- target_mzs[i]
       xic <- extract_xic(ms_data, header_info, mz_val, ppm_tol, rt_range, use_max)
       if (!is.null(xic)) {
-        xic$mz_label <- paste0("mz", i - 1)
+        xic$mz_index <- i - 1
         xic
       }
     })
@@ -164,22 +164,59 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           ungroup()
       }
       
-      # Normalize intensities
-      max_int <- max(combined_data$intensity, na.rm = TRUE)
+      # Filter to only rows with non-zero intensity (detected fragments)
       combined_data <- combined_data |>
-        mutate(plot_intensity = ifelse(type == "Standard", -intensity / max_int, intensity / max_int))
+        filter(intensity > 0)
       
-      # Create plot
-      mz_labels <- paste0("mz", 0:(length(target_mzs) - 1))
-      mz_colors <- c("mz0" = "black", "mz1" = "red", "mz2" = "gold", "mz3" = "blue")[mz_labels]
+      if (nrow(combined_data) == 0) {
+        next
+      }
+      
+      # Calculate absolute intensity limits
+      max_sample_int <- max(abs(combined_data$intensity[combined_data$type == "Sample"]), na.rm = TRUE)
+      max_standard_int <- max(abs(combined_data$intensity[combined_data$type == "Standard"]), na.rm = TRUE)
+      y_limit <- max(max_sample_int, max_standard_int) * 1.05
+      
+      # Set plot intensities (negative for standard, positive for sample)
+      combined_data <- combined_data |>
+        mutate(plot_intensity = ifelse(type == "Standard", -intensity, intensity))
+      
+      # Create mz labels with actual m/z values
+      combined_data$mz_label <- sprintf("mz%d: %.4f", combined_data$mz_index, combined_data$mz)
+      
+      # Add asterisks to marked m/z values
+      if (!is.na(row$asterisk)) {
+        marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
+        for (marked_mz in marked_mzs) {
+          mz_num <- as.numeric(gsub("mz", "", marked_mz))
+          combined_data$mz_label <- ifelse(
+            combined_data$mz_index == mz_num,
+            paste0(combined_data$mz_label, " **\\***"),
+            combined_data$mz_label
+          )
+        }
+      }
       
       sample_id <- gsub("\\.mzML$", "", basename(sample_file))
       
-      p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-        geom_line(linewidth = 0.4) +
-        geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4) +
-        scale_color_manual(values = mz_colors) +
-        scale_y_continuous(expand = expansion(mult = c(0.1, 0.1))) +
+      if (stick) {
+        p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+          geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4) +
+          geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+      } else {
+        p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+          geom_line(linewidth = 0.4) +
+          geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+      }
+      
+      p_rtx <- p_rtx +
+        scale_color_viridis_d(option = "turbo", end = 0.9) +
+        scale_y_continuous(
+          expand = c(0, 0),
+          limits = c(-y_limit, y_limit),
+          labels = function(x) abs(x),
+          n.breaks = 8
+        ) +
         scale_x_continuous(
           expand = expansion(mult = c(0.05, 0.05), add = 0),
           breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
@@ -197,11 +234,11 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         theme(
           panel.grid.major.x = element_line(color = "gray90", linewidth = 0.2),
           panel.grid.minor.x = element_line(color = "gray90", linewidth = 0.2),
-          plot.margin = margin(20, 10, 20, 20),
+          plot.margin = margin(10, 10, 20, 20),
           plot.background = element_rect(fill = "transparent", color = NA),
           panel.background = element_rect(fill = "transparent", color = NA),
           legend.position = "top",
-          legend.justification = "left",
+          legend.justification = "center",
           legend.direction = "horizontal",
           legend.text = ggtext::element_markdown(size = 5),
           legend.title = element_blank(),
@@ -210,7 +247,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           legend.key.size = unit(0.25, "cm"),
           legend.key.width = unit(0.25, "cm"),
           legend.spacing.x = unit(0.05, "cm"),
-          legend.box.margin = margin(0, 0, 2, 0),
+          legend.box.margin = margin(0, 0, 0, 0),
           legend.margin = margin(0, 0, 0, 0),
           plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
           plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6, 
@@ -313,7 +350,18 @@ rtx <- function(validation_list,
                 rds_save_folder = NULL,
                 overwrite_rds = FALSE,
                 use_parallel = FALSE,
-                n_cores = NULL) {
+                n_cores = NULL,
+                skip_if_disabled = TRUE) {
+  
+  # Check if function should skip based on config
+  if (skip_if_disabled && exists("config", envir = .GlobalEnv)) {
+    config <- get("config", envir = .GlobalEnv)
+    if (!is.null(config$analysis$manual_validation_full_run) && 
+        !config$analysis$manual_validation_full_run) {
+      cat("\n=== Skipping RTX validation (manual_validation_full_run = FALSE) ===\n")
+      return(invisible(NULL))
+    }
+  }
   
   # Check required parameter
   if (missing(output_dir)) {
@@ -475,7 +523,21 @@ rtx <- function(validation_list,
     }
     n_cores <- min(n_cores, parallel::detectCores() - 1, nrow(validation_list))
     
-    cat(sprintf("Using parallel processing with %d cores\n", n_cores))
+    # Calculate total steps for progress tracking
+    total_steps <- 0
+    for (i in 1:nrow(validation_list)) {
+      row <- validation_list[i, ]
+      all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
+      all_samples <- all_samples[!is.na(all_samples)]
+      samples_count <- min(iterate_through, length(all_samples))
+      standards_count <- length(strsplit(row$standards, ", ")[[1]])
+      total_steps <- total_steps + (samples_count * standards_count)
+    }
+    
+    cat(sprintf("\n▶ Starting parallel processing: %d compounds → %d total plots (using %d cores)\n\n", 
+                nrow(validation_list), total_steps, n_cores))
+    
+    start_time <- Sys.time()
     
     cl <- parallel::makeCluster(n_cores)
     doParallel::registerDoParallel(cl)
@@ -495,11 +557,25 @@ rtx <- function(validation_list,
       library(ggtext)
     })
     
-    # Process compounds in parallel
+    # Process compounds in parallel with progress tracking
+    compounds_completed <- 0
     compound_results <- foreach::foreach(
       row_idx = 1:nrow(validation_list),
       .packages = c("mzR", "ggplot2", "dplyr", "ggtext"),
-      .errorhandling = "pass"
+      .errorhandling = "pass",
+      .combine = function(a, b) {
+        compounds_completed <<- compounds_completed + 1
+        pct <- compounds_completed / nrow(validation_list) * 100
+        elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+        eta_secs <- (elapsed / compounds_completed) * (nrow(validation_list) - compounds_completed)
+        cat(sprintf("\r[Parallel] %d/%d compounds (%.0f%%) | Time: %02d:%02d:%02d | ETA: %02d:%02d:%02d     ",
+                    compounds_completed, nrow(validation_list), pct,
+                    floor(elapsed / 3600), floor((elapsed %% 3600) / 60), floor(elapsed %% 60),
+                    floor(eta_secs / 3600), floor((eta_secs %% 3600) / 60), floor(eta_secs %% 60)))
+        flush.console()
+        c(a, list(b))
+      },
+      .init = list()
     ) %dopar% {
       row <- validation_list[row_idx, ]
       
@@ -525,11 +601,83 @@ rtx <- function(validation_list,
     # Stop cluster
     parallel::stopCluster(cl)
     
+    # Final progress message
+    elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+    cat(sprintf("\r[Parallel] ✓ Completed: %d compounds, %d plots | Total time: %02d:%02d:%02d\n\n",
+                nrow(validation_list), total_steps,
+                floor(elapsed / 3600), floor((elapsed %% 3600) / 60), floor(elapsed %% 60)))
+    
     # Convert list to named list by compound ID
     compound_plots <- setNames(compound_results, sapply(validation_list$id, as.character))
     
   } else {
-    # Sequential processing
+    # Sequential processing with progress bar
+    total_compounds <- nrow(validation_list)
+    start_time <- Sys.time()
+    
+    # Calculate total steps (compounds × samples × standards)
+    total_steps <- 0
+    for (i in 1:nrow(validation_list)) {
+      row <- validation_list[i, ]
+      all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
+      all_samples <- all_samples[!is.na(all_samples)]
+      samples_count <- min(iterate_through, length(all_samples))
+      standards_count <- length(strsplit(row$standards, ", ")[[1]])
+      total_steps <- total_steps + (samples_count * standards_count)
+    }
+    
+    # Use environment to hold mutable counter
+    progress_env <- new.env()
+    progress_env$current_step <- 0
+    
+    cat(sprintf("\n▶ Starting sequential processing: %d compounds → %d total plots\n\n", 
+                total_compounds, total_steps))
+    
+    # Function to update progress display
+    update_progress <- function(force_refresh = FALSE) {
+      current_step <- progress_env$current_step
+      current_time <- Sys.time()
+      elapsed <- as.numeric(difftime(current_time, start_time, units = "secs"))
+      
+      if (current_step > 0) {
+        avg_time_per_step <- elapsed / current_step
+        remaining_steps <- total_steps - current_step
+        eta_secs <- avg_time_per_step * remaining_steps
+        eta_str <- sprintf("%02d:%02d:%02d", 
+                          floor(eta_secs / 3600), 
+                          floor((eta_secs %% 3600) / 60), 
+                          floor(eta_secs %% 60))
+      } else {
+        eta_str <- "calculating..."
+      }
+      
+      elapsed_str <- sprintf("%02d:%02d:%02d", 
+                            floor(elapsed / 3600), 
+                            floor((elapsed %% 3600) / 60), 
+                            floor(elapsed %% 60))
+      
+      # Progress bar (50 blocks = ~15 steps per block for 756 total)
+      pct <- current_step / total_steps
+      bar_width <- 50
+      filled <- floor(pct * bar_width)
+      bar <- paste0(paste0(rep("█", filled), collapse = ""), 
+                    paste0(rep("░", bar_width - filled), collapse = ""))
+      
+      # Get current compound info
+      current_compound_info <- if (exists("current_id") && exists("current_name")) {
+        sprintf("%s (%s)", current_name, current_id)
+      } else {
+        "Initializing..."
+      }
+      
+      # Single line progress update
+      cat(sprintf("\r[%s] %3.0f%% | Step %d/%d | %s | Time: %s | ETA: %s          ", 
+                  bar, pct * 100, current_step, total_steps,
+                  current_compound_info, elapsed_str, eta_str))
+      
+      flush.console()
+    }
+    
     for (row_idx in 1:nrow(validation_list)) {
     row <- validation_list[row_idx, ]
     
@@ -537,7 +685,13 @@ rtx <- function(validation_list,
     id_val <- row$id
     short_name <- row$short_name
     
-    cat(sprintf("\n[%d/%d] Processing %s (%s)...\n", row_idx, nrow(validation_list), short_name, id_val))
+    # Set current compound for display
+    current_id <<- id_val
+    current_name <<- short_name
+    
+    # Calculate plots for this compound
+    all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
+    all_samples <- all_samples[!is.na(all_samples)]
     
     compound_plots[[id_val]] <- list(
       short_name = short_name,
@@ -576,11 +730,9 @@ rtx <- function(validation_list,
     all_samples <- all_samples[!is.na(all_samples)]
     samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
     
-    # Iterate through sample files
+    # Iterate through sample files (silent processing)
     for (sample_idx in seq_along(samples_to_process)) {
       sample_file <- samples_to_process[sample_idx]
-      
-      cat(sprintf("  Sample %d/%d: %s\n", sample_idx, length(samples_to_process), sample_file))
       
       # Determine RT range for this sample
       sample_rt_range <- base_rt_range_expanded
@@ -590,8 +742,6 @@ rtx <- function(validation_list,
         if (rt_range_col_name %in% names(row) && !is.na(row[[rt_range_col_name]])) {
           rt_range_str <- row[[rt_range_col_name]]
           sample_rt_range <- eval(parse(text = rt_range_str))
-          cat(sprintf("    Using file-specific RT range: [%.2f, %.2f]\n", 
-                      sample_rt_range[1], sample_rt_range[2]))
         }
       }
       
@@ -606,11 +756,9 @@ rtx <- function(validation_list,
       sample_chrom$type <- "Sample"
       sample_chrom$plot_intensity <- sample_chrom$intensity
       
-      # Iterate through standards
+      # Iterate through standards (silent processing)
       for (std_idx in seq_along(standards)) {
         standard_file <- standards[std_idx]
-        
-        cat(sprintf("    Standard %d/%d: %s\n", std_idx, length(standards), standard_file))
         
         # Extract chromatogram for standard
         standard_chrom <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
@@ -692,7 +840,7 @@ rtx <- function(validation_list,
             title = short_name,
             subtitle = sprintf("Sample: %s  |  Standard: %s  |  RT = %.2f min", sample_id, standard_file, mean(sample_rt_range)),
             x = "Retention Time (min)",
-            y = sprintf("\u2190 Std  |  %s \u2192", tools::toTitleCase(study)),
+            y = sprintf("← Standard  |  %s →     ", tools::toTitleCase(study)),
             color = NULL
           ) +
           coord_cartesian(clip = "off") +
@@ -700,11 +848,11 @@ rtx <- function(validation_list,
           theme(
             panel.grid.major.x = element_line(color = "gray90", linewidth = 0.2),
             panel.grid.minor.x = element_line(color = "gray90", linewidth = 0.2),
-            plot.margin = margin(20, 10, 20, 20),
+            plot.margin = margin(10, 10, 20, 20),
             plot.background = element_rect(fill = "transparent", color = NA),
             panel.background = element_rect(fill = "transparent", color = NA),
             legend.position = "top",
-            legend.justification = "left",
+            legend.justification = "center",
             legend.direction = "horizontal",
             legend.text = ggtext::element_markdown(size = 5),
             legend.title = element_blank(),
@@ -713,7 +861,7 @@ rtx <- function(validation_list,
             legend.key.size = unit(0.25, "cm"),
             legend.key.width = unit(0.25, "cm"),
             legend.spacing.x = unit(0.05, "cm"),
-            legend.box.margin = margin(0, 0, 2, 0),
+            legend.box.margin = margin(0, 0, 0, 0),
             legend.margin = margin(0, 0, 0, 0),
             plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
             plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6, 
@@ -740,9 +888,11 @@ rtx <- function(validation_list,
           rt_range = sample_rt_range
         )
         
-        cat(sprintf("      Created plot: %s\n", plot_label))
+        # Increment and update progress after each plot
+        progress_env$current_step <- progress_env$current_step + 1
+        update_progress()
         
-        # Save individual plot RDS if requested
+        # Save individual plot RDS if requested (silent)
         if (save_rds && !is.null(rds_save_folder)) {
           # Get validation_plot_directory from config
           if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
@@ -772,15 +922,26 @@ rtx <- function(validation_list,
               rt_range = sample_rt_range
             )
             
-            # Save with plot_tag as filename
+            # Save with plot_tag as filename (silent)
             saveRDS(individual_plot, file = rds_path, compress = "gzip")
-            cat(sprintf("      Saved RDS: %s\n", plot_tag))
           }
         }
       }
     }
   }
   } # End of sequential/parallel if-else
+  
+  # Final progress update for sequential mode
+  if (!use_parallel) {
+    elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+    elapsed_str <- sprintf("%02d:%02d:%02d", 
+                          floor(elapsed / 3600), 
+                          floor((elapsed %% 3600) / 60), 
+                          floor(elapsed %% 60))
+    cat(sprintf("\r[%s] 100%% | Completed: %d compounds, %d plots | Total time: %s\n\n", 
+                paste0(rep("█", 30), collapse = ""), 
+                total_compounds, progress_env$current_step, elapsed_str))
+  }
   
   # Compile into PDF
   cat(sprintf("\nCompiling %d compounds into PDF...\n", length(compound_plots)))
@@ -879,7 +1040,7 @@ rtx <- function(validation_list,
   # Ensure PDF device is properly closed
   pdf_closed <- tryCatch({
     dev.off()
-    cat(sprintf("\nPDF saved to: %s\n", pdf_path))
+    cat(sprintf("\n✓ PDF saved to: %s\n", pdf_path))
     TRUE
   }, error = function(e) {
     cat(sprintf("Error closing PDF: %s\n", e$message))
@@ -890,7 +1051,23 @@ rtx <- function(validation_list,
     FALSE
   })
   
-  # Copy PDF to validation_plots subdirectory (same location as RDS files)
+  # Copy PDF to Initial folder in Validation directory
+  if (pdf_closed) {
+    initial_pdf_dir <- file.path(output_dir, "Initial")
+    dir.create(initial_pdf_dir, recursive = TRUE, showWarnings = FALSE)
+    
+    initial_pdf_path <- file.path(initial_pdf_dir, basename(pdf_path))
+    pdf_copy_success <- tryCatch({
+      file.copy(pdf_path, initial_pdf_path, overwrite = TRUE)
+      cat(sprintf("✓ PDF copied to Initial folder: %s\n", initial_pdf_path))
+      TRUE
+    }, error = function(e) {
+      cat(sprintf("⚠️  Warning: Could not copy PDF to Initial folder: %s\n", e$message))
+      FALSE
+    })
+  }
+  
+  # Copy PDF to temp_RDS subdirectory (same location as RDS files)
   if (save_rds && !is.null(rds_save_folder) && pdf_closed) {
     pdf_dest_dir <- if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
       file.path(config$paths$validation_plot_directory, rds_save_folder)
@@ -900,9 +1077,9 @@ rtx <- function(validation_list,
     pdf_dest_path <- file.path(pdf_dest_dir, basename(pdf_path))
     tryCatch({
       file.copy(pdf_path, pdf_dest_path, overwrite = TRUE)
-      cat(sprintf("PDF copied to: %s\n", pdf_dest_path))
+      cat(sprintf("✓ PDF copied to temp RDS folder: %s\n", pdf_dest_path))
     }, error = function(e) {
-      cat(sprintf("Warning: Could not copy PDF to subdirectory: %s\n", e$message))
+      cat(sprintf("⚠️  Warning: Could not copy PDF to temp RDS folder: %s\n", e$message))
     })
   }
   
@@ -919,13 +1096,90 @@ rtx <- function(validation_list,
   # Report RDS saving summary
   if (save_rds && !is.null(rds_save_folder)) {
     total_plots <- sum(sapply(compound_plots, function(x) length(x$plots)))
-    cat(sprintf("\nSaved %d individual plot RDS files to: %s\n", 
-                total_plots, 
-                if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
-                  file.path(config$paths$validation_plot_directory, rds_save_folder)
-                } else {
-                  file.path(output_dir, "RDS", rds_save_folder)
-                }))
+    local_dir <- if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
+      file.path(config$paths$validation_plot_directory, rds_save_folder)
+    } else {
+      file.path(output_dir, "RDS", rds_save_folder)
+    }
+    cat(sprintf("\nSaved %d individual plot RDS files to: %s\n", total_plots, local_dir))
+    
+    # Bulk transfer to OneDrive if configured
+    if (exists("config") && !is.null(config$paths$validation_plot_directory_onedrive)) {
+      onedrive_dir <- file.path(config$paths$validation_plot_directory_onedrive, rds_save_folder)
+      cat(sprintf("\n📤 Transferring RDS files to OneDrive backup...\n"))
+      
+      dir.create(onedrive_dir, recursive = TRUE, showWarnings = FALSE)
+      
+      local_files <- list.files(local_dir, pattern = "\\.rds$", full.names = TRUE)
+      
+      success_count <- 0
+      fail_count <- 0
+      
+      for (local_file in local_files) {
+        dest_file <- file.path(onedrive_dir, basename(local_file))
+        copy_success <- tryCatch({
+          file.copy(local_file, dest_file, overwrite = TRUE)
+          TRUE
+        }, error = function(e) {
+          FALSE
+        })
+        
+        if (copy_success) {
+          success_count <- success_count + 1
+        } else {
+          fail_count <- fail_count + 1
+        }
+      }
+      
+      cat(sprintf("✓ Transferred %d/%d files to OneDrive\n", success_count, length(local_files)))
+      if (fail_count > 0) {
+        cat(sprintf("⚠️  %d files failed to transfer\n", fail_count))
+      }
+      
+      # Also copy the PDF
+      if (pdf_closed) {
+        pdf_dest_onedrive <- file.path(onedrive_dir, basename(pdf_path))
+        pdf_copy_success <- tryCatch({
+          file.copy(pdf_path, pdf_dest_onedrive, overwrite = TRUE)
+          TRUE
+        }, error = function(e) {
+          FALSE
+        })
+        
+        if (pdf_copy_success) {
+          cat(sprintf("✓ PDF copied to OneDrive: %s\n", pdf_dest_onedrive))
+        }
+      }
+      
+      # Clean up local temp files after successful transfer
+      if (fail_count == 0) {
+        cat(sprintf("\n🗑️  Cleaning up local temp files...\n"))
+        deleted_count <- 0
+        for (local_file in local_files) {
+          if (file.remove(local_file)) {
+            deleted_count <- deleted_count + 1
+          }
+        }
+        cat(sprintf("✓ Removed %d temp RDS files from local directory\n", deleted_count))
+        
+        # Try to remove the run-specific folder if empty
+        remaining_files <- list.files(local_dir, all.files = TRUE, no.. = TRUE)
+        if (length(remaining_files) == 0) {
+          unlink(local_dir, recursive = TRUE)
+          cat(sprintf("✓ Removed empty temp directory: %s\n", basename(local_dir)))
+          
+          # Try to remove parent temp_RDS folder if completely empty
+          parent_temp_dir <- dirname(local_dir)
+          if (basename(parent_temp_dir) == "temp_RDS") {
+            parent_remaining <- list.files(parent_temp_dir, all.files = TRUE, no.. = TRUE)
+            if (length(parent_remaining) == 0) {
+              unlink(parent_temp_dir, recursive = TRUE)
+              cat(sprintf("✓ Removed empty parent temp directory: temp_RDS\n"))
+            }
+          }
+        }
+      }
+    }
   }
   
   invisible(compound_plots)

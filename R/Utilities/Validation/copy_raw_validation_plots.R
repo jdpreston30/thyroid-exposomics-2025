@@ -14,7 +14,15 @@
 copy_raw_validation_plots <- function(validation_curated,
                                       config,
                                       output_dir = "Outputs/Validation/ggplot_objects_raw",
-                                      overwrite = TRUE) {
+                                      overwrite = TRUE,
+                                      skip_if_disabled = TRUE) {
+  
+  # Check if function should skip based on config
+  if (skip_if_disabled && !is.null(config$analysis$copy_rds_val_plots) && 
+      !config$analysis$copy_rds_val_plots) {
+    cat("\n=== Skipping copy of raw validation plots (copy_rds_val_plots = FALSE) ===\n")
+    return(invisible(NULL))
+  }
   
   # Map source types to their RDS folders
   source_to_folder <- list(
