@@ -13,7 +13,7 @@ uf <- function() {
       list.files(utils_path, pattern = "\\.[rR]$", full.names = TRUE, recursive = TRUE),
       source
     )
-    cat("🔧 Reloaded utility functions\n")
+    cat("✅ Utility functions updated\n")
   } else {
     cat("⚠️  Utilities directory not found: ", utils_path, "\n")
   }
