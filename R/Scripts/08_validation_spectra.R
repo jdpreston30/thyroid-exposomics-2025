@@ -40,7 +40,7 @@ variant_rtx <- rtx(
   output_dir = "Outputs/Validation/initial_compile/",
   rt_lookup = "sample",
   save_rds = TRUE,
-  rds_save_folder = "variant_rtx",
+  rds_save_folder = "variant_rtx_full",
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
   use_parallel = FALSE
