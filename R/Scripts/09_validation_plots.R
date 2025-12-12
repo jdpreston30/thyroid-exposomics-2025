@@ -15,79 +15,13 @@ variant_plot_list <- validation_check_files %>%
   str_split(",\\s*") %>%
   unlist() %>%
   unique()
-#- 9.3.2: Set up information for copy from OneDrive
-{
-  ggplot_raw_dir <- "Outputs/Validation/ggplot_objects_raw"
-  dir.create(ggplot_raw_dir, showWarnings = FALSE, recursive = TRUE)
-  onedrive_base <- config$paths$validation_plot_directory_onedrive
-  remaining_plots <- variant_plot_list
-  copied_count <- 0
-}
-#- 9.3.3: If else to pull all files from variant_rtx and iarc_tumor_rtx
-{
-  # Search in variant_rtx subfolder
-  variant_rtx_dir <- file.path(onedrive_base, "variant_rtx")
-  for (plot_name in variant_plot_list) {
-    source_file <- file.path(variant_rtx_dir, paste0(plot_name, ".rds"))
-    if (file.exists(source_file)) {
-      dest_file <- file.path(ggplot_raw_dir, paste0(plot_name, ".rds"))
-      file.copy(source_file, dest_file, overwrite = TRUE)
-      remaining_plots <- setdiff(remaining_plots, plot_name)
-      copied_count <- copied_count + 1
-      cat(sprintf("  ✓ Copied from variant_rtx: %s\n", plot_name))
-    }
-  }
-  cat(sprintf("\nCopied %d files from variant_rtx\n", copied_count))
-  # Search in iarc_tumor_rtx subfolder for remaining plots
-  if (length(remaining_plots) > 0) {
-    iarc_count <- 0
-    iarc_tumor_dir <- file.path(onedrive_base, "iarc_tumor_rtx")
-    for (plot_name in remaining_plots) {
-      source_file <- file.path(iarc_tumor_dir, paste0(plot_name, ".rds"))
-      if (file.exists(source_file)) {
-        dest_file <- file.path(output_dir, paste0(plot_name, ".rds"))
-        file.copy(source_file, dest_file, overwrite = TRUE)
-        remaining_plots <- setdiff(remaining_plots, plot_name)
-        iarc_count <- iarc_count + 1
-        cat(sprintf("  ✓ Copied from iarc_tumor_rtx: %s\n", plot_name))
-      }
-    }
-    cat(sprintf("\nCopied %d files from iarc_tumor_rtx\n", iarc_count))
-  }
-  # Report results
-  if (length(remaining_plots) == 0) {
-    cat("\n✅ Matched all plots!\n")
-  } else {
-    cat(sprintf("\n⚠️  Could not find %d plots:\n", length(remaining_plots)))
-    print(remaining_plots)
-  }
-}
-#- 9.3.4: Read all copied RDS files into a single object (parallel)
-{
-  rds_files <- list.files(ggplot_raw_dir, pattern = "\\.rds$", full.names = TRUE)
-  cat(sprintf("Reading %d RDS files in parallel...\n", length(rds_files)))
-  cl <- makeCluster(8)
-  validation_plots <- parLapply(cl, rds_files, function(rds_file) {
-    tryCatch({
-      plot_tag <- tools::file_path_sans_ext(basename(rds_file))
-      plot_data <- readRDS(rds_file)
-      list(tag = plot_tag, data = plot_data, success = TRUE)
-    }, error = function(e) {
-      list(tag = tools::file_path_sans_ext(basename(rds_file)), 
-           data = NULL, success = FALSE, error = e$message)
-    })
-  })
-  stopCluster(cl)
-  names(validation_plots) <- sapply(validation_plots, function(x) x$tag)
-  validation_plots <- lapply(validation_plots, function(x) x$data)
-  failed <- sapply(validation_plots, is.null)
-  if (any(failed)) {
-    warning(sprintf("⚠️  Failed to load %d files", sum(failed)))
-  }
-  validation_plots <- validation_plots[!failed]
-  cat(sprintf("✓ Loaded %d plots\n", length(validation_plots)))
-}
-#- 9.3.4: Adjust x-axis RT ranges for each plot
+#- 9.3.2: Read validation plots directly from OneDrive
+source("R/Utilities/Helpers/read_validation_plots_from_onedrive.R")
+validation_plots <- read_validation_plots_from_onedrive(
+  plot_names = variant_plot_list,
+  onedrive_base_path = config$paths$validation_plot_directory_onedrive
+)
+#- 9.3.3: Adjust x-axis RT ranges for each plot
 validation_plots_adjusted <- adjust_validation_plot_ranges(
   validation_plots = validation_plots,
   validation_curated = validation_check_files
