@@ -507,6 +507,9 @@ rtx <- function(validation_list,
   # Main iteration loop
   cat(sprintf("\nStarting RTX validation for %d compounds...\n", nrow(validation_list)))
   
+  # Track total runtime for entire function
+  function_start_time <- Sys.time()
+  
   # Determine if using parallel processing
   if (use_parallel) {
     if (!requireNamespace("foreach", quietly = TRUE) || 
@@ -1051,21 +1054,7 @@ rtx <- function(validation_list,
     FALSE
   })
   
-  # Copy PDF to Initial folder in Validation directory
-  if (pdf_closed) {
-    initial_pdf_dir <- file.path(output_dir, "Initial")
-    dir.create(initial_pdf_dir, recursive = TRUE, showWarnings = FALSE)
-    
-    initial_pdf_path <- file.path(initial_pdf_dir, basename(pdf_path))
-    pdf_copy_success <- tryCatch({
-      file.copy(pdf_path, initial_pdf_path, overwrite = TRUE)
-      cat(sprintf("✓ PDF copied to Initial folder: %s\n", initial_pdf_path))
-      TRUE
-    }, error = function(e) {
-      cat(sprintf("⚠️  Warning: Could not copy PDF to Initial folder: %s\n", e$message))
-      FALSE
-    })
-  }
+  # PDF is already saved to output_dir (initial_compile)
   
   # Copy PDF to temp_RDS subdirectory (same location as RDS files)
   if (save_rds && !is.null(rds_save_folder) && pdf_closed) {
@@ -1162,9 +1151,22 @@ rtx <- function(validation_list,
         }
         cat(sprintf("✓ Removed %d temp RDS files from local directory\n", deleted_count))
         
-        # Try to remove the run-specific folder if empty
+        # Also remove PDF from temp folder if it exists
+        temp_pdf_path <- file.path(local_dir, basename(pdf_path))
+        if (file.exists(temp_pdf_path)) {
+          file.remove(temp_pdf_path)
+          cat(sprintf("✓ Removed temp PDF file\n"))
+        }
+        
+        # Try to remove the run-specific folder if empty (ignore .DS_Store and system files)
         remaining_files <- list.files(local_dir, all.files = TRUE, no.. = TRUE)
+        # Filter out .DS_Store and other system files
+        remaining_files <- remaining_files[!remaining_files %in% c(".DS_Store", "Thumbs.db")]
         if (length(remaining_files) == 0) {
+          # Remove .DS_Store if it exists before removing directory
+          ds_store <- file.path(local_dir, ".DS_Store")
+          if (file.exists(ds_store)) file.remove(ds_store)
+          
           unlink(local_dir, recursive = TRUE)
           cat(sprintf("✓ Removed empty temp directory: %s\n", basename(local_dir)))
           
@@ -1172,7 +1174,12 @@ rtx <- function(validation_list,
           parent_temp_dir <- dirname(local_dir)
           if (basename(parent_temp_dir) == "temp_RDS") {
             parent_remaining <- list.files(parent_temp_dir, all.files = TRUE, no.. = TRUE)
+            parent_remaining <- parent_remaining[!parent_remaining %in% c(".DS_Store", "Thumbs.db")]
             if (length(parent_remaining) == 0) {
+              # Remove .DS_Store if it exists
+              ds_store <- file.path(parent_temp_dir, ".DS_Store")
+              if (file.exists(ds_store)) file.remove(ds_store)
+              
               unlink(parent_temp_dir, recursive = TRUE)
               cat(sprintf("✓ Removed empty parent temp directory: temp_RDS\n"))
             }
@@ -1181,6 +1188,16 @@ rtx <- function(validation_list,
       }
     }
   }
+  
+  # Print final total time for entire workflow
+  total_elapsed <- as.numeric(difftime(Sys.time(), function_start_time, units = "secs"))
+  cat(sprintf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"))
+  cat(sprintf("✓ RTX Validation Complete\n"))
+  cat(sprintf("  Total Runtime: %02d:%02d:%02d (plot generation + PDF creation + OneDrive backup)\n",
+              floor(total_elapsed / 3600), 
+              floor((total_elapsed %% 3600) / 60), 
+              floor(total_elapsed %% 60)))
+  cat(sprintf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"))
   
   invisible(compound_plots)
 }
