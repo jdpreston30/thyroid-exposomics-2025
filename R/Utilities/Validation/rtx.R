@@ -331,6 +331,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
 #' @param save_rds Logical, whether to save individual plot RDS files (default: TRUE)
 #' @param rds_save_folder Character string: subfolder name within validation_plot_directory for saving individual plot RDS files
 #' @param overwrite_rds Logical, whether to automatically overwrite existing RDS files without prompting (default: FALSE)
+#' @param save_compiled_rds Logical, whether to save the compiled compound_plots object to OneDrive (default: FALSE)
 #' @param use_parallel Logical, whether to use parallel processing (default: FALSE)
 #' @param n_cores Integer, number of cores to use for parallel processing (default: parallel::detectCores() - 1)
 #'
@@ -348,6 +349,7 @@ rtx <- function(validation_list,
                 save_rds = TRUE,
                 rds_save_folder = NULL,
                 overwrite_rds = FALSE,
+                save_compiled_rds = FALSE,
                 use_parallel = FALSE,
                 n_cores = NULL,
                 skip_if_disabled = TRUE) {
@@ -1044,6 +1046,20 @@ rtx <- function(validation_list,
     }
   }
   
+  # Save compiled compound_plots object if requested
+  if (save_compiled_rds && !is.null(rds_save_folder)) {
+    if (exists("config") && !is.null(config$paths$validation_plot_directory_onedrive)) {
+      compiled_rds_dir <- config$paths$validation_plot_directory_onedrive
+      dir.create(compiled_rds_dir, recursive = TRUE, showWarnings = FALSE)
+      compiled_rds_path <- file.path(compiled_rds_dir, paste0(rds_save_folder, "_compiled.rds"))
+      
+      cat(sprintf("\n💾 Saving compiled compound_plots object...\n"))
+      saveRDS(compound_plots, compiled_rds_path)
+      cat(sprintf("✓ Saved compiled object to: %s\n", compiled_rds_path))
+    } else {
+      warning("save_compiled_rds = TRUE but config$paths$validation_plot_directory_onedrive is not set. Skipping compiled RDS save.")
+    }
+  }
   # Print final total time for entire workflow
   total_elapsed <- as.numeric(difftime(Sys.time(), function_start_time, units = "secs"))
   cat(sprintf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"))

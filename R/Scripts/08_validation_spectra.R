@@ -16,6 +16,7 @@ iarc_tumor_rtx <- rtx(
   save_rds = TRUE,
   rds_save_folder = "iarc_tumor_rtx",
   overwrite_rds = TRUE,
+  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 8
 )
@@ -28,6 +29,7 @@ iarc_cadaver_rtx <- rtx(
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx",
   overwrite_rds = TRUE,
+  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 8
 )
@@ -40,6 +42,7 @@ variant_rtx <- rtx(
   save_rds = TRUE,
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
+  save_compiled_rds = TRUE,
   use_parallel = FALSE
 )
 #+ 8.3: Manually copy over files, read in, adjust x ranges
