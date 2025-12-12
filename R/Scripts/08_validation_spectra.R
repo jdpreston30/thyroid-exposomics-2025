@@ -6,11 +6,10 @@ file_inventory <- convert_raw_to_mzml(
   file_list = file_list,
   tumor_raw_dir = config$paths$tumor_raw_dir,
   cadaver_raw_dir = config$paths$cadaver_raw_dir
-)
-#! Function will skip if already completed
-#+ 8.2: Manual Validation (on 4-fragment versions)
+) #! Function will skip if already completed
+#+ 8.2: Manual Validation Plots (on 4-fragment versions)
 #- 8.2.1: IARC Tumor
-rtx(
+iarc_tumor_rtx <- rtx(
   validation_list = iv_wide,
   iterate_through = 6,
   output_dir = "Outputs/Validation/initial_compile/",
@@ -23,7 +22,7 @@ rtx(
   n_cores = 10
 )
 #- 8.2.2: IARC Cadaver
-rtx(
+iarc_cadaver_rtx <- rtx(
   validation_list = ic_wide,
   study = "cadaver",
   iterate_through = 7,
@@ -37,19 +36,41 @@ rtx(
   n_cores = 8
 )
 #- 8.2.3: Variant Differences Chemicals
-rtx(
+variant_rtx <- rtx(
   validation_list = vv_wide,
   iterate_through = 6,
   output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "variant_rtx.pdf",
   rt_lookup = "sample",
   save_rds = TRUE,
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
-  use_parallel = TRUE,
-  n_cores = 8
+  use_parallel = FALSE
 )
 #+ 8.3: Manually copy over files, read in, adjust x ranges
+#- 8.3.1: IARC Tumor
+compile_validation_pdf(
+  compound_plots = iarc_tumor_rtx,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "iarc_tumor_rtx.pdf",
+  add_plot_tags = TRUE
+)
+
+#- 8.3.2: IARC Cadaver
+compile_validation_pdf(
+  compound_plots = iarc_cadaver_rtx,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "iarc_cadaver_rtx.pdf",
+  add_plot_tags = TRUE
+)
+
+#- 8.3.3: Variant Differences Chemicals
+compile_validation_pdf(
+  compound_plots = variant_rtx,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "variant_rtx.pdf",
+  add_plot_tags = TRUE
+)
+#+ 8.4: Manually copy over files, read in, adjust x ranges
 #! Rerun 8.3 once run is done
 #- 8.3.0: Read in manual validation results
 validation_check_files <- validation_check |>

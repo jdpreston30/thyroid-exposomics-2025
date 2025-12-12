@@ -341,7 +341,6 @@ rtx <- function(validation_list,
                 study = "tumor",
                 iterate_through = 5,
                 output_dir,
-                pdf_name = "rtx_validation.pdf",
                 ppm_tolerance = 5,
                 rt_lookup = "range",
                 stick = FALSE,
@@ -946,132 +945,6 @@ rtx <- function(validation_list,
                 total_compounds, progress_env$current_step, elapsed_str))
   }
   
-  # Compile into PDF
-  cat(sprintf("\nCompiling %d compounds into PDF...\n", length(compound_plots)))
-  
-  pdf_path <- file.path(output_dir, pdf_name)
-  dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-  
-  # Ensure no lingering graphics devices before opening PDF
-  while (dev.cur() > 1) {
-    dev.off()
-    cat("Closed lingering graphics device\n")
-  }
-  
-  pdf(pdf_path, width = 8.5, height = 11, family = "Helvetica", onefile = TRUE)
-  
-  first_page <- TRUE
-  
-  for (compound_id in names(compound_plots)) {
-    compound <- compound_plots[[compound_id]]
-    plots <- compound$plots
-    
-    if (length(plots) == 0) next
-    
-    cat(sprintf("  Adding %s (%s): %d plots\n", compound$short_name, compound$id, length(plots)))
-    
-    # Sort plot labels
-    plot_labels <- names(plots)
-    plot_labels <- plot_labels[order(
-      as.numeric(gsub("F([0-9]+)_S([0-9]+)", "\\1", plot_labels)),
-      as.numeric(gsub("F([0-9]+)_S([0-9]+)", "\\2", plot_labels))
-    )]
-    
-    # Modify plots for PDF: add red tags to subtitles
-    pdf_plots <- lapply(plot_labels, function(label) {
-      plot_info <- plots[[label]]
-      p <- plot_info$plot
-      sample_id <- plot_info$sample_id
-      standard_file <- plot_info$standard_file
-      plot_tag <- plot_info$plot_tag
-      
-      # Add plot tag to subtitle
-      new_subtitle <- sprintf("Sample: %s  |  Standard: %s  |  RT = %.3f min  |  %s",
-                              sample_id, standard_file, mean(compound$plots[[label]]$rt_range), plot_tag)
-      
-      p <- p +
-        labs(subtitle = new_subtitle) +
-        theme(
-          plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6,
-                                                   color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0))
-        )
-      
-      p
-    })
-    
-    # Create pages: 6 plots per page (3 rows x 2 columns)
-    plots_per_page <- 6
-    n_pages <- ceiling(length(pdf_plots) / plots_per_page)
-    
-    for (page_num in 1:n_pages) {
-      start_idx <- (page_num - 1) * plots_per_page + 1
-      end_idx <- min(page_num * plots_per_page, length(pdf_plots))
-      page_plots <- pdf_plots[start_idx:end_idx]
-      
-      # Create title
-      if (n_pages == 1) {
-        title_text <- sprintf("%s (%s)", compound$short_name, compound$id)
-      } else {
-        title_text <- sprintf("%s (%s) - page %d/%d", compound$short_name, compound$id, page_num, n_pages)
-      }
-      
-      title_grob <- grid::textGrob(
-        title_text,
-        gp = grid::gpar(fontsize = 14, fontface = "bold"),
-        x = 0.5, y = 0.95, just = "top"
-      )
-      
-      # Create grid: 2 columns x 3 rows
-      grid_plot <- gridExtra::arrangeGrob(
-        grobs = page_plots,
-        ncol = 2,
-        top = title_grob
-      )
-      
-      tryCatch({
-        if (!first_page) {
-          grid::grid.newpage()
-        }
-        first_page <- FALSE
-        grid::grid.draw(grid_plot)
-      }, error = function(e) {
-        cat(sprintf("  Error drawing compound %s page %d: %s\n", compound$id, page_num, e$message))
-      })
-    }
-  }
-  
-  # Ensure PDF device is properly closed
-  pdf_closed <- tryCatch({
-    dev.off()
-    cat(sprintf("\n✓ PDF saved to: %s\n", pdf_path))
-    TRUE
-  }, error = function(e) {
-    cat(sprintf("Error closing PDF: %s\n", e$message))
-    # Force close any remaining devices
-    while (dev.cur() > 1) {
-      try(dev.off(), silent = TRUE)
-    }
-    FALSE
-  })
-  
-  # PDF is already saved to output_dir (initial_compile)
-  
-  # Copy PDF to temp_RDS subdirectory (same location as RDS files)
-  if (save_rds && !is.null(rds_save_folder) && pdf_closed) {
-    pdf_dest_dir <- if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
-      file.path(config$paths$validation_plot_directory, rds_save_folder)
-    } else {
-      file.path(output_dir, "RDS", rds_save_folder)
-    }
-    pdf_dest_path <- file.path(pdf_dest_dir, basename(pdf_path))
-    tryCatch({
-      file.copy(pdf_path, pdf_dest_path, overwrite = TRUE)
-      cat(sprintf("✓ PDF copied to temp RDS folder: %s\n", pdf_dest_path))
-    }, error = function(e) {
-      cat(sprintf("⚠️  Warning: Could not copy PDF to temp RDS folder: %s\n", e$message))
-    })
-  }
-  
   # Close all cached mzML files
   cat(sprintf("\nClosing %d cached mzML files...\n", length(ls(envir = mzml_cache))))
   for (file_name in ls(envir = mzml_cache)) {
@@ -1125,20 +998,7 @@ rtx <- function(validation_list,
         cat(sprintf("⚠️  %d files failed to transfer\n", fail_count))
       }
       
-      # Also copy the PDF
-      if (pdf_closed) {
-        pdf_dest_onedrive <- file.path(onedrive_dir, basename(pdf_path))
-        pdf_copy_success <- tryCatch({
-          file.copy(pdf_path, pdf_dest_onedrive, overwrite = TRUE)
-          TRUE
-        }, error = function(e) {
-          FALSE
-        })
-        
-        if (pdf_copy_success) {
-          cat(sprintf("✓ PDF copied to OneDrive: %s\n", pdf_dest_onedrive))
-        }
-      }
+
       
       # Clean up local temp files after successful transfer
       if (fail_count == 0) {
@@ -1151,12 +1011,7 @@ rtx <- function(validation_list,
         }
         cat(sprintf("✓ Removed %d temp RDS files from local directory\n", deleted_count))
         
-        # Also remove PDF from temp folder if it exists
-        temp_pdf_path <- file.path(local_dir, basename(pdf_path))
-        if (file.exists(temp_pdf_path)) {
-          file.remove(temp_pdf_path)
-          cat(sprintf("✓ Removed temp PDF file\n"))
-        }
+
         
         # Try to remove the run-specific folder if empty (ignore .DS_Store and system files)
         remaining_files <- list.files(local_dir, all.files = TRUE, no.. = TRUE)
@@ -1192,12 +1047,15 @@ rtx <- function(validation_list,
   # Print final total time for entire workflow
   total_elapsed <- as.numeric(difftime(Sys.time(), function_start_time, units = "secs"))
   cat(sprintf("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"))
-  cat(sprintf("✓ RTX Validation Complete\n"))
-  cat(sprintf("  Total Runtime: %02d:%02d:%02d (plot generation + PDF creation + OneDrive backup)\n",
+  cat(sprintf("✓ RTX Plot Generation Complete\n"))
+  cat(sprintf("  Total Runtime: %02d:%02d:%02d (plot generation + RDS saving + OneDrive backup)\n",
               floor(total_elapsed / 3600), 
               floor((total_elapsed %% 3600) / 60), 
               floor(total_elapsed %% 60)))
+  cat(sprintf("  Generated %d compounds with %d total plots\n",
+              length(compound_plots),
+              sum(sapply(compound_plots, function(x) length(x$plots)))))
   cat(sprintf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"))
   
-  invisible(compound_plots)
+  return(compound_plots)
 }
