@@ -62,7 +62,10 @@ GC2_features <- read_csv(config$paths$gc2_features)
 #- 0d.1.14: Import expanded library
 expanded_lib <- read_csv(config$paths$gc2_expanded)
 #- 0d.1.15: Validation
-validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
+validation_check_files <- read_xlsx(config$paths$variant_validation, sheet = "validation") |>
+  filter(!state %in% c("failed", "alternate")) |>
+  mutate(rt_range = (rtu-rtl)/2) |>
+  select(state, everything(), -c(modification, note, rtl, rtu))
 #+ 0d.2: Structure data
 #- 0d.2.1: Pull the tumor columns
 tumor_column <- tumor_raw |>

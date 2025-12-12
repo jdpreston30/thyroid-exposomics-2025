@@ -34,5 +34,6 @@
         "%DOCFILE%"
       ]
     }
-  ]
+  ],
+  "r.lsp.promptToInstall": false
 }

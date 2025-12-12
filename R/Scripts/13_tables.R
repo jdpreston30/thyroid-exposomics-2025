@@ -46,17 +46,17 @@ table_3_tibble <- MT_final |>
   mutate(
     short_name = paste0(
       short_name,
-      if_else(annot_ident == "Annotation", "*", ""),
+      if_else(quality == 2, "*", ""),
       if_else(
         Carcinogenicity %in% c("Likely Carcinogen", "Possible Carcinogen", "Known Carcinogen"),
         "\u2020", ""
       ),
-      ifelse(Potential_EDC == "Y", "\u2021", "") # <-- FIXED HERE
+      ifelse(Potential_EDC == "Y", "\u2021", "")
     ),
     FTC_let = coalesce(FTC_let, FTC),
     FV_PTC_let = coalesce(FV_PTC_let, FV_PTC),
     PTC_let = coalesce(PTC_let, PTC),
-    p_value = round(p_value, 3)
+    p_value = sprintf("%.3f", p_value)
   ) |>
   mutate(short_name = str_replace(short_name, "NA$", "")) |>
   arrange(p_value) |>
@@ -66,3 +66,4 @@ table_3 <- build_table_3(
   data = table_3_tibble,
   export_path = "Outputs/Tables/T3.xlsx"
 )
+#!!!!!!!!1 UPDATE FOOTNOE TEXT

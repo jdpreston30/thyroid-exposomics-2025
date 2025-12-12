@@ -1,48 +1,70 @@
 #* 9: Validation Plots Adjustment and Manual Review
 #+ 9.1: Load compiled validation plots
-validation_plots <- load_validation_plots(
-  onedrive_base_path = config$paths$validation_plot_directory_onedrive
-)
-#+ 9.2: Adjust x-axis RT ranges for each plot
-validation_plots_adjusted <- adjust_validation_plot_ranges(
+{
+  modify_curated_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "modify_curated.rds")
+  final_curated_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "final_curated.rds")
+  modify_curated <- readRDS(modify_curated_path)
+  final_curated <- readRDS(final_curated_path)
+  validation_plots <- c(modify_curated, final_curated)
+  cat(sprintf("\n✓ Loaded %d plots from modify_curated and %d plots from final_curated\n", 
+              length(modify_curated), length(final_curated)))
+}
+#+ 9.2: Global adjustments
+#!!!!!!!!!!!!! 
+validation_plots <- modify_curated
+#!!!!!!!!!!!!!
+#- 9.2.1: Adjust x-axis ranges based on all plots
+VPA_colored <- adjust_VP_ranges(
   validation_plots = validation_plots,
   validation_curated = validation_check_files
 )
-#+ 9.4: Manual Adjustment of Specific Plots
-#- 8.4.1: Set vector of plots that need adjustment
-adjust_ids <- c("CP2382", "CP3007", "CP2486", "CP2212", "CP1090", "CP3113", "CP3193", "CP3182", "CP3148", "CP2365", "CP3174", "CP3017", "CP3021", "CP2487", "CP1016", "CP2107", "CP3066")
-#- 8.3.4: Pull all adjust plots for each ID into separate lists
-aps <- list()
-for (id in adjust_ids) {
-  id_plots <- validation_plots_adjusted[grepl(paste0("_", id, "$"), names(validation_plots_adjusted))]
-  if (length(id_plots) > 0) {
-    aps[[id]] <- id_plots
-    cat(sprintf("Pulled %d plots for %s\n", length(id_plots), id))
-  }
-}
-#+ 8.4: Plots that failed after review
-#- 8.4.1: Molinate (CP2486)
-F3_S1_CP2486_revised <- remove_standard(aps$CP2486$F1_S1_CP2486, xl = 5.1, xu = 5.175)
-#- 8.4.2: Atrazine (CP3113)
-write_small(aps$CP3113)
-#- 8.4.16: Bupirimate (CP2107)
-write_small(aps$CP2107)
-#- 8.4.10: Resmethrin (CP3174)
-write_small(aps$CP3174)
-#+ 8.6: Plots that required revision
-#- 8.4.1: MDA (CP3007)
-#! removed standard, zoomed Y axis, calling level 2
-F3_S1_CP3007_revised <- remove_standard(aps$CP3007$F3_S1_CP3007, xl = 3.8, xu = 4)
-#- 8.4.5: N-MeFOSAA (CP3193)
-#- 8.4.3: MEHP
-#- 8.4.7: TEEP (CP3182)
-#- 8.4.8: Menthone (CP3148)
-#- 8.4.8: Menthone (CP3148)
-#- 8.4.9 : Prosulfuron (CP2365)
-#- 8.4.10: Resmethrin (CP3174)
-#- 8.4.11: o-Toluidine (CP3017)
-#- 8.4.12: o-Anisidine (CP3021)
-#- 8.4.13: Vernolate (CP2487)
-#- 8.4.16: Bupirimate (CP2107)
-#- 8.4.17: o-Cresol (CP3066)
-#+ 8.5 Save 
+#- 9.2.2: Adjust colors
+VPA_colored <- adjust_VP_colors(
+  validation_plots = validation_plots_adjusted_x
+)
+#- 9.2.3: Adjust y-axis titles
+VPA <- adjust_VP_yaxis_title(VPA_colored, y_title = "← Standard | Tumor →")
+#+ 9.3: Plots that failed after review
+#- 9.3.1: Molinate (CP2486)
+remove_standard(VPA$F1_S1_CP2486, xl = 5.1, xu = 5.175, subfolder = "failed")
+#- 9.3.2: Atrazine (CP3113)
+write_small(VPA$F6_S1_CP3113, subfolder = "failed")
+#- 9.3.3: Bupirimate (CP2107)
+write_small(VPA$F1_S1_CP2107, subfolder = "failed")
+#- 9.3.4: Resmethrin (CP3174)
+write_small(VPA$F2_S1_CP3174, subfolder = "failed")
+#+ 9.6: Revise Plots (X-axis adjust and/or fragment zoom)
+#- 9.6.1: MEHP (CP2382)
+# quant frag tiny but there, zooming x axis, calling level 1
+F2_S1_CP2382_R <- zoom_x(VPA$F2_S1_CP2382, xl = 9.75, xu = 10.2)
+#!!!!!!!!!!!!! ZOOM PLOT?
+#- 9.6.2: TEEP (CP3182)
+# quant frag tiny but there, zooming x axis, calling level 1
+F6_S1_CP3182_R <- zoom_x(VPA$F6_S1_CP3182, xl = 19.36, xu = 19.66)
+#!!!!!!!!!!!!! ZOOM PLOT?
+#- 9.6.3: N-MeFOSAA (CP3193)
+# Removed mz3 to show smaller fragments
+F3_S1_CP3193_R <- zoom_fragment(VPA$F3_S1_CP3193, -3)
+#!!!!!!!!!!1 mz3 zoom plot?
+#!!!! show original too though 
+#+ 9.7: Revise Plots (Remove standard peak -> level 2)
+#- 9.7.1: MDA (CP3007)
+# removed standard, zoomed Y axis, calling level 2
+F3_S1_CP3007_R <- remove_standard(VPA$F3_S1_CP3007, xl = 3.8, xu = 4)
+#- 9.4.8: Menthone (CP3148)
+F3_S1_CP3007_R <- remove_standard(VPA$F3_S1_CP3007, xl = 3.8, xu = 4)
+
+
+#- 9.4.9 : Prosulfuron (CP2365)
+#- 9.4.10: Resmethrin (CP3174)
+#- 9.4.11: o-Toluidine (CP3017)
+#- 9.4.12: o-Anisidine (CP3021)
+#- 9.4.13: Vernolate (CP2487)
+#- 9.4.16: Bupirimate (CP2107)
+#- 9.4.17: o-Cresol (CP3066)
+#+ 9.8: Revise Plots (Other)
+#- 9.8.1: o-Toluidine (CP3017)
+#! Already modified in earlier steps with removal of bad fragment
+
+#+ 9.5 Save 
+#!!! SAVE PLOTS ONLY LOCALLY TO REPO

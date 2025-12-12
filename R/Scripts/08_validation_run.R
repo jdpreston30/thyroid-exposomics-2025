@@ -19,6 +19,19 @@ iarc_tumor_rtx <- rtx(
   use_parallel = TRUE,
   n_cores = 8
 )
+moca <- iv_wide |>
+  filter(short_name == "MOCA")
+iarc_tumor_rtx <- rtx(
+  validation_list = moca,
+  iterate_through = 6,
+  rt_lookup = "sample",
+  save_rds = TRUE,
+  rds_save_folder = "moca",
+  overwrite_rds = TRUE,
+  save_compiled_rds = FALSE,
+  use_parallel = FALSE,
+  n_cores = 8
+)
 #- 8.2.2: IARC Cadaver
 iarc_cadaver_rtx <- rtx(
   validation_list = ic_wide,
@@ -67,32 +80,83 @@ compile_validation_pdf(
   add_plot_tags = TRUE
 )
 #+ 8.4: Read validation plots, compile, adjust x ranges
-#!!!!!
-validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
-#- 8.4.0: Read in manual validation results metadata
-validation_check_files <- validation_check |>
-  filter(!state %in% c("failed", "not used")) |>
-  mutate(rt_range = (rtu-rtl)/2) |>
-  select(-c(modification, note, rtl, rtu)) |>
-  arrange(order)
 #- 8.4.1: Derive a list of all unique plots to read in
 variant_plot_list <- validation_check_files %>%
-  filter(source != "IARC") %>%
   pull(plot) %>%
   str_split(",\\s*") %>%
   unlist() %>%
   unique()
-#- 8.4.2: Read validation plots directly from OneDrive
-validation_plots <- read_validation_plots(
-  plot_names = variant_plot_list,
-  onedrive_base_path = config$paths$validation_plot_directory_onedrive,
-  parallel = FALSE
-)
-#- 8.4.3: Save compiled RDS to OneDrive (run manually)
-compiled_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "validation_plots_compiled.rds")
-dir.create(dirname(compiled_rds_path), showWarnings = FALSE, recursive = TRUE)
-saveRDS(validation_plots, compiled_rds_path)
-cat(sprintf("✓ Saved compiled RDS: %s\n", compiled_rds_path))
+#- 8.4.2: Copy all selected plots to curated/original folder
+{
+  variant_rtx_dir <- file.path(config$paths$validation_plot_directory_onedrive, "variant_rtx")
+  iarc_tumor_dir <- file.path(config$paths$validation_plot_directory_onedrive, "iarc_tumor_rtx")
+  curated_original_dir <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "original")
+  dir.create(curated_original_dir, showWarnings = FALSE, recursive = TRUE)
+  copied_count <- 0
+  for (plot_name in variant_plot_list) {
+    # Check variant_rtx first
+    variant_file <- file.path(variant_rtx_dir, paste0(plot_name, ".rds"))
+    if (file.exists(variant_file)) {
+      file.copy(variant_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
+      copied_count <- copied_count + 1
+      next
+    }
+    # Check iarc_tumor_rtx
+    iarc_file <- file.path(iarc_tumor_dir, paste0(plot_name, ".rds"))
+    if (file.exists(iarc_file)) {
+      file.copy(iarc_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
+      copied_count <- copied_count + 1
+    }
+  }
+  cat(sprintf("✓ Copied %d plots to curated/original/\n\n", copied_count))
+}
+#- 8.4.3: Separate into modify vs final batches
+{
+  modify_plots <- validation_check_files %>%
+    filter(state != "final") %>%
+    pull(plot) %>%
+    str_split(",\\s*") %>%
+    unlist() %>%
+    unique()
+  final_plots <- validation_check_files %>%
+    filter(state == "final") %>%
+    pull(plot) %>%
+    str_split(",\\s*") %>%
+    unlist() %>%
+    unique()
+}
+#- 8.4.4: Read modify_curated batch
+{
+  modify_curated <- list()
+  for (plot_name in modify_plots) {
+    file_path <- file.path(curated_original_dir, paste0(plot_name, ".rds"))
+    if (file.exists(file_path)) {
+      modify_curated[[plot_name]] <- readRDS(file_path)
+      cat(sprintf("  ✓ Loaded: %s\n", plot_name))
+    }
+  }
+  # Save modify_curated as RDS
+  modify_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "modify_curated.rds")
+  saveRDS(modify_curated, modify_rds_path)
+  cat(sprintf("\n✓ Saved modify_curated RDS with %d plots: %s\n", length(modify_curated), modify_rds_path))
+} 
+#- 8.4.5: Read final_curated batch
+{
+  cat(sprintf("\nReading %d final plots...\n", length(final_plots)))
+  final_curated <- list()
+  for (plot_name in final_plots) {
+    file_path <- file.path(curated_original_dir, paste0(plot_name, ".rds"))
+    if (file.exists(file_path)) {
+      final_curated[[plot_name]] <- readRDS(file_path)
+      cat(sprintf("  ✓ Loaded: %s\n", plot_name))
+    }
+  }
+  # Save final_curated as RDS
+  final_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "final_curated.rds")
+  saveRDS(final_curated, final_rds_path)
+  cat(sprintf("\n✓ Saved final_curated RDS with %d plots: %s\n", length(final_curated), final_rds_path))
+}
+#- 8.4.6: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation step (config$run_validation_step = FALSE)\n")
 }

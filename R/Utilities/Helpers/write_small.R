@@ -1,6 +1,6 @@
-write_small <- function(aps, compound = NULL) {
+write_small <- function(aps, compound = NULL, subfolder = "revised") {
   # Create output directory
-  output_dir <- "Outputs/Validation/revised"
+  output_dir <- file.path("Outputs/Validation", subfolder)
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   
   # Case 1: aps is the full list and compound is specified (e.g., aps, "CP2382")
