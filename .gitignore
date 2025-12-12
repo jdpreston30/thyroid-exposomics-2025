@@ -60,6 +60,9 @@ renv/staging/
 *.bak
 *.log
 
+# Validation temp RDS files (transferred to OneDrive)
+Outputs/Validation/temp_RDS/
+
 # IDE
 .vscode/
 .idea/

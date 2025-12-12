@@ -20,7 +20,8 @@ paths:
   # Specific file paths (built from base)
   clinical_metadata: "{base_data_path}/Manifest.xlsx"
   primary_data: "{base_data_path}/primary_data.xlsx"
-  validation_plot_directory: "{base_data_path}/validation_plots"
+  validation_plot_directory: "Outputs/Validation/temp_RDS"  # Local temp directory (fast I/O, run-specific)
+  validation_plot_directory_onedrive: "{base_data_path}/validation_plots"  # OneDrive final location
 
   # Raw MS data directories for spectral validation
   tumor_raw_dir: "{base_data_path}/Tumors/GC080_GC1_M524_Thyroid_Tissue_12082022"
@@ -52,6 +53,10 @@ analysis:
   # Project metadata
   project_name: "thyroid-exposomics-2025"
   description: "Thyroid Exposomics Analysis"
+  
+  # Script execution flags
+  manual_validation_full_run: true  # Set to true to run full RTX validation (section 8.2)
+  copy_rds_val_plots: true  # Set to true to copy raw validation plots (section 8.3.1)
   
   # Environment preferences
   tibble_options:
