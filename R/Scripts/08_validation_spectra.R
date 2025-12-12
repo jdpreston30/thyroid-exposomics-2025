@@ -30,7 +30,7 @@ iarc_cadaver_rtx <- rtx(
   rds_save_folder = "iarc_cadaver_rtx",
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
-  use_parallel = TRUE,
+  use_parallel = FALSE,
   n_cores = 8
 )
 #- 8.2.3: Variant Differences Chemicals
