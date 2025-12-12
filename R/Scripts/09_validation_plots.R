@@ -18,7 +18,8 @@ variant_plot_list <- validation_check_files %>%
 #- 9.3.2: Read validation plots directly from OneDrive
 validation_plots <- read_validation_plots(
   plot_names = variant_plot_list,
-  onedrive_base_path = config$paths$validation_plot_directory_onedrive
+  onedrive_base_path = config$paths$validation_plot_directory_onedrive,
+  parallel = FALSE
 )
 #- 9.3.3: Adjust x-axis RT ranges for each plot
 validation_plots_adjusted <- adjust_validation_plot_ranges(

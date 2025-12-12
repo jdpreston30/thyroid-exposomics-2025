@@ -35,16 +35,77 @@ read_validation_plots <- function(plot_names, onedrive_base_path, parallel = TRU
   valid_paths <- file_paths[!missing]
   valid_names <- plot_names[!missing]
   
-  cat(sprintf("Reading %d validation plots from OneDrive (%s)...\n", 
-              length(valid_paths), ifelse(parallel, "parallel", "sequential")))
+  total_files <- length(valid_paths)
+  cat(sprintf("\n▶ Reading %d validation plots from OneDrive (%s)...\n\n", 
+              total_files, ifelse(parallel, "parallel", "sequential")))
+  
+  start_time <- Sys.time()
   
   #- Read files
   if (parallel) {
+    #+ Parallel processing with progress
     cl <- makeCluster(8)
-    validation_plots <- parLapply(cl, valid_paths, readRDS)
+    clusterExport(cl, c("valid_paths"), envir = environment())
+    
+    completed <- 0
+    validation_plots <- parLapply(cl, valid_paths, function(path) {
+      plot <- readRDS(path)
+      return(plot)
+    })
     stopCluster(cl)
+    
+    elapsed <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+    cat(sprintf("\r[Parallel] ✓ Completed: %d plots | Total time: %02d:%02d:%02d\n\n",
+                total_files, floor(elapsed / 3600), floor((elapsed %% 3600) / 60), floor(elapsed %% 60)))
+    
   } else {
-    validation_plots <- lapply(valid_paths, readRDS)
+    #+ Sequential processing with progress bar
+    validation_plots <- list()
+    
+    for (i in seq_along(valid_paths)) {
+      #- Read file
+      validation_plots[[i]] <- readRDS(valid_paths[i])
+      
+      #- Update progress
+      current_time <- Sys.time()
+      elapsed <- as.numeric(difftime(current_time, start_time, units = "secs"))
+      
+      if (i > 0) {
+        avg_time_per_file <- elapsed / i
+        remaining_files <- total_files - i
+        eta_secs <- avg_time_per_file * remaining_files
+        eta_str <- sprintf("%02d:%02d:%02d", 
+                          floor(eta_secs / 3600), 
+                          floor((eta_secs %% 3600) / 60), 
+                          floor(eta_secs %% 60))
+      } else {
+        eta_str <- "calculating..."
+      }
+      
+      elapsed_str <- sprintf("%02d:%02d:%02d", 
+                            floor(elapsed / 3600), 
+                            floor((elapsed %% 3600) / 60), 
+                            floor(elapsed %% 60))
+      
+      #- Progress bar
+      pct <- i / total_files
+      bar_width <- 50
+      filled <- floor(pct * bar_width)
+      bar <- paste0(paste0(rep("█", filled), collapse = ""), 
+                    paste0(rep("░", bar_width - filled), collapse = ""))
+      
+      #- Current file info
+      current_file <- basename(valid_paths[i])
+      
+      #- Single line progress update
+      cat(sprintf("\r[%s] %3.0f%% | File %d/%d | %s | Time: %s | ETA: %s          ", 
+                  bar, pct * 100, i, total_files,
+                  current_file, elapsed_str, eta_str))
+      
+      flush.console()
+    }
+    
+    cat("\n\n")
   }
   
   #- Name list
