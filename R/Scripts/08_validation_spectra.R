@@ -88,3 +88,48 @@ validation_plots_adjusted <- adjust_validation_plot_ranges(
 #+ 8.4: Manual Adjustment of Specific Plots
 #- 8.4.1: Set vector of plots that need adjustment
 adjust_ids <- c("CP2382", "CP3007", "CP2486", "CP2212", "CP1090", "CP3113", "CP3193", "CP3182", "CP3148", "CP2365", "CP3174", "CP3017", "CP3021", "CP2487", "CP1016", "CP2107", "CP3066")
+#- 8.3.4: Pull all plots for each ID into separate lists
+aps <- list()
+for (id in adjust_ids) {
+  id_plots <- validation_plots_adjusted[grepl(paste0("_", id, "$"), names(validation_plots_adjusted))]
+  if (length(id_plots) > 0) {
+    aps[[id]] <- id_plots
+    cat(sprintf("Pulled %d plots for %s\n", length(id_plots), id))
+  }
+}
+#+ 8.4: Manual edits for problematic plots
+#- 8.4.1: MEHP (CP2382)
+aps$CP2382
+#- 8.4.2: MDA (CP3007)
+aps$CP3007
+#- 8.4.3: Molinate (CP2486)
+aps$CP2486
+#- 8.4.4: 2-Nitroaniline (CP2212)
+aps$CP2212
+#- 8.4.5: Methoxychlor (CP1090)
+aps$CP1090
+#- 8.4.6: Atrazine (CP3113)
+aps$CP3113
+#- 8.4.7: N-MeFOSAA (CP3193)
+aps$CP3193
+#- 8.4.8: TEEP (CP3182)
+aps$CP3182
+#- 8.4.9: Menthone (CP3148)
+aps$CP3148
+#- 8.4.10: Prosulfuron (CP2365)
+aps$CP2365
+#- 8.4.11: Resmethrin (CP3174)
+aps$CP3174
+#- 8.4.12: o-Toluidine (CP3017)
+aps$CP3017
+#- 8.4.13: o-Anisidine (CP3021)
+aps$CP3021
+#- 8.4.14: Vernolate (CP2487)
+aps$CP2487
+#- 8.4.16: Bupirimate (CP2107)
+aps$CP2107
+#- 8.4.17: o-Cresol (CP3066)
+aps$CP3066
+
+#+ 8.5: Create individual fragment plots
+#- 8.5.1: CP2487 (Vernolate) - separate fragments
