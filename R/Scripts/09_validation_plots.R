@@ -1,5 +1,5 @@
 #* 9: Validation Plots Adjustment and Manual Review
-#+ 9.4: Manually copy over files, read in, adjust x ranges
+#+ 9.4: Read validation plots, compile, adjust x ranges
 #!!!!!
 validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
 #- 9.4.0: Read in manual validation results metadata
@@ -16,8 +16,7 @@ variant_plot_list <- validation_check_files %>%
   unlist() %>%
   unique()
 #- 9.3.2: Read validation plots directly from OneDrive
-source("R/Utilities/Helpers/read_validation_plots_from_onedrive.R")
-validation_plots <- read_validation_plots_from_onedrive(
+validation_plots <- read_validation_plots(
   plot_names = variant_plot_list,
   onedrive_base_path = config$paths$validation_plot_directory_onedrive
 )
@@ -27,8 +26,6 @@ validation_plots_adjusted <- adjust_validation_plot_ranges(
   validation_curated = validation_check_files
 )
 #+ 9.4: Manual Adjustment of Specific Plots
-source("R/Utilities/Helpers/remove_standard.R")
-source("R/Utilities/Helpers/write_small.R")
 #- 8.4.1: Set vector of plots that need adjustment
 adjust_ids <- c("CP2382", "CP3007", "CP2486", "CP2212", "CP1090", "CP3113", "CP3193", "CP3182", "CP3148", "CP2365", "CP3174", "CP3017", "CP3021", "CP2487", "CP1016", "CP2107", "CP3066")
 #- 8.3.4: Pull all adjust plots for each ID into separate lists
