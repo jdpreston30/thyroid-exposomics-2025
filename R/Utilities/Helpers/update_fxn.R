@@ -5,8 +5,8 @@
 #'
 #' @export
 #' @examples
-#' uf()  # or UF()
-uf <- function() {
+#' u()  # or U()
+u <- function() {
   utils_path <- "R/Utilities/"
   if (dir.exists(utils_path)) {
     purrr::walk(
@@ -20,6 +20,6 @@ uf <- function() {
   invisible(NULL)
 }
 
-#' @rdname uf
+#' @rdname u
 #' @export
-UF <- uf
+U <- u
