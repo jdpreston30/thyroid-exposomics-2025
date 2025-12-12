@@ -341,7 +341,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
 rtx <- function(validation_list,
                 study = "tumor",
                 iterate_through = 5,
-                output_dir,
+                output_dir = NULL,
                 ppm_tolerance = 5,
                 rt_lookup = "range",
                 stick = FALSE,
@@ -364,9 +364,11 @@ rtx <- function(validation_list,
     }
   }
   
-  # Check required parameter
-  if (missing(output_dir)) {
-    stop("output_dir is required and must be specified")
+  # Check output_dir only if needed (when config is not available)
+  if (is.null(output_dir) && save_rds && !is.null(rds_save_folder)) {
+    if (!exists("config", envir = .GlobalEnv) || is.null(get("config", envir = .GlobalEnv)$paths$validation_plot_directory)) {
+      stop("output_dir is required when config$paths$validation_plot_directory is not set")
+    }
   }
   
   # Validate parameters
