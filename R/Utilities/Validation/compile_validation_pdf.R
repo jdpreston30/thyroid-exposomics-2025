@@ -145,5 +145,27 @@ compile_validation_pdf <- function(compound_plots,
     return(invisible(NULL))
   }
   
+  # Copy PDF to OneDrive if configured
+  if (exists("config", envir = .GlobalEnv)) {
+    config <- get("config", envir = .GlobalEnv)
+    if (!is.null(config$paths$validation_plot_directory_onedrive)) {
+      onedrive_pdf_path <- file.path(config$paths$validation_plot_directory_onedrive, pdf_name)
+      cat(sprintf("\n📤 Copying PDF to OneDrive...\n"))
+      
+      copy_success <- tryCatch({
+        file.copy(pdf_path, onedrive_pdf_path, overwrite = TRUE)
+        TRUE
+      }, error = function(e) {
+        FALSE
+      })
+      
+      if (copy_success && file.exists(onedrive_pdf_path)) {
+        cat(sprintf("✓ PDF backed up to OneDrive: %s\n", onedrive_pdf_path))
+      } else {
+        warning(sprintf("Failed to copy PDF to OneDrive: %s", onedrive_pdf_path))
+      }
+    }
+  }
+  
   invisible(pdf_path)
 }
