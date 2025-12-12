@@ -69,38 +69,83 @@ compile_validation_pdf(
 )
 #+ 8.4: Manually copy over files, read in, adjust x ranges
 validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
-#- 8.3.0: Read in manual validation results
+#- 8.3.0: Read in manual validation results metadata
 validation_check_files <- validation_check |>
   filter(!state %in% c("failed", "not used")) |>
   mutate(rt_range = (rtu-rtl)/2) |>
   select(-c(modification, note, rtl, rtu)) |>
   arrange(order)
-#- 8.3.1: Pull all variant plots to repo
+#- 8.3.1: Derive a list of all unique plots to read in
 variant_plot_list <- validation_check_files %>%
   filter(source != "IARC") %>%
   pull(plot) %>%
   str_split(",\\s*") %>%
   unlist() %>%
   unique()
-#- 8.3.2: Read all copied RDS files into a single object
-rds_dir <- config$paths$validation_plots_raw
-rds_files <- list.files(rds_dir, pattern = "\\.rds$", full.names = TRUE)
-validation_plots <- list()
-for (rds_file in rds_files) {
-  # Extract plot_tag from filename
-  plot_tag <- tools::file_path_sans_ext(basename(rds_file))
-  # Read RDS file with error handling
-  tryCatch({
-    plot_data <- readRDS(rds_file)
-    # Store in list with plot_tag as key
-    validation_plots[[plot_tag]] <- plot_data
-    cat(sprintf("  Loaded: %s\n", plot_tag))
-  }, error = function(e) {
-    warning(sprintf("  ⚠️  Failed to load %s: %s\n  File may be corrupted. Skipping.", 
-                    plot_tag, e$message))
-  })
+#- 8.3.2: Set up information for copy from OneDrive
+{
+  ggplot_raw_dir <- "Outputs/Validation/ggplot_objects_raw"
+  dir.create(ggplot_raw_dir, showWarnings = FALSE, recursive = TRUE)
+  onedrive_base <- config$paths$validation_plot_directory_onedrive
+  remaining_plots <- variant_plot_list
+  copied_count <- 0
 }
-#- 8.3.3: Adjust x-axis RT ranges for each plot
+#- 8.3.3: If else to pull all files from variant_rtx and iarc_tumor_rtx
+{
+  # Search in variant_rtx subfolder
+  variant_rtx_dir <- file.path(onedrive_base, "variant_rtx")
+  for (plot_name in variant_plot_list) {
+    source_file <- file.path(variant_rtx_dir, paste0(plot_name, ".rds"))
+    if (file.exists(source_file)) {
+      dest_file <- file.path(ggplot_raw_dir, paste0(plot_name, ".rds"))
+      file.copy(source_file, dest_file, overwrite = TRUE)
+      remaining_plots <- setdiff(remaining_plots, plot_name)
+      copied_count <- copied_count + 1
+      cat(sprintf("  ✓ Copied from variant_rtx: %s\n", plot_name))
+    }
+  }
+  cat(sprintf("\nCopied %d files from variant_rtx\n", copied_count))
+  # Search in iarc_tumor_rtx subfolder for remaining plots
+  if (length(remaining_plots) > 0) {
+    iarc_count <- 0
+    iarc_tumor_dir <- file.path(onedrive_base, "iarc_tumor_rtx")
+    for (plot_name in remaining_plots) {
+      source_file <- file.path(iarc_tumor_dir, paste0(plot_name, ".rds"))
+      if (file.exists(source_file)) {
+        dest_file <- file.path(output_dir, paste0(plot_name, ".rds"))
+        file.copy(source_file, dest_file, overwrite = TRUE)
+        remaining_plots <- setdiff(remaining_plots, plot_name)
+        iarc_count <- iarc_count + 1
+        cat(sprintf("  ✓ Copied from iarc_tumor_rtx: %s\n", plot_name))
+      }
+    }
+    cat(sprintf("\nCopied %d files from iarc_tumor_rtx\n", iarc_count))
+  }
+  # Report results
+  if (length(remaining_plots) == 0) {
+    cat("\n✅ Matched all plots!\n")
+  } else {
+    cat(sprintf("\n⚠️  Could not find %d plots:\n", length(remaining_plots)))
+    print(remaining_plots)
+  }
+}
+#- 8.3.4: Read all copied RDS files into a single object
+{
+  rds_files <- list.files(ggplot_raw_dir, pattern = "\\.rds$", full.names = TRUE)
+  validation_plots <- list()
+  for (rds_file in rds_files) {
+    plot_tag <- tools::file_path_sans_ext(basename(rds_file))
+    tryCatch({
+      plot_data <- readRDS(rds_file)
+      validation_plots[[plot_tag]] <- plot_data
+      cat(sprintf("  Loaded: %s\n", plot_tag))
+    }, error = function(e) {
+      warning(sprintf("  ⚠️  Failed to load %s: %s\n  File may be corrupted. Skipping.", 
+                      plot_tag, e$message))
+    })
+  }
+}
+#- 8.3.4: Adjust x-axis RT ranges for each plot
 validation_plots_adjusted <- adjust_validation_plot_ranges(
   validation_plots = validation_plots,
   validation_curated = validation_check_files
