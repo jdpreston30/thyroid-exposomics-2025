@@ -55,8 +55,7 @@ analysis:
   description: "Thyroid Exposomics Analysis"
   
   # Script execution flags
-  manual_validation_full_run: true  # Set to true to run full RTX validation (section 8.2)
-  copy_rds_val_plots: true  # Set to true to copy raw validation plots (section 8.3.1)
+  run_validation_step: false  # Set to true to run full validation workflow (script 08)
   
   # Environment preferences
   tibble_options:

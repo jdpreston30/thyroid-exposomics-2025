@@ -1,89 +1,21 @@
-#* 8: Manual Spectral Validation
-#+ 8.1: Convert raw files to mzML
-#- 8.1.1: Setup base paths
-#- 8.1.2: Convert all .raw files to mzML format
-file_inventory <- convert_raw_to_mzml(
-  file_list = file_list,
-  tumor_raw_dir = config$paths$tumor_raw_dir,
-  cadaver_raw_dir = config$paths$cadaver_raw_dir
-) #! Function will skip if already completed
-#+ 8.2: Manual Validation Plots Creation
-#- 8.2.1: IARC Tumor
-iarc_tumor_rtx <- rtx(
-  validation_list = iv_wide,
-  iterate_through = 6,
-  rt_lookup = "sample",
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx",
-  overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
-  use_parallel = TRUE,
-  n_cores = 8
-)
-#- 8.2.2: IARC Cadaver
-iarc_cadaver_rtx <- rtx(
-  validation_list = ic_wide,
-  study = "cadaver",
-  iterate_through = 7,
-  rt_lookup = "sample",
-  save_rds = TRUE,
-  rds_save_folder = "iarc_cadaver_rtx",
-  overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
-  use_parallel = TRUE,
-  n_cores = 8
-)
-#- 8.2.3: Variant Differences Chemicals
-variant_rtx <- rtx(
-  validation_list = vv_wide,
-  iterate_through = 6,
-  output_dir = "Outputs/Validation/initial_compile/",
-  rt_lookup = "sample",
-  save_rds = TRUE,
-  rds_save_folder = "variant_rtx",
-  overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
-  use_parallel = FALSE
-)
-#+ 8.3: Compile PDFs of all Validation Plots
-#- 8.3.1: IARC Tumor
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "iarc_tumor_rtx.pdf",
-  add_plot_tags = TRUE
-)
-#- 8.3.2: IARC Cadaver
-compile_validation_pdf(
-  compound_plots = iarc_cadaver_rtx,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "iarc_cadaver_rtx.pdf",
-  add_plot_tags = TRUE
-)
-#- 8.3.3: Variant Differences Chemicals
-compile_validation_pdf(
-  compound_plots = variant_rtx,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "variant_rtx.pdf",
-  add_plot_tags = TRUE
-)
-#+ 8.4: Manually copy over files, read in, adjust x ranges
+#* 9: Validation Plots Adjustment and Manual Review
+#+ 9.4: Manually copy over files, read in, adjust x ranges
 #!!!!!
 validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
-#- 8.3.0: Read in manual validation results metadata
+#- 9.4.0: Read in manual validation results metadata
 validation_check_files <- validation_check |>
   filter(!state %in% c("failed", "not used")) |>
   mutate(rt_range = (rtu-rtl)/2) |>
   select(-c(modification, note, rtl, rtu)) |>
   arrange(order)
-#- 8.3.1: Derive a list of all unique plots to read in
+#- 9.4.1: Derive a list of all unique plots to read in
 variant_plot_list <- validation_check_files %>%
   filter(source != "IARC") %>%
   pull(plot) %>%
   str_split(",\\s*") %>%
   unlist() %>%
   unique()
-#- 8.3.2: Set up information for copy from OneDrive
+#- 9.3.2: Set up information for copy from OneDrive
 {
   ggplot_raw_dir <- "Outputs/Validation/ggplot_objects_raw"
   dir.create(ggplot_raw_dir, showWarnings = FALSE, recursive = TRUE)
@@ -91,7 +23,7 @@ variant_plot_list <- validation_check_files %>%
   remaining_plots <- variant_plot_list
   copied_count <- 0
 }
-#- 8.3.3: If else to pull all files from variant_rtx and iarc_tumor_rtx
+#- 9.3.3: If else to pull all files from variant_rtx and iarc_tumor_rtx
 {
   # Search in variant_rtx subfolder
   variant_rtx_dir <- file.path(onedrive_base, "variant_rtx")
@@ -130,28 +62,37 @@ variant_plot_list <- validation_check_files %>%
     print(remaining_plots)
   }
 }
-#- 8.3.4: Read all copied RDS files into a single object
+#- 9.3.4: Read all copied RDS files into a single object (parallel)
 {
   rds_files <- list.files(ggplot_raw_dir, pattern = "\\.rds$", full.names = TRUE)
-  validation_plots <- list()
-  for (rds_file in rds_files) {
-    plot_tag <- tools::file_path_sans_ext(basename(rds_file))
+  cat(sprintf("Reading %d RDS files in parallel...\n", length(rds_files)))
+  cl <- makeCluster(8)
+  validation_plots <- parLapply(cl, rds_files, function(rds_file) {
     tryCatch({
+      plot_tag <- tools::file_path_sans_ext(basename(rds_file))
       plot_data <- readRDS(rds_file)
-      validation_plots[[plot_tag]] <- plot_data
-      cat(sprintf("  Loaded: %s\n", plot_tag))
+      list(tag = plot_tag, data = plot_data, success = TRUE)
     }, error = function(e) {
-      warning(sprintf("  ⚠️  Failed to load %s: %s\n  File may be corrupted. Skipping.", 
-                      plot_tag, e$message))
+      list(tag = tools::file_path_sans_ext(basename(rds_file)), 
+           data = NULL, success = FALSE, error = e$message)
     })
+  })
+  stopCluster(cl)
+  names(validation_plots) <- sapply(validation_plots, function(x) x$tag)
+  validation_plots <- lapply(validation_plots, function(x) x$data)
+  failed <- sapply(validation_plots, is.null)
+  if (any(failed)) {
+    warning(sprintf("⚠️  Failed to load %d files", sum(failed)))
   }
+  validation_plots <- validation_plots[!failed]
+  cat(sprintf("✓ Loaded %d plots\n", length(validation_plots)))
 }
-#- 8.3.4: Adjust x-axis RT ranges for each plot
+#- 9.3.4: Adjust x-axis RT ranges for each plot
 validation_plots_adjusted <- adjust_validation_plot_ranges(
   validation_plots = validation_plots,
   validation_curated = validation_check_files
 )
-#+ 8.4: Manual Adjustment of Specific Plots
+#+ 9.4: Manual Adjustment of Specific Plots
 source("R/Utilities/Helpers/remove_standard.R")
 source("R/Utilities/Helpers/write_small.R")
 #- 8.4.1: Set vector of plots that need adjustment

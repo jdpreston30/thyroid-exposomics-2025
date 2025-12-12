@@ -354,16 +354,6 @@ rtx <- function(validation_list,
                 n_cores = NULL,
                 skip_if_disabled = TRUE) {
   
-  # Check if function should skip based on config
-  if (skip_if_disabled && exists("config", envir = .GlobalEnv)) {
-    config <- get("config", envir = .GlobalEnv)
-    if (!is.null(config$analysis$manual_validation_full_run) && 
-        !config$analysis$manual_validation_full_run) {
-      cat("\n=== Skipping RTX validation (manual_validation_full_run = FALSE) ===\n")
-      return(invisible(NULL))
-    }
-  }
-  
   # Check output_dir only if needed (when config is not available)
   if (is.null(output_dir) && save_rds && !is.null(rds_save_folder)) {
     if (!exists("config", envir = .GlobalEnv) || is.null(get("config", envir = .GlobalEnv)$paths$validation_plot_directory)) {
