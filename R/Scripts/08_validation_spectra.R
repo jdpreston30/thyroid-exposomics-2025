@@ -12,22 +12,18 @@ file_inventory <- convert_raw_to_mzml(
 iarc_tumor_rtx <- rtx(
   validation_list = iv_wide,
   iterate_through = 6,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "iarc_tumor_rtx.pdf",
   rt_lookup = "sample",
   save_rds = TRUE,
   rds_save_folder = "iarc_tumor_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 10
+  n_cores = 8
 )
 #- 8.2.2: IARC Cadaver
 iarc_cadaver_rtx <- rtx(
   validation_list = ic_wide,
   study = "cadaver",
   iterate_through = 7,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "iarc_cadaver_rtx.pdf",
   rt_lookup = "sample",
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx",
@@ -54,7 +50,6 @@ compile_validation_pdf(
   pdf_name = "iarc_tumor_rtx.pdf",
   add_plot_tags = TRUE
 )
-
 #- 8.3.2: IARC Cadaver
 compile_validation_pdf(
   compound_plots = iarc_cadaver_rtx,
@@ -62,7 +57,6 @@ compile_validation_pdf(
   pdf_name = "iarc_cadaver_rtx.pdf",
   add_plot_tags = TRUE
 )
-
 #- 8.3.3: Variant Differences Chemicals
 compile_validation_pdf(
   compound_plots = variant_rtx,
