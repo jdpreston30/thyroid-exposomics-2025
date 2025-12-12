@@ -68,19 +68,20 @@ compile_validation_pdf(
   add_plot_tags = TRUE
 )
 #+ 8.4: Manually copy over files, read in, adjust x ranges
-#! Rerun 8.3 once run is done
+validation_check <- read_xlsx(config$paths$variant_validation, sheet = "validation")
 #- 8.3.0: Read in manual validation results
 validation_check_files <- validation_check |>
   filter(!state %in% c("failed", "not used")) |>
   mutate(rt_range = (rtu-rtl)/2) |>
   select(-c(modification, note, rtl, rtu)) |>
   arrange(order)
-#- 8.3.1: Pull all those files to repo
-copy_raw_validation_plots(
-  validation_curated = validation_check_files,
-  config = config,
-  output_dir = config$paths$validation_plots_raw
-)
+#- 8.3.1: Pull all variant plots to repo
+variant_plot_list <- validation_check_files %>%
+  filter(source != "IARC") %>%
+  pull(plot) %>%
+  str_split(",\\s*") %>%
+  unlist() %>%
+  unique()
 #- 8.3.2: Read all copied RDS files into a single object
 rds_dir <- config$paths$validation_plots_raw
 rds_files <- list.files(rds_dir, pattern = "\\.rds$", full.names = TRUE)

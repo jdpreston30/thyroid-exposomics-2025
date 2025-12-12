@@ -1,3 +1,6 @@
+#! Run PDF compilation of the variant differences once compiled rds sequential is made
+#! Change two yaml settings to false
+
 #* Get all RDS files in validation plots directory
 validation_path <- "/Users/JoshsMacbook2015/Library/CloudStorage/OneDrive-EmoryUniversity/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/validation_plots"
 rds_files <- list.files(path = validation_path, pattern = "\\.rds$", recursive = TRUE, full.names = TRUE)
