@@ -7,7 +7,7 @@ file_inventory <- convert_raw_to_mzml(
   tumor_raw_dir = config$paths$tumor_raw_dir,
   cadaver_raw_dir = config$paths$cadaver_raw_dir
 ) #! Function will skip if already completed
-#+ 8.2: Manual Validation Plots (on 4-fragment versions)
+#+ 8.2: Manual Validation Plots Creation
 #- 8.2.1: IARC Tumor
 iarc_tumor_rtx <- rtx(
   validation_list = iv_wide,
@@ -45,7 +45,7 @@ variant_rtx <- rtx(
   save_compiled_rds = TRUE,
   use_parallel = FALSE
 )
-#+ 8.3: Manually copy over files, read in, adjust x ranges
+#+ 8.3: Compile PDFs of all Validation Plots
 #- 8.3.1: IARC Tumor
 compile_validation_pdf(
   compound_plots = iarc_tumor_rtx,
