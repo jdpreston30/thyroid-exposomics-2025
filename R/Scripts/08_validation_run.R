@@ -92,23 +92,33 @@ variant_plot_list <- validation_check_files %>%
   iarc_tumor_dir <- file.path(config$paths$validation_plot_directory_onedrive, "iarc_tumor_rtx")
   curated_original_dir <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "original")
   dir.create(curated_original_dir, showWarnings = FALSE, recursive = TRUE)
-  copied_count <- 0
-  for (plot_name in variant_plot_list) {
-    # Check variant_rtx first
-    variant_file <- file.path(variant_rtx_dir, paste0(plot_name, ".rds"))
-    if (file.exists(variant_file)) {
-      file.copy(variant_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
-      copied_count <- copied_count + 1
-      next
+  
+  # Check if all files already exist
+  expected_files <- file.path(curated_original_dir, paste0(variant_plot_list, ".rds"))
+  existing_files <- sum(file.exists(expected_files))
+  
+  if (existing_files == length(variant_plot_list)) {
+    cat(sprintf("✓ All %d plots already exist in curated/original/ - skipping copy\n\n", existing_files))
+  } else {
+    cat(sprintf("Copying %d plots (found %d existing)...\n", length(variant_plot_list), existing_files))
+    copied_count <- 0
+    for (plot_name in variant_plot_list) {
+      # Check variant_rtx first
+      variant_file <- file.path(variant_rtx_dir, paste0(plot_name, ".rds"))
+      if (file.exists(variant_file)) {
+        file.copy(variant_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
+        copied_count <- copied_count + 1
+        next
+      }
+      # Check iarc_tumor_rtx
+      iarc_file <- file.path(iarc_tumor_dir, paste0(plot_name, ".rds"))
+      if (file.exists(iarc_file)) {
+        file.copy(iarc_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
+        copied_count <- copied_count + 1
+      }
     }
-    # Check iarc_tumor_rtx
-    iarc_file <- file.path(iarc_tumor_dir, paste0(plot_name, ".rds"))
-    if (file.exists(iarc_file)) {
-      file.copy(iarc_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
-      copied_count <- copied_count + 1
-    }
+    cat(sprintf("✓ Copied %d plots to curated/original/\n\n", copied_count))
   }
-  cat(sprintf("✓ Copied %d plots to curated/original/\n\n", copied_count))
 }
 #- 8.4.3: Separate into modify vs final batches
 {
@@ -141,7 +151,7 @@ variant_plot_list <- validation_check_files %>%
   modify_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "modify_curated.rds")
   saveRDS(modify_curated, modify_rds_path)
   cat(sprintf("\n✓ Saved modify_curated RDS with %d plots: %s\n", length(modify_curated), modify_rds_path))
-} 
+}
 #- 8.4.6: Read final_curated batch
 {
   cat(sprintf("\nReading %d final plots...\n", length(final_plots)))
