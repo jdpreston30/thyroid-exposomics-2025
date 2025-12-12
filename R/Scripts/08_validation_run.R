@@ -135,12 +135,14 @@ variant_plot_list <- validation_check_files %>%
       cat(sprintf("  ✓ Loaded: %s\n", plot_name))
     }
   }
-  # Save modify_curated as RDS
+}
+#- 8.4.5: Save modify_curated batch
+{ 
   modify_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "modify_curated.rds")
   saveRDS(modify_curated, modify_rds_path)
   cat(sprintf("\n✓ Saved modify_curated RDS with %d plots: %s\n", length(modify_curated), modify_rds_path))
 } 
-#- 8.4.5: Read final_curated batch
+#- 8.4.6: Read final_curated batch
 {
   cat(sprintf("\nReading %d final plots...\n", length(final_plots)))
   final_curated <- list()
@@ -151,12 +153,14 @@ variant_plot_list <- validation_check_files %>%
       cat(sprintf("  ✓ Loaded: %s\n", plot_name))
     }
   }
-  # Save final_curated as RDS
+}
+#- 8.4.7: Save final_curated batch
+{
   final_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "final_curated.rds")
   saveRDS(final_curated, final_rds_path)
   cat(sprintf("\n✓ Saved final_curated RDS with %d plots: %s\n", length(final_curated), final_rds_path))
 }
-#- 8.4.6: Skip entire section if YAML specifies
+#- 8.4.8: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation step (config$run_validation_step = FALSE)\n")
 }
