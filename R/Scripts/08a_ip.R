@@ -1,15 +1,8 @@
 #!!!!! Make version with largest fragment included as well
-#- 8.4.5: N-MeFOSAA (CP3193)
-cp3193_no_mz0 <- aps$CP3193$F3_S1_CP3193
-plot_data <- cp3193_no_mz0$plot$data
-plot_data_filtered <- plot_data[plot_data$mz_label != "mz3", ]
-cp3193_no_mz0$plot$data <- plot_data_filtered
-write_small(cp3193_no_mz0)
-cp3193_no_mz0$plot
+
 
 
 #!!!!! CHECK QUANT FRAG, if pass then level 1
-#- 8.4.3: MEHP
 #- 8.4.7: TEEP (CP3182)
 #- 8.4.9 : Prosulfuron (CP2365)
 

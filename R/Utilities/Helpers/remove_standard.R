@@ -1,4 +1,4 @@
-remove_standard <- function(plot_obj, xl = NULL, xu = NULL) {
+remove_standard <- function(plot_obj, xl = NULL, xu = NULL, subfolder = "revised") {
   # Validate input
   if (!is.list(plot_obj) || !"plot" %in% names(plot_obj)) {
     stop("Invalid plot object. Expected a plot object with 'plot' field.")
@@ -51,7 +51,7 @@ remove_standard <- function(plot_obj, xl = NULL, xu = NULL) {
   modified_plot$plot$data <- plot_data_filtered
   
   # Automatically save the plot
-  write_small(modified_plot)
+  write_small(modified_plot, subfolder = subfolder)
   
   return(modified_plot)
 }

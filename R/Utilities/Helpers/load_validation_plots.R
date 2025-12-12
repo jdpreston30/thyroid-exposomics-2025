@@ -10,7 +10,7 @@
 #' @export
 load_validation_plots <- function(onedrive_base_path, force_reload = FALSE) {
   
-  compiled_rds_path <- file.path(onedrive_base_path, "curated", "validation_plots_compiled.rds")
+  compiled_rds_path <- file.path(onedrive_base_path, "curated", "original_compiled.rds")
   
   #- Check if already exists
   if (exists("validation_plots", envir = .GlobalEnv) && !force_reload) {
