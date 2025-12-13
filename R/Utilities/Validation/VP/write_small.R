@@ -34,11 +34,10 @@ write_small <- function(aps, compound = NULL, subfolder = "revised", suffix = ""
     
     # Extract metadata
     plot <- plot_obj$plot
-    short_name <- plot_obj$short_name
-    id <- plot_obj$id
+    plot_tag <- plot_obj$plot_tag
     
-    # Create filename with CP number first, then chemical name in parentheses
-    filename <- sprintf("%s (%s)%s.png", id, short_name, suffix)
+    # Create filename using plot_tag (same as grob name)
+    filename <- sprintf("%s%s.png", plot_tag, suffix)
     filepath <- file.path(output_dir, filename)
     
     # Save plot
