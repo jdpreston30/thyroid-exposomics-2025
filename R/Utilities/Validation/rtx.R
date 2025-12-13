@@ -191,7 +191,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           mz_num <- as.numeric(gsub("mz", "", marked_mz))
           combined_data$mz_label <- ifelse(
             combined_data$mz_index == mz_num,
-            paste0(combined_data$mz_label, " **\\***"),
+            paste0("**", combined_data$mz_label, " \\*****"),
             combined_data$mz_label
           )
         }
@@ -240,13 +240,13 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           legend.position = "top",
           legend.justification = "center",
           legend.direction = "horizontal",
-          legend.text = ggtext::element_markdown(size = 5),
+          legend.text = ggtext::element_markdown(size = 4),
           legend.title = element_blank(),
           legend.background = element_rect(fill = "transparent", color = NA),
           legend.key = element_rect(fill = "transparent", color = NA),
           legend.key.size = unit(0.25, "cm"),
           legend.key.width = unit(0.25, "cm"),
-          legend.spacing.x = unit(0.05, "cm"),
+          legend.spacing.x = unit(0.02, "cm"),
           legend.box.margin = margin(0, 0, 0, 0),
           legend.margin = margin(0, 0, 0, 0),
           plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
@@ -792,7 +792,7 @@ rtx <- function(validation_list,
             mz_num <- as.numeric(gsub("mz", "", marked_mz))
             combined_chrom$mz_label <- ifelse(
               combined_chrom$mz_index == mz_num,
-              paste0(combined_chrom$mz_label, " **\\***"),
+              paste0("**", combined_chrom$mz_label, " \\*****"),
               combined_chrom$mz_label
             )
           }
@@ -850,13 +850,13 @@ rtx <- function(validation_list,
             legend.position = "top",
             legend.justification = "center",
             legend.direction = "horizontal",
-            legend.text = ggtext::element_markdown(size = 5),
+            legend.text = ggtext::element_markdown(size = 4),
             legend.title = element_blank(),
             legend.background = element_rect(fill = "transparent", color = NA),
             legend.key = element_rect(fill = "transparent", color = NA),
             legend.key.size = unit(0.25, "cm"),
             legend.key.width = unit(0.25, "cm"),
-            legend.spacing.x = unit(0.05, "cm"),
+            legend.spacing.x = unit(0.02, "cm"),
             legend.box.margin = margin(0, 0, 0, 0),
             legend.margin = margin(0, 0, 0, 0),
             plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
