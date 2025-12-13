@@ -37,7 +37,7 @@ paths:
   manual_validation: "metadata_files/manual_validation.csv"
   gc2_features: "metadata_files/GC2_features.csv"
   gc2_expanded: metadata_files/expanded_GC2.csv
-  variant_validation: "metadata_files/variant_validation.xlsx"
+  validation: "metadata_files/validation.xlsx"
   
   # Output paths (relative to project root)
   output: "./Outputs"
