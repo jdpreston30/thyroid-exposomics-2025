@@ -48,8 +48,10 @@ if (!isTRUE(config$skip_validation_plots)) {
   #_Benzo[a]pyrene (CP3028)
   F2_S1_CP3028_R <- vp(F2_S1_CP3028, xl = NULL, xu = NULL, subfolder = "failed")
 }
-#+ 9.3: Revise Plots (X-axis adjust and/or fragment zoom)
+#+ 9.3: Revise Plots (X-axis adjust and/or fragment zoom -> level 1)
 {
+  #_Flucythrinate (CP3166)
+  F3_S1_CP3166_R <- vp(F3_S1_CP3166, xl = 17.1, xu = 17.5, yl = -1.3e5, yu = 2e5)
   #_ Terbuthylazine (CP2133)
   F2_S1_CP2133_R <- vp(F2_S1_CP2133, xl = 6.5, xu = 6.9)
   #_ DEET (CP2370)
