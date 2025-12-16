@@ -30,6 +30,32 @@ vp <- function(plot_obj,
                save_grob = TRUE,
                grob_dir = "Outputs/Validation/revised_grobs") {
   
+  # If plot_obj is a symbol name (unquoted), load it first
+  plot_arg <- substitute(plot_obj)
+  if (is.symbol(plot_arg)) {
+    plot_name <- deparse(plot_arg)
+    
+    # Check if already exists in global environment
+    if (exists(plot_name, envir = .GlobalEnv)) {
+      cat(sprintf("✓ Using existing plot: %s\n", plot_name))
+      plot_obj <- get(plot_name, envir = .GlobalEnv)
+    } else {
+      cat(sprintf("📂 Loading plot: %s\n", plot_name))
+      
+      # Manually load the RDS file (mimicking l() function)
+      base_path <- config$paths$validation_plot_directory_onedrive
+      rds_path <- file.path(base_path, "curated", "original", paste0(plot_name, ".rds"))
+      
+      if (!file.exists(rds_path)) {
+        stop(sprintf("Plot file not found: %s", rds_path))
+      }
+      
+      plot_obj <- readRDS(rds_path)
+      assign(plot_name, plot_obj, envir = .GlobalEnv)
+      cat(sprintf("✅ Loaded %s from RDS\n", plot_name))
+    }
+  }
+  
   # Validate input
   if (!is.list(plot_obj) || !"plot" %in% names(plot_obj)) {
     stop("Invalid plot object. Expected a plot object with 'plot' field.")
