@@ -27,7 +27,7 @@ zoom_y <- function(plot_obj, yl = 0, yu, subfolder = "revised", write_output = T
       limits = y_limits,
       expand = ggplot2::expansion(mult = c(0, 0.1)),
       n.breaks = 8,
-      labels = scales::scientific
+      labels = function(x) scales::scientific(abs(x))
     )
   
   # Automatically write small PNG if requested

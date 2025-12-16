@@ -37,7 +37,7 @@ remove_standard <- function(plot_obj, xl = NULL, xu = NULL, subfolder = "revised
       expand = ggplot2::expansion(mult = c(0, 0.1)),
       limits = function(x) c(0, max(x, na.rm = TRUE) * 1.1),
       n.breaks = 8,
-      labels = scales::scientific
+      labels = function(x) scales::scientific(abs(x))
     ) +
     ggplot2::labs(
       subtitle = sprintf("Sample: %s  |  RT = %.2f min", 
