@@ -9,8 +9,9 @@ sections_dir <- file.path(components_dir, "Sections")
 cover_page_path <- file.path(sections_dir, "cover_page.Rmd")
 figures_path <- file.path(sections_dir, "figures.Rmd")
 methods_path <- file.path(sections_dir, "methods.tex")
+tables_path <- file.path(sections_dir, "tables.tex")
 #- 14.2.2: Check that all components exist
-required_files <- c(cover_page_path, figures_path, methods_path)
+required_files <- c(cover_page_path, figures_path, methods_path, tables_path)
 missing_files <- required_files[!file.exists(required_files)]
 if (length(missing_files) > 0) {
   stop("Missing component files: ", paste(missing_files, collapse = ", "))
@@ -20,6 +21,7 @@ if (length(missing_files) > 0) {
 cover_content <- readLines(cover_page_path, warn = FALSE)
 figures_content <- readLines(figures_path, warn = FALSE)
 methods_content <- readLines(methods_path, warn = FALSE)
+tables_content <- readLines(tables_path, warn = FALSE)
 #- 14.3.2: Fix paths for correct references when rendered from Components directory
 # Update bibliography and csl paths to be relative from Components directory
 bib_path_rel <- file.path("References", "supplementary.bib")
@@ -53,9 +55,11 @@ if (add_line_numbers) {
 full_content <- c(
   cover_content,
   "",  # Empty line for separation
+  methods_content,
+  "",  # Empty line for separation
   figures_content,
   "",  # Empty line for separation
-  methods_content
+  tables_content
 )
 #+ 14.4: Generate Final PDF
 #- 14.4.1: Write combined markdown file

@@ -201,6 +201,11 @@ vp <- function(plot_obj,
       legend.box.margin = margin(0, 0, -20, 0)  # Keep top margin 0, negative bottom to pull plot closer
     )
   
+  #- Step 7.5: Replace γ with "gamma" in title for PDF compatibility
+  if (!is.null(modified_plot$plot$labels$title)) {
+    modified_plot$plot$labels$title <- gsub("γ", "gamma", modified_plot$plot$labels$title)
+  }
+  
   #- Write final output (with _F suffix if fragment adjustment was used)
   suffix <- if (!is.null(mz_fragment)) "_F" else ""
   write_small(modified_plot, subfolder = subfolder, suffix = suffix)

@@ -67,7 +67,14 @@ validation_check_files <- read_xlsx(config$paths$validation, sheet = "validation
   mutate(rt_range = (rtu-rtl)/2) |>
   select(state, everything(), -c(modification, note, rtl, rtu))
 #- 0d.1.15: Validation Plot Metadata
-validation_plot_metadata <- read_xlsx(config$paths$validation, sheet = "figure_order")
+validation_plot_metadata_ordered <- read_xlsx(config$paths$validation, sheet = "figure_order") %>%
+  arrange(order) %>%
+  mutate(
+    sf_sub = paste(figure, subfigure, sep = "."),
+    full_path = here::here(plot),
+    grob = map(full_path, readRDS)
+  ) %>%
+  select(order, id, short_name, figure, subfigure, sf_sub, panel, plot, full_path, grob)
 #+ 0d.2: Structure data
 #- 0d.2.1: Pull the tumor columns
 tumor_column <- tumor_raw |>

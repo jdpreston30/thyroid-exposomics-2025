@@ -20,6 +20,6 @@ source("R/Scripts/09_validation_plots_create.R")
 # source("R/Scripts/10_tables.R")
 # source("R/Scripts/11_supplementary_tables.R")
 # source("R/Scripts/12_render_figures.R")
-# source("R/Scripts/13_render_supplementary_figures.R")
-# source("R/Scripts/14_construct_supplementary.R")
+source("R/Scripts/14_render_supplementary_figures.R")
+source("R/Scripts/15_construct_supplementary.R")
 

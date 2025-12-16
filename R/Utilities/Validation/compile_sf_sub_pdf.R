@@ -36,7 +36,7 @@
 #' }
 #'
 #' @export
-compile_sf_sub_pdf <- function(metadata, sf_sub_value, output_dir = here::here("Outputs", "Figures")) {
+compile_sf_sub_pdf <- function(metadata, sf_sub_value, output_dir = here::here("Supplementary", "Components", "Figures", "PDF")) {
   # Create blank plot for padding
   blank_plot <- ggplot() + theme_void()
   
@@ -65,7 +65,7 @@ compile_sf_sub_pdf <- function(metadata, sf_sub_value, output_dir = here::here("
   })
   
   # Save to PDF
-  output_path <- file.path(output_dir, paste0("SF", sf_sub_value, ".pdf"))
+  output_path <- file.path(output_dir, paste0("S", sf_sub_value, ".pdf"))
   pdf(output_path, width = 8.5, height = 11)
   walk(pages, print)
   dev.off()
