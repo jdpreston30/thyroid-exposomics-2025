@@ -1,24 +1,7 @@
 #!!!!! CHANGE FOLDERS
-#! Original tibble?
 #* 9: Validation Plots Adjustment and Manual Review
 if (!isTRUE(config$skip_validation_plots)) {
-#+ 9.0: Set Vectors
-#- 9.0.1: Final Plots
-final_plots <- c("F1_S1_CP2475", "F5_S1_CP2535", "F1_S1_CP3002", "F6_S1_CP3013", "F2_S1_CP3020", "F2_S1_CP3028", "F1_S1_CP3001", "F1_S1_CP3047", "F1_S1_CP2252", "F1_S1_CP3135", "F4_S2_CP2331", "F3_S1_CP3166")
-#- 9.0.1: Failed Plots
-failed_plots <- c("F1_S1_CP2486", "F1_S1_CP2225", "F6_S1_CP3113", "F6_S1_CP2237", "F1_S1_CP2107", "F2_S1_CP3174", "F1_S1_CP2487", "F1_S1_CP3021", "F6_S1_CP2212", "F1_S1_CP3068", "F6_S2_CP2075", "F1_S1_CP2075", "F2_S1_CP2075", "F3_S1_CP2075", "F5_S1_CP2075", "F4_S1_CP2075", "F5_S2_CP3153", "F1_S2_CP3153", "F2_S2_CP3153", "F3_S2_CP3153", "F4_S1_CP3153", "F5_S1_CP3153", "F6_S1_CP3153")
-#- 9.0.1: Revise Plots
-revise_plots <- c("F2_S1_CP3003", "F1_S1_CP2227", "F3_S2_CP2049", "F1_S1_CP3025", "F5_S1_CP2490". "F5_S1_CP2220", "F1_S1_CP1074", "F6_S2_CP2545", "F1_S1_CP1016", "F1_S1_CP1090", "F2_S1_CP2382", "F6_S1_CP3182", "F1_S1_CP3078", "F3_S1_CP3193", "F6_S1_CP2365", "F3_S2_CP3017", "F2_S2_CP3066", "F5_S1_CP2506", "F1_S2_CP2043", "F1_S2_CP2302","F2_S2_CP2187", "F6_S1_CP2516", "F6_S1_CP3180", "F2_S1_CP2133", "F3_S2_CP2145", "F2_S1_CP2370")
-remove_std_plots <- c("F3_S1_CP3007", "F5_S1_CP3148")
-#+ 9.1: Manual load and global modification (final plots)
-#- 9.1.1: Load compiled validation plots
-purrr::walk(final_plots, ~do.call(l, list(as.symbol(.x))))
-#- 9.1.3: Apply formatting and save grobs
-purrr::walk(final_plots, ~do.call(vp, list(get(.x), subfolder = "final", save_grob = TRUE)))
 #+ 9.2: Plots that failed after review
-#- 9.2.0: Import
-purrr::walk(failed_plots, ~do.call(l, list(as.symbol(.x))))
-#- 9.2.2: Adjust plots
 {
   #_ Cyfluthrin (CP3153)
   F1_S2_CP3153_R <- vp(F1_S2_CP3153, subfolder = "failed")
@@ -56,11 +39,10 @@ purrr::walk(failed_plots, ~do.call(l, list(as.symbol(.x))))
   #_ Naphthalene (CP3068)
   F1_S1_CP3068_R <- vp(F1_S1_CP3068, yl = -2.5e6, yu = 2.5e6, subfolder = "failed")
   F1_S1_CP3068_RF <- vp(F1_S1_CP3068_R, yl = -2.5e5, yu = 2.5e5, mz_fragment = -0, xl = 3.15, xu = 3.35, subfolder = "failed")
+  #_Benzo[a]pyrene (CP3028)
+  F2_S1_CP3028_R <- vp(F2_S1_CP3028, xl = NULL, xu = NULL, subfolder = "failed")
 }
 #+ 9.3: Revise Plots (X-axis adjust and/or fragment zoom)
-#- 9.3.0: Import
-purrr::walk(revise_plots, ~do.call(l, list(as.symbol(.x))))
-#- 9.3.2: Adjust plots
 {
   #_ Terbuthylazine (CP2133)
   F2_S1_CP2133_R <- vp(F2_S1_CP2133, xl = 6.5, xu = 6.9)
@@ -129,17 +111,26 @@ purrr::walk(revise_plots, ~do.call(l, list(as.symbol(.x))))
   F1_S1_CP3078_R <- vp(F1_S1_CP3078, yl = -3.3e6, yu = 1.1e6, xl = 9.6, xu = 9.75)
 }
 #+ 9.4: Revise Plots (Remove standard peak -> level 2)
-#- 9.4.0: Import
-purrr::walk(remove_std_plots, ~do.call(l, list(as.symbol(.x))))
-#- 9.4.2: Adjust plots
 {
+  #_2-ABP (CP3020)
+  F2_S1_CP3020_R <- vp(F2_S1_CP3020, xl = 7.2, xu = 7.36, remove_std = TRUE)
+  #_MOCA (CP3013)
+  F3_S1_CP3013_R <- vp(F3_S1_CP3013, xl = 13.05, xu = 13.25, remove_std = TRUE)
+  #_4-ABP (CP3002)
+  F1_S1_CP3002_R <- vp(F1_S1_CP3002, xl = 5.15, xu = 5.27, remove_std = TRUE)
   #_ MDA (CP3007)
   F3_S1_CP3007_R <- vp(F3_S1_CP3007, remove_std = TRUE, xl = 3.8, xu = 4, save_grob = TRUE)
   #_ Menthone (CP3148)
   F5_S1_CP3148_R <- vp(F5_S1_CP3148, remove_std = TRUE, xl = 8.05, xu = 8.3, yu = 2500000, save_grob = TRUE)
   F5_S1_CP3148_RF <- vp(F5_S1_CP3148_R, mz_fragment = 3, yu = 25000, save_grob = TRUE)
+  #_o-aminoazotoluene (CP3001)
+  F1_S1_CP3001_R <- vp(F1_S1_CP3001, xl = 7.4, xu = 7.55, remove_std = TRUE)
 }
 #- 9.4.3: Skip entire section if YAML specifies
 } else {
   cat("⊘ Skipping validation plots adjustment (config$skip_validation_plots = TRUE)\n")
 }
+
+#! REVISE 
+#! LEVEL 2 ADD
+#! FAILED ADD
