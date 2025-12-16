@@ -16,7 +16,6 @@ iarc_tumor_rtx <- rtx(
   save_rds = TRUE,
   rds_save_folder = "iarc_tumor_rtx",
   overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 9
 )
@@ -37,7 +36,6 @@ iarc_cadaver_rtx <- rtx(
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx",
   overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 9
 )
@@ -61,7 +59,6 @@ variant_rtx_pt1 <- rtx(
   save_rds = TRUE,
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 8
 )
@@ -85,7 +82,6 @@ variant_rtx_pt2<- rtx(
   save_rds = TRUE,
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 8
 )
@@ -109,7 +105,6 @@ variant_rtx_pt3 <- rtx(
   save_rds = TRUE,
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 8
 )
@@ -130,7 +125,6 @@ iarc_tumor_rtx_validated <- rtx(
   save_rds = TRUE,
   rds_save_folder = "iarc_tumor_rtx_validated",
   overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 9,
   run_standard = FALSE
@@ -144,7 +138,6 @@ iarc_cadaver_rtx_validated <- rtx(
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx_validated",
   overwrite_rds = TRUE,
-  save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 9,
   run_standard = FALSE
