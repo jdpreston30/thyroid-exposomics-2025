@@ -27,3 +27,7 @@ compile_sf_sub_pdf(validation_plot_metadata_ordered, sf_sub_value = "2.2")
 compile_sf_sub_pdf(validation_plot_metadata_ordered, sf_sub_value = "3.1")
 #- 13.2.2: Supplementary Figure 3.2
 compile_sf_sub_pdf(validation_plot_metadata_ordered, sf_sub_value = "3.2")
+#- 13.2.2: Supplementary Figure 4.1
+compile_sf_sub_pdf(validation_plot_metadata_ordered, sf_sub_value = "4.1")
+#- 13.2.2: Supplementary Figure 4.2
+compile_sf_sub_pdf(validation_plot_metadata_ordered, sf_sub_value = "4.2")
