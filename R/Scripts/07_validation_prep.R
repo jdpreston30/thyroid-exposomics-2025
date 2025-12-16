@@ -323,6 +323,6 @@ validation_iarcs <- validation_check_files |>
 #- 7.6.1: Subset validated IARC chemicals
 ic_wide_iarc_validated <- ic_wide |>
   filter(id %in% validation_iarcs)
-iv_wide_validated <- iv_wide |>
+iv_wide_iarc_validated <- iv_wide |>
   filter(id %in% validation_iarcs)
 
