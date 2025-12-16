@@ -89,8 +89,8 @@ build_validation_table <- function(validate_ids,
     ungroup() |>
     select(-bp_prefix)
   
-  # Pull top 6 sample files for each compound
-  top_sample_files <- peakwalk_data |>
+  # Pull ALL sample files for each compound (not just top 6)
+  all_sample_files <- peakwalk_data |>
     filter(id %in% validate_ids) |>
     group_by(id) |>
     slice(1) |>
@@ -100,11 +100,17 @@ build_validation_table <- function(validate_ids,
     filter(!is.na(intensity)) |>
     group_by(id) |>
     arrange(id, desc(intensity)) |>
-    slice(1:6) |>
-    mutate(file_rank = row_number()) |>
-    ungroup() |>
+    mutate(
+      file_rank = row_number(),
+      all_files = paste(file, collapse = ", ")
+    ) |>
+    ungroup()
+  
+  # Pivot to wide format with ALL file columns (file1, file2, ..., fileN)
+  top_sample_files <- all_sample_files |>
+    select(id, file_rank, file, all_files) |>
     pivot_wider(
-      id_cols = id,
+      id_cols = c(id, all_files),
       names_from = file_rank,
       values_from = file,
       names_prefix = "file"
@@ -121,28 +127,41 @@ build_validation_table <- function(validate_ids,
       relocate(short_name, .after = id)
   }
   
-  # Add file-specific RT values and RT range vectors
+  # Add file-specific RT values and RT range vectors dynamically for ALL files
   buffer <- 10/60  # Default buffer for rt_window
+  
+  # Get all file column names (file1, file2, ..., fileN)
+  file_cols <- names(validate_wide_ii)[grepl("^file[0-9]+$", names(validate_wide_ii))]
+  
+  # Add RT values and ranges dynamically
   validate_wide <- validate_wide_ii |>
     rowwise() |>
+    mutate(standard_files_vec = list(strsplit(standards, ", ")[[1]]))
+  
+  # Add f*_rt columns dynamically
+  for (file_col in file_cols) {
+    file_num <- gsub("file", "", file_col)
+    rt_col <- paste0("f", file_num, "_rt")
+    rt_range_col <- paste0("f", file_num, "_rt_range")
+    
+    validate_wide <- validate_wide |>
+      mutate(
+        !!rt_col := get_rt_range(id, .data[[file_col]], rt_data = rt_data),
+        !!rt_range_col := if_else(
+          !is.na(.data[[rt_col]]),
+          sprintf("c(%.2f, %.2f)", .data[[rt_col]] - buffer, .data[[rt_col]] + buffer),
+          NA_character_
+        )
+      )
+  }
+  
+  # Add standard RT columns (s1_rt, s2_rt, etc.)
+  validate_wide <- validate_wide |>
     mutate(
-      standard_files_vec = list(strsplit(standards, ", ")[[1]]),
-      f1_rt = get_rt_range(id, file1, rt_data = rt_data),
-      f2_rt = get_rt_range(id, file2, rt_data = rt_data),
-      f3_rt = get_rt_range(id, file3, rt_data = rt_data),
-      f4_rt = get_rt_range(id, file4, rt_data = rt_data),
-      f5_rt = get_rt_range(id, file5, rt_data = rt_data),
-      f6_rt = get_rt_range(id, file6, rt_data = rt_data),
       s1_rt = if (length(standard_files_vec[[1]]) >= 1) get_rt_range(id, standard_files_vec[[1]][1], rt_data = rt_data) else NA_real_,
       s2_rt = if (length(standard_files_vec[[1]]) >= 2) get_rt_range(id, standard_files_vec[[1]][2], rt_data = rt_data) else NA_real_,
-      f1_rt_range = if (!is.na(f1_rt)) sprintf("c(%.2f, %.2f)", f1_rt - buffer, f1_rt + buffer) else NA_character_,
-      f2_rt_range = if (!is.na(f2_rt)) sprintf("c(%.2f, %.2f)", f2_rt - buffer, f2_rt + buffer) else NA_character_,
-      f3_rt_range = if (!is.na(f3_rt)) sprintf("c(%.2f, %.2f)", f3_rt - buffer, f3_rt + buffer) else NA_character_,
-      f4_rt_range = if (!is.na(f4_rt)) sprintf("c(%.2f, %.2f)", f4_rt - buffer, f4_rt + buffer) else NA_character_,
-      f5_rt_range = if (!is.na(f5_rt)) sprintf("c(%.2f, %.2f)", f5_rt - buffer, f5_rt + buffer) else NA_character_,
-      f6_rt_range = if (!is.na(f6_rt)) sprintf("c(%.2f, %.2f)", f6_rt - buffer, f6_rt + buffer) else NA_character_,
-      s1_rt_range = if (!is.na(s1_rt)) sprintf("c(%.2f, %.2f)", s1_rt - buffer, s1_rt + buffer) else NA_character_,
-      s2_rt_range = if (!is.na(s2_rt)) sprintf("c(%.2f, %.2f)", s2_rt - buffer, s2_rt + buffer) else NA_character_
+      s1_rt_range = if_else(!is.na(s1_rt), sprintf("c(%.2f, %.2f)", s1_rt - buffer, s1_rt + buffer), NA_character_),
+      s2_rt_range = if_else(!is.na(s2_rt), sprintf("c(%.2f, %.2f)", s2_rt - buffer, s2_rt + buffer), NA_character_)
     ) |>
     ungroup() |>
     select(-standard_files_vec) |>

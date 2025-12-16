@@ -121,9 +121,7 @@ compile_validation_pdf(
   add_plot_tags = TRUE
 )
 #+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
-#- 8.4.0: Get list of chosen fragments for IARC1 chemicals
-
-#- 8.4.1: IARC Tumor)
+#- 8.4.1: IARC Tumor
 iarc_cadaver_rtx <- rtx(
   validation_list = ic_wide,
   study = "cadaver",

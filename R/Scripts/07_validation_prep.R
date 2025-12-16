@@ -224,9 +224,8 @@ expanded_validation <- expanded_validation_i |>
     mz8 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 9, .x[9], NA_real_)),
     mz9 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 10, .x[10], NA_real_))
   ) |>
-  # Clean up temporary columns
-  select(id, short_name, monoisotopic, starts_with("mz")) |>
-  select(-starts_with("original_")) |>
+  # Clean up temporary columns, keeping id, short_name, monoisotopic
+  select(id, short_name, monoisotopic, mz0:mz9, -starts_with("original_"), -mz_values, -ppm_diffs, -min_ppm, -matches_fragment, -match_position, -reorganized_mz) |>
   # Special case: Remove 105.0699 from CP3017 and shift fragments down
   #! Removed CP3017 specific fragment due to adding too much noise
   rowwise() |>
@@ -256,8 +255,8 @@ expanded_validation <- expanded_validation_i |>
     mz8 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 9, .x[9], NA_real_)),
     mz9 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 10, .x[10], NA_real_))
   ) |>
-  # Clean up temporary columns
-  select(id, short_name, monoisotopic, starts_with("mz"))
+  # Clean up temporary columns, keeping id, short_name, monoisotopic and all mz columns
+  select(id, short_name, monoisotopic, mz0:mz9, -fragments_to_keep)
 #- 7.4.9: Verification: Check that mz0 now matches monoisotopic within 20 ppm for all compounds
 monoisotopic_verification <- expanded_validation |>
   mutate(
@@ -316,3 +315,14 @@ ic_wide <- ic_wide_i |>
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
   )
+#+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9)
+#- 7.6.0: Get list of validated IARC1 chemicals
+validation_iarcs <- validation_check_files |>
+  filter(!is.na(top_frag)) |>
+  pull(id)
+#- 7.6.1: Subset validated IARC chemicals
+ic_wide_iarc_validated <- ic_wide |>
+  filter(id %in% validation_iarcs)
+iv_wide_validated <- iv_wide |>
+  filter(id %in% validation_iarcs)
+
