@@ -164,10 +164,10 @@ F3_S1_CP3013_R <- vp(F3_S1_CP3013, xl = 13.05, xu = 13.25, remove_std = TRUE)
 #- 9.6.4: 2-ABP (CP3020)
 F2_S1_CP3020_R <- vp(F2_S1_CP3020, xl = 7.2, xu = 7.36, remove_std = TRUE)
 #+ 9.7: SF 3.1 (IARC, Level 1; Cadaver)
-#- 9.7.2: Pentachlorophenol (CP1016)
-C_F1_S1_CP1016_R <- vp(C_F1_S1_CP1016, xl = 6.31, xu = 6.45)
 #- 9.7.1: o-Toluidine (CP3017)
 C_F3_S2_CP3017_R <- vp(C_F1_S2_CP3017, xl = 7.9, xu = 8.06)
+#- 9.7.2: Pentachlorophenol (CP1016)
+C_F1_S1_CP1016_R <- vp(C_F1_S1_CP1016, xl = 6.31, xu = 6.45)
 #- 9.7.3: γ-BHC (CP1074)
 C_F1_S1_CP1074_R <- vp(C_F1_S1_CP1074, xl =6.3, xu = 6.44)
 #- 9.7.4: Phenacetin (CP2545)
@@ -181,6 +181,20 @@ C_F4_S1_CP3020_R <- vp(C_F4_S1_CP3020, , xl = 7.38, xu = 7.46, yl = -3e4, yu = 8
 C_F1_S1_CP3002_R <- vp(C_F1_S1_CP3002, xl = 5.13, xu = 5.22, yl = 0, yu = 1e5,remove_std = TRUE)
 #- 9.8.2: MOCA (CP3013)
 C_F1_S1_CP3013_R <- vp(C_F1_S1_CP3013, xl = 12.63, xu = 12.76, remove_std = TRUE)
+#+ 9.9: IARC 1 Top Fragments
+#- 9.9.1: Bring in top fragments list
+validation_check_files_subids <- validation_check_files |>
+  filter(!is.na(top_frag)) |>
+  select(id, top_frag)
+#- 9.9.2: o-Toluidine (CP3017)
+F3_S2_CP3017_top <- vp_top(F1_S1_CP3017, frag_lookup = validation_check_files_subids, subfolder = "top_fragments")
+
+
+#- Gamma BHC
+F3_S2_CP3017_top <- vp_top(F1_S1_CP1074, frag_lookup = validation_check_files_subids, subfolder = "top_fragments")
+F3_S2_CP3017_R <- vp(F3_S2_CP3017, subfolder = "top_fragments", mz_fragment = 3)
+
+
 #+ 9.9: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation plots adjustment (config$analysis$run_validation_step = FALSE)\n")

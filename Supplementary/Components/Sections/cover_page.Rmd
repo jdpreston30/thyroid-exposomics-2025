@@ -116,17 +116,23 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 35-36
 
-\textbf{SUPPLEMENTARY TABLE 1} \dotfill 37
+\textbf{SUPPLEMENTARY FIGURE 4} \dotfill 37-40
 
-\textbf{SUPPLEMENTARY TABLE 2} \dotfill 38
+\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 37-39
 
-\textbf{SUPPLEMENTARY TABLE 3} \dotfill 39
+\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 40
 
-\textbf{SUPPLEMENTARY TABLE 4} \dotfill 40
+\textbf{SUPPLEMENTARY TABLE 1} \dotfill 41
 
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 41-42
+\textbf{SUPPLEMENTARY TABLE 2} \dotfill 42
 
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 43
+\textbf{SUPPLEMENTARY TABLE 3} \dotfill 43
+
+\textbf{SUPPLEMENTARY TABLE 4} \dotfill 44
+
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 45-46
+
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 47
 
 \newpage
 
