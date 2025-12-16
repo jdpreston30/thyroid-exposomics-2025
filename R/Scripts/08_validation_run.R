@@ -121,19 +121,33 @@ compile_validation_pdf(
   add_plot_tags = TRUE
 )
 #+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
+source("R/Scripts/07_validation_prep.R")
 #- 8.4.1: IARC Tumor
-iarc_cadaver_rtx <- rtx(
-  validation_list = ic_wide,
-  study = "cadaver",
-  iterate_through = 7,
+iarc_tumor_rtx_validated <- rtx(
+  validation_list = iv_wide_iarc_validated,
+  iterate_through = 120,
   rt_lookup = "sample",
   save_rds = TRUE,
-  rds_save_folder = "iarc_cadaver_rtx",
+  rds_save_folder = "iarc_tumor_rtx_validated",
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 9,
-  run_standard = FALSE  # <-- Add this line
+  run_standard = FALSE
+)
+#- 8.4.1: IARC Tumor
+iarc_cadaver_rtx_validated <- rtx(
+  validation_list = ic_wide_iarc_validated,
+  study = "cadaver",
+  iterate_through = 2,  # 16
+  rt_lookup = "sample",
+  save_rds = TRUE,
+  rds_save_folder = "iarc_cadaver_rtx_validated",
+  overwrite_rds = TRUE,
+  save_compiled_rds = TRUE,
+  use_parallel = TRUE,
+  n_cores = 9,
+  run_standard = FALSE
 )
 #+ 8.3: Skip entire section if YAML specifies
 } else {
