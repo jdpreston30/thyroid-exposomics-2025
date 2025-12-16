@@ -39,6 +39,13 @@ vp <- function(plot_obj,
     if (exists(plot_name, envir = .GlobalEnv)) {
       cat(sprintf("✓ Using existing plot: %s\n", plot_name))
       plot_obj <- get(plot_name, envir = .GlobalEnv)
+      
+      # Fix plot_tag if filename has C_ prefix but internal plot_tag doesn't
+      if (startsWith(plot_name, "C_") && !startsWith(plot_obj$plot_tag, "C_")) {
+        plot_obj$plot_tag <- paste0("C_", plot_obj$plot_tag)
+        assign(plot_name, plot_obj, envir = .GlobalEnv)
+        cat(sprintf("  → Updated plot_tag to include C_ prefix\n"))
+      }
     } else {
       cat(sprintf("📂 Loading plot: %s\n", plot_name))
       
@@ -65,6 +72,13 @@ vp <- function(plot_obj,
       }
       
       plot_obj <- readRDS(rds_path)
+      
+      # Fix plot_tag if loaded filename has C_ prefix but internal plot_tag doesn't
+      if (startsWith(plot_name, "C_") && !startsWith(plot_obj$plot_tag, "C_")) {
+        plot_obj$plot_tag <- paste0("C_", plot_obj$plot_tag)
+        cat(sprintf("  → Updated plot_tag to include C_ prefix\n"))
+      }
+      
       assign(plot_name, plot_obj, envir = .GlobalEnv)
       cat(sprintf("✅ Loaded %s from RDS\n", plot_name))
     }
