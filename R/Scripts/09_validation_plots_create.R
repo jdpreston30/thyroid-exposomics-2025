@@ -129,7 +129,3 @@ if (!isTRUE(config$skip_validation_plots)) {
 } else {
   cat("⊘ Skipping validation plots adjustment (config$skip_validation_plots = TRUE)\n")
 }
-
-#! REVISE 
-#! LEVEL 2 ADD
-#! FAILED ADD
