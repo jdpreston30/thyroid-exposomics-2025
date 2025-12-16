@@ -1,5 +1,5 @@
 #* 8: Manual Spectral Validation
-if (config$run_validation_step) {
+if (config$analysis$run_validation_step) {
 #+ 8.1: Convert raw files to mzML
 file_inventory <- convert_raw_to_mzml(
   file_list = file_list,
@@ -115,5 +115,5 @@ compile_validation_pdf(
 )
 #+ 8.4: Skip entire section if YAML specifies
 } else {
-  cat("⏭️  Skipping validation step (config$run_validation_step = FALSE)\n")
+  cat("⏭️  Skipping validation step (config$analysis$run_validation_step = FALSE)\n")
 }

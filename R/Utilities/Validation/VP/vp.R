@@ -42,12 +42,26 @@ vp <- function(plot_obj,
     } else {
       cat(sprintf("📂 Loading plot: %s\n", plot_name))
       
-      # Manually load the RDS file (mimicking l() function)
+      # Search through directories in order
       base_path <- config$paths$validation_plot_directory_onedrive
-      rds_path <- file.path(base_path, "curated", "original", paste0(plot_name, ".rds"))
+      search_dirs <- c(
+        "variant_rtx",
+        "iarc_tumor_rtx",
+        "iarc_cadaver_rtx"
+      )
       
-      if (!file.exists(rds_path)) {
-        stop(sprintf("Plot file not found: %s", rds_path))
+      rds_path <- NULL
+      for (dir in search_dirs) {
+        test_path <- file.path(base_path, dir, paste0(plot_name, ".rds"))
+        if (file.exists(test_path)) {
+          rds_path <- test_path
+          cat(sprintf("  Found in: %s\n", dir))
+          break
+        }
+      }
+      
+      if (is.null(rds_path)) {
+        stop(sprintf("Plot file not found in any directory: %s", plot_name))
       }
       
       plot_obj <- readRDS(rds_path)
