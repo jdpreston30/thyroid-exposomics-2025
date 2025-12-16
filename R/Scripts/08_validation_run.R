@@ -33,8 +33,41 @@ iarc_cadaver_rtx <- rtx(
   n_cores = 8
 )
 #- 8.2.3: Variant Differences Chemicals (Part 1)
-variant_rtx <- rtx(
-  validation_list = vv_wide,
+vv_wide_pt1 <- vv_wide |>
+  slice(1:20)
+variant_rtx_pt1 <- rtx(
+  validation_list = vv_wide_pt1,
+  iterate_through = 6,
+  output_dir = "Outputs/Validation/initial_compile/",
+  rt_lookup = "sample",
+  save_rds = TRUE,
+  rds_save_folder = "variant_rtx",
+  overwrite_rds = TRUE,
+  save_compiled_rds = TRUE,
+  use_parallel = FALSE
+)
+#!!!!
+variant_rtx_pt1 <- variant_rtx
+#!!!
+#- 8.2.4: Variant Differences Chemicals (Part 2)
+vv_wide_pt2 <- vv_wide |>
+  slice(21:40)
+variant_rtx_pt2<- rtx(
+  validation_list = vv_wide_pt2,
+  iterate_through = 6,
+  output_dir = "Outputs/Validation/initial_compile/",
+  rt_lookup = "sample",
+  save_rds = TRUE,
+  rds_save_folder = "variant_rtx",
+  overwrite_rds = TRUE,
+  save_compiled_rds = TRUE,
+  use_parallel = FALSE
+)
+#- 8.2.5: Variant Differences Chemicals (Part 3)
+vv_wide_pt3 <- vv_wide |>
+  slice(41:n())
+variant_rtx_pt3 <- rtx(
+  validation_list = vv_wide_pt3,
   iterate_through = 6,
   output_dir = "Outputs/Validation/initial_compile/",
   rt_lookup = "sample",
@@ -59,105 +92,28 @@ compile_validation_pdf(
   pdf_name = "iarc_cadaver_rtx.pdf",
   add_plot_tags = TRUE
 )
-#- 8.3.3: Variant Differences Chemicals
+#- 8.3.3: Variant Differences Chemicals (Part 1)
 compile_validation_pdf(
-  compound_plots = variant_rtx,
+  compound_plots = variant_rtx_pt1,
   output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "variant_rtx.pdf",
+  pdf_name = "variant_rtx_pt1.pdf",
   add_plot_tags = TRUE
 )
-#+ 8.4: Read validation plots, compile, adjust x ranges
-#- 8.4.1: Derive a list of all unique plots to read in
-variant_plot_list <- validation_check_files %>%
-  pull(plot) %>%
-  str_split(",\\s*") %>%
-  unlist() %>%
-  unique()
-#- 8.4.2: Copy all selected plots to curated/original folder
-{
-  variant_rtx_dir <- file.path(config$paths$validation_plot_directory_onedrive, "variant_rtx")
-  iarc_tumor_dir <- file.path(config$paths$validation_plot_directory_onedrive, "iarc_tumor_rtx")
-  curated_original_dir <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "original")
-  dir.create(curated_original_dir, showWarnings = FALSE, recursive = TRUE)
-  
-  # Check if all files already exist
-  expected_files <- file.path(curated_original_dir, paste0(variant_plot_list, ".rds"))
-  existing_files <- sum(file.exists(expected_files))
-  
-  if (existing_files == length(variant_plot_list)) {
-    cat(sprintf("✓ All %d plots already exist in curated/original/ - skipping copy\n\n", existing_files))
-  } else {
-    cat(sprintf("Copying %d plots (found %d existing)...\n", length(variant_plot_list), existing_files))
-    copied_count <- 0
-    for (plot_name in variant_plot_list) {
-      # Check variant_rtx first
-      variant_file <- file.path(variant_rtx_dir, paste0(plot_name, ".rds"))
-      if (file.exists(variant_file)) {
-        file.copy(variant_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
-        copied_count <- copied_count + 1
-        next
-      }
-      # Check iarc_tumor_rtx
-      iarc_file <- file.path(iarc_tumor_dir, paste0(plot_name, ".rds"))
-      if (file.exists(iarc_file)) {
-        file.copy(iarc_file, file.path(curated_original_dir, paste0(plot_name, ".rds")), overwrite = TRUE)
-        copied_count <- copied_count + 1
-      }
-    }
-    cat(sprintf("✓ Copied %d plots to curated/original/\n\n", copied_count))
-  }
-}
-#- 8.4.3: Separate into modify vs final batches
-{
-  modify_plots <- validation_check_files %>%
-    filter(state != "final") %>%
-    pull(plot) %>%
-    str_split(",\\s*") %>%
-    unlist() %>%
-    unique()
-  final_plots <- validation_check_files %>%
-    filter(state == "final") %>%
-    pull(plot) %>%
-    str_split(",\\s*") %>%
-    unlist() %>%
-    unique()
-}
-#- 8.4.4: Read modify_curated batch
-{
-  modify_curated <- list()
-  for (plot_name in modify_plots) {
-    file_path <- file.path(curated_original_dir, paste0(plot_name, ".rds"))
-    if (file.exists(file_path)) {
-      modify_curated[[plot_name]] <- readRDS(file_path)
-      cat(sprintf("  ✓ Loaded: %s\n", plot_name))
-    }
-  }
-}
-#- 8.4.5: Save modify_curated batch
-{ 
-  modify_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "modify_curated.rds")
-  saveRDS(modify_curated, modify_rds_path)
-  cat(sprintf("\n✓ Saved modify_curated RDS with %d plots: %s\n", length(modify_curated), modify_rds_path))
-}
-#- 8.4.6: Read final_curated batch
-{
-  cat(sprintf("\nReading %d final plots...\n", length(final_plots)))
-  final_curated <- list()
-  for (plot_name in final_plots) {
-    file_path <- file.path(curated_original_dir, paste0(plot_name, ".rds"))
-    if (file.exists(file_path)) {
-      final_curated[[plot_name]] <- readRDS(file_path)
-      cat(sprintf("  ✓ Loaded: %s\n", plot_name))
-    }
-  }
-}
-#- 8.4.7: Save final_curated batch
-{
-  final_rds_path <- file.path(config$paths$validation_plot_directory_onedrive, "curated", "final_curated.rds")
-  saveRDS(final_curated, final_rds_path)
-  cat(sprintf("\n✓ Saved final_curated RDS with %d plots: %s\n", length(final_curated), final_rds_path))
-}
-#- 8.4.8: Skip entire section if YAML specifies
+#- 8.3.4: Variant Differences Chemicals (Part 2)
+compile_validation_pdf(
+  compound_plots = variant_rtx_pt2,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "variant_rtx_pt2.pdf",
+  add_plot_tags = TRUE
+)
+#- 8.3.5: Variant Differences Chemicals (Part 3)
+compile_validation_pdf(
+  compound_plots = variant_rtx_pt3,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "variant_rtx_pt3.pdf",
+  add_plot_tags = TRUE
+)
+#+ 8.4: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation step (config$run_validation_step = FALSE)\n")
 }
