@@ -205,7 +205,7 @@ MT_final_ii <- MTi |>
   left_join(ppm_ppb_inclusive, by = "name_sub_lib_id") |>
   select(short_name, cas, name_sub_lib_id,subid, mode, annot_ident, p_value, highest, FTC:PTC, FTC_let:PTC_let, Carcinogenicity:GHS_var_diff_only, Potential_EDC, usage_class:Table_Class, pct_det_ctrl:mean_FVPTC_PPB)
 #- 6.4.7: Pull metadata for fragments to IDs
-ID_to_frag_cadaver <- IARC_controls_i |>
+ID_to_frag_cadaver <- IARC_controls_ii |>
   select(id, name_sub_lib_id)
 ID_to_frag_tumor <- tumor_raw |>
   select(id, name_sub_lib_id)
@@ -221,21 +221,23 @@ iarc_1 <- feature_metadata |>
   filter(IARC_Group == "1") |>
   pull(cas)
 #- 6.5.2: Pull the IARC1s in controls
-IARC_controls <- IARC_controls_i |>
-filter(!is.na(comp)) |>
-filter(pct_NA <= 0.5) |>
-filter(cas %in% iarc_1) |>
-select(pct_NA, name_sub_lib_id, id, iMean) |>
-rename(pct_NA_ctrl = pct_NA, iMean_ctrl = iMean)
-#- 6.5.3: Pull the IARC1s in tumors
-IARC_tumors <- IARC_tumors_i |>
+IARC_controls_i <- IARC_controls_ii |>
   filter(cas %in% iarc_1) |>
-  filter(pct_NA <= 0.7) |>
-  select(cas, pct_NA, name, name_sub_lib_id, id, iMean) |>
+  rename(pct_NA_ctrl = pct_NA, iMean_ctrl = iMean)
+#- 6.5.3: Pull the IARC1s in tumors
+IARC_tumors_i <- IARC_tumors_ii |>
+  filter(cas %in% iarc_1) |>
   arrange(name)
+
+
+
+
+
+
+
 #- 6.5.4: Determine the matches, filter to 30% NA quant, pull features
 IARC_tumors_ctrl_filtered_id_frag <- IARC_tumors |>
-  left_join(IARC_controls, by = "name_sub_lib_id") |>
+  left_join(IARC_controls_i, by = "name_sub_lib_id") |>
   select(cas, name, name_sub_lib_id, id = id.x, pct_NA, pct_NA_ctrl, iMean, iMean_ctrl) |>
   filter(!is.na(pct_NA_ctrl)) |>
   group_by(cas) |>
