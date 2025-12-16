@@ -120,6 +120,23 @@ compile_validation_pdf(
   pdf_name = "variant_rtx_pt3.pdf",
   add_plot_tags = TRUE
 )
+#+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
+#- 8.4.0: Get list of chosen fragments for IARC1 chemicals
+
+#- 8.4.1: IARC Tumor)
+iarc_cadaver_rtx <- rtx(
+  validation_list = ic_wide,
+  study = "cadaver",
+  iterate_through = 7,
+  rt_lookup = "sample",
+  save_rds = TRUE,
+  rds_save_folder = "iarc_cadaver_rtx",
+  overwrite_rds = TRUE,
+  save_compiled_rds = TRUE,
+  use_parallel = TRUE,
+  n_cores = 9,
+  run_standard = FALSE  # <-- Add this line
+)
 #+ 8.3: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation step (config$analysis$run_validation_step = FALSE)\n")

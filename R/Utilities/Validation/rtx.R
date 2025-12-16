@@ -10,7 +10,8 @@ library(ggtext)
 #' @keywords internal
 process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_through,
                                    rt_lookup, ppm_tolerance, stick, max_i,
-                                   save_rds, rds_save_folder, overwrite_rds, output_dir, study = "tumor") {
+                                   save_rds, rds_save_folder, overwrite_rds, output_dir, study = "tumor",
+                                   run_standard = TRUE) {
   
   # Helper function to open and cache mzML files (per-worker cache)
   get_mzml_data_worker <- function(file_name, cache_env) {
@@ -133,9 +134,10 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
       }
     }
     
-    # Process each standard
-    for (std_idx in seq_along(standards)) {
-      standard_file <- standards[std_idx]
+    # Process each standard (skip if run_standard = FALSE)
+    standards_to_process <- if (run_standard) standards else character(0)
+    for (std_idx in seq_along(standards_to_process)) {
+      standard_file <- standards_to_process[std_idx]
       
       # Extract chromatograms
       sample_chrom <- extract_chrom_worker(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
@@ -337,6 +339,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
 #' @param save_compiled_rds Logical, whether to save the compiled compound_plots object to OneDrive (default: FALSE)
 #' @param use_parallel Logical, whether to use parallel processing (default: FALSE)
 #' @param n_cores Integer, number of cores to use for parallel processing (default: parallel::detectCores() - 1)
+#' @param run_standard Logical, whether to process standard files and create mirror plots (default: TRUE). When FALSE, only sample chromatograms are generated, significantly improving speed.
 #'
 #' @return Named list of all plots (invisibly)
 #'
@@ -355,7 +358,8 @@ rtx <- function(validation_list,
                 save_compiled_rds = FALSE,
                 use_parallel = FALSE,
                 n_cores = NULL,
-                skip_if_disabled = TRUE) {
+                skip_if_disabled = TRUE,
+                run_standard = TRUE) {
   
   # Check output_dir only if needed (when config is not available)
   if (is.null(output_dir) && save_rds && !is.null(rds_save_folder)) {
@@ -545,7 +549,8 @@ rtx <- function(validation_list,
     parallel::clusterExport(cl, c("mzml_dir", "iterate_through", "rt_lookup", 
                                    "stick", "max_i", "ppm_tolerance",
                                    "save_rds", "rds_save_folder", "overwrite_rds",
-                                   "output_dir", "study", "config", "process_single_compound"),
+                                   "output_dir", "study", "config", "process_single_compound",
+                                   "run_standard"),
                            envir = environment())
     
     # Load required packages on each worker
@@ -593,7 +598,8 @@ rtx <- function(validation_list,
         rds_save_folder = rds_save_folder,
         overwrite_rds = overwrite_rds,
         output_dir = output_dir,
-        study = study
+        study = study,
+        run_standard = run_standard
       )
     }
     
@@ -755,9 +761,10 @@ rtx <- function(validation_list,
       sample_chrom$type <- "Sample"
       sample_chrom$plot_intensity <- sample_chrom$intensity
       
-      # Iterate through standards (silent processing)
-      for (std_idx in seq_along(standards)) {
-        standard_file <- standards[std_idx]
+      # Iterate through standards (silent processing, skip if run_standard = FALSE)
+      standards_to_process <- if (run_standard) standards else character(0)
+      for (std_idx in seq_along(standards_to_process)) {
+        standard_file <- standards_to_process[std_idx]
         
         # Extract chromatogram for standard
         standard_chrom <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
