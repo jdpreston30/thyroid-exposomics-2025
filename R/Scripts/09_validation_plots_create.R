@@ -140,12 +140,12 @@ if (!isTRUE(config$skip_validation_plots)) {
   #_ Menthone (CP3148)
   F5_S1_CP3148_R <- vp(F5_S1_CP3148, remove_std = TRUE, xl = 8.05, xu = 8.3, yu = 2500000, save_grob = TRUE)
   F5_S1_CP3148_RF <- vp(F5_S1_CP3148_R, mz_fragment = 3, yu = 25000, save_grob = TRUE)
-  #!_o-aminoazotoluene (CP3001)
-  F1_S1_CP3001_R <- vp(F1_S1_CP3001, xl = 7.4, xu = 7.55, remove_std = TRUE)
   #_2-Naphthylamine (CP2535)
   F5_S1_CP2535_R <- vp(F5_S1_CP2535, xl = 7.4, xu = 7.55, remove_std = TRUE, yl = 0, yu = 3.6e6)
   #_Dibutyl phthalate (CP3047)
   F1_S1_CP3047_R <- vp(F1_S1_CP3047, xl = 19.45, xu = 19.61, remove_std = TRUE, yl = 0, yu = 2.5e8)
+  #!_o-aminoazotoluene (CP3001)
+  F1_S1_CP3001_R <- vp(F1_S1_CP3001, xl = 7.4, xu = 7.55, remove_std = TRUE)
 }
 #- 9.4.3: Skip entire section if YAML specifies
 } else {
