@@ -24,9 +24,6 @@ F1_S1_CP2252_R <- vp(F1_S1_CP2252, xl = 4.3, xu = 4.50)
 #+ check
 
 
-  F6_S1_CP3166_R <- vp(F6_S1_CP3166, xl = 1, xu = NULL)
-  F3_S1_CP3166_R <- vp(F3_S1_CP3166, xl = 17.1, xu = 17.5)
-
   #_OD-PABA (CP2331)
   F4_S2_CP2331_R <- vp(F4_S2_CP2331, xl = NULL, xu = NULL)
   #_Flucythrinate (CP3166)
