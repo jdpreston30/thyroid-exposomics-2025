@@ -2,11 +2,30 @@
 
 **R Code Style & Project Structure Preferences:**
 
-## Comments
-- Use hierarchical comment structure with symbols: `#*` (major section), `#+` (subsection), `#-` (detail), `#!` (important note)
-- Number sections sequentially (e.g., `#* 8: Manual Spectral Validation`, `#+ 8.1: Convert files`, `#- 8.1.1: Setup`)
-- Keep comments brief and descriptive
-- Never use extra blank lines between sections unless absolutely necessary - code should be compact
+## Comments & Spacing
+- **Hierarchical comment structure**: `#*` (major section), `#+` (subsection), `#-` (detail/sub-subsection), `#_` (individual item), `#!` (important note)
+- **Numbering format**: 
+  - Major sections: `#* 9: Validation Plots Adjustment`
+  - Subsections: `#+ 9.2: Plots that failed after review`
+  - Details: `#- 9.2.1: Methylparaben (CP2252)`
+  - Items can use colon format: `#_ Compound Name (ID)`
+- **Inline comments**: Regular explanatory comments within code blocks just use `#` without special symbols
+- **Comments are brief and descriptive**: Typically compound names, short phrases, or action descriptions
+- **Compact code style**: NO extra blank lines between sections or subsections - code should be dense
+- **No blank lines after section headers**: Code immediately follows comment headers
+- **Example structure**:
+  ```r
+  #* 9: Major Section
+  if (!isTRUE(config$skip_something)) {
+  #+ 9.2: Subsection
+  #- 9.2.1: Compound Name (ID)
+  variable <- function_call(args)
+  # Regular inline comment explaining something specific
+  another_variable <- function_call(args)
+  #- 9.2.2: Next Compound (ID)
+  more_code <- function_call(args)
+  }
+  ```
 
 ## Project Architecture
 - Use YAML configuration files for dynamic, computer-specific paths (e.g., `config_dynamic.yaml`)

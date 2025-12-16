@@ -1,4 +1,4 @@
-write_small <- function(aps, compound = NULL, subfolder = "revised", suffix = "", auto_open = FALSE) {
+write_small <- function(aps, compound = NULL, subfolder = "revised", suffix = "", auto_open = TRUE) {
   # Create output directory with nested png/ folder
   output_dir <- file.path("Outputs/Validation", subfolder, "png")
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
