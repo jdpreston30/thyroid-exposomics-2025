@@ -44,11 +44,9 @@ variant_rtx_pt1 <- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
-  use_parallel = FALSE
+  use_parallel = TRUE,
+  n_cores = 8
 )
-#!!!!
-variant_rtx_pt1 <- variant_rtx
-#!!!
 #- 8.2.4: Variant Differences Chemicals (Part 2)
 vv_wide_pt2 <- vv_wide |>
   slice(21:40)
@@ -61,7 +59,8 @@ variant_rtx_pt2<- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
-  use_parallel = FALSE
+  use_parallel = TRUE,
+  n_cores = 8
 )
 #- 8.2.5: Variant Differences Chemicals (Part 3)
 vv_wide_pt3 <- vv_wide |>
@@ -75,7 +74,8 @@ variant_rtx_pt3 <- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
-  use_parallel = FALSE
+  use_parallel = TRUE,
+  n_cores = 8
 )
 #+ 8.3: Compile PDFs of all Validation Plots
 #- 8.3.1: IARC Tumor
