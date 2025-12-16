@@ -94,7 +94,7 @@ vp <- function(plot_obj,
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank()
     ) +
-    ggplot2::scale_y_continuous(labels = scales::scientific)
+    ggplot2::scale_y_continuous(labels = function(x) scales::scientific(abs(x)))
   
   #- Step 1: Remove standard if requested
   if (remove_std) {

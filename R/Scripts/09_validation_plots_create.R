@@ -9,6 +9,13 @@ if (!isTRUE(config$skip_validation_plots)) {
   F4_S1_CP3153_R <- vp(F4_S1_CP3153, xl = 8.2, xu = 8.5, subfolder = "failed")
   F5_S1_CP3153_R <- vp(F5_S1_CP3153, subfolder = "failed")
   F6_S1_CP3153_R <- vp(F6_S1_CP3153, subfolder = "failed")
+  #_Napropamide (CP3135)
+  F1_S1_CP3135_R <- vp(F1_S1_CP3135, xl = NULL, xu = NULL, subfolder = "failed")
+  F2_S1_CP3135_R <- vp(F2_S1_CP3135, xl = 3.75, xu = 3.95, subfolder = "failed")
+  F3_S1_CP3135_R <- vp(F3_S1_CP3135, xl = 3.75, xu = 3.95, subfolder = "failed")
+  F4_S1_CP3135_R <- vp(F4_S1_CP3135, xl = NULL, xu = NULL, subfolder = "failed")
+  F5_S1_CP3135_R <- vp(F5_S1_CP3135, xl = NULL, xu = NULL, subfolder = "failed")
+  F6_S1_CP3135_R <- vp(F6_S1_CP3135, xl = 3.75, xu = NULL, subfolder = "failed")
   #_ THPI (CP2075)
   F6_S2_CP2075_R <- vp(F6_S2_CP2075, xl = 4.85, xu = 5.05, mz_fragment = -c(1,3,6), subfolder = "failed")
   F1_S1_CP2075_R <- vp(F1_S1_CP2075, xl = 4.4, xu = 4.6, subfolder = "failed")
@@ -124,6 +131,10 @@ if (!isTRUE(config$skip_validation_plots)) {
   F5_S1_CP3148_RF <- vp(F5_S1_CP3148_R, mz_fragment = 3, yu = 25000, save_grob = TRUE)
   #_o-aminoazotoluene (CP3001)
   F1_S1_CP3001_R <- vp(F1_S1_CP3001, xl = 7.4, xu = 7.55, remove_std = TRUE)
+  #_2-Naphthylamine (CP2535)
+  F5_S1_CP2535_R <- vp(F5_S1_CP2535, xl = 7.4, xu = 7.55, remove_std = TRUE, yl = 0, yu = 3.6e6)
+  #_Dibutyl phthalate (CP3047)
+  F1_S1_CP3047_R <- vp(F1_S1_CP3047, xl = 19.45, xu = 19.61, remove_std = TRUE, yl = 0, yu = 2.5e8)
 }
 #- 9.4.3: Skip entire section if YAML specifies
 } else {

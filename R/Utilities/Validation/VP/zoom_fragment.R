@@ -71,7 +71,7 @@ zoom_fragment <- function(plot_obj, mz_fragment, subfolder = "revised", write_ou
       expand = ggplot2::expansion(mult = c(0.05, 0.1)),
       limits = c(-y_max * 1.1, y_max * 1.1),
       n.breaks = 8,
-      labels = scales::scientific
+      labels = function(x) scales::scientific(abs(x))
     )
   
   # Update plot subtitle to indicate fragment modification (only for positive fragments)
