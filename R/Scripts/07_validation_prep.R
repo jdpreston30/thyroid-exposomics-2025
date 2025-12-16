@@ -320,9 +320,14 @@ ic_wide <- ic_wide_i |>
 validation_iarcs <- validation_check_files |>
   filter(!is.na(top_frag)) |>
   pull(id)
-#- 7.6.1: Subset validated IARC chemicals
-ic_wide_iarc_validated <- ic_wide |>
+#- 7.6.1: Subset validated IARC chemicals and pivot to long format for consistent file ordering
+ic_wide_iarc_validated_wide <- ic_wide |>
   filter(id %in% validation_iarcs)
-iv_wide_iarc_validated <- iv_wide |>
+iv_wide_iarc_validated_wide <- iv_wide |>
   filter(id %in% validation_iarcs)
+#- 7.6.2: Pivot to long format for consistent file ordering across all compounds
+ic_wide_iarc_validated <- ic_wide_iarc_validated_wide |>
+  pivot_files_to_long()
+iv_wide_iarc_validated <- iv_wide_iarc_validated_wide |>
+  pivot_files_to_long()
 
