@@ -19,19 +19,6 @@ iarc_tumor_rtx <- rtx(
   use_parallel = TRUE,
   n_cores = 8
 )
-moca <- iv_wide |>
-  filter(short_name == "MOCA")
-iarc_tumor_rtx <- rtx(
-  validation_list = moca,
-  iterate_through = 6,
-  rt_lookup = "sample",
-  save_rds = TRUE,
-  rds_save_folder = "moca",
-  overwrite_rds = TRUE,
-  save_compiled_rds = FALSE,
-  use_parallel = FALSE,
-  n_cores = 8
-)
 #- 8.2.2: IARC Cadaver
 iarc_cadaver_rtx <- rtx(
   validation_list = ic_wide,
@@ -45,7 +32,7 @@ iarc_cadaver_rtx <- rtx(
   use_parallel = TRUE,
   n_cores = 8
 )
-#- 8.2.3: Variant Differences Chemicals
+#- 8.2.3: Variant Differences Chemicals (Part 1)
 variant_rtx <- rtx(
   validation_list = vv_wide,
   iterate_through = 6,
