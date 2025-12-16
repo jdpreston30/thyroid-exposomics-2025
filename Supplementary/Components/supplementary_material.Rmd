@@ -17,6 +17,7 @@ header-includes:
   - \usepackage{setspace}
   - \usepackage{pdflscape}
   - \usepackage[absolute]{textpos}
+  - \usepackage{ifthen}
   - \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
   - \setmainfont{Times New Roman}
   - \hyphenpenalty=10000
@@ -77,101 +78,59 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \fontsize{10}{11}\selectfont
 
-\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 2
+\textbf{EXPANDED METHODS} \dotfill 2-5
 
-\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 3-4
+\quad \textit{High-Resolution Exposomics} \dotfill 2
 
-\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 5
+\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 2
 
-\textbf{EXPANDED METHODS} \dotfill 6-11
+\quad \textit{Preprocessing of Exposomics Data} \dotfill 3
 
-\quad \textit{High-Resolution Exposomics} \dotfill 6
+\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 3
 
-\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 6
+\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 3
 
-\quad \textit{Preprocessing of Exposomics Data} \dotfill 7
+\quad \textit{Online Code and Data Repository} \dotfill 3
 
-\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 7
+\quad \textit{Exposome-Wide Association Study} \dotfill 3-4
 
-\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 7
+\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 4
 
-\quad \textit{Online Code and Data Repository} \dotfill 8
+\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues} \dotfill 4-5
 
-\quad \textit{Exposome-Wide Association Study} \dotfill 8
+\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 5
 
-\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 9
+\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 5
 
-\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues} \dotfill 9
+\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 6
 
-\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 11
+\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 7-31
 
-\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 11
+\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 7-28
 
-\textbf{SUPPLEMENTARY TABLE 1} \dotfill 12-31
+\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 29-31
 
-\textbf{SUPPLEMENTARY TABLE 2} \dotfill 32-45
+\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 32-36
 
-\textbf{SUPPLEMENTARY TABLE 3} \dotfill 46
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 32-34
 
-\textbf{SUPPLEMENTARY TABLE 4} \dotfill 47
+\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 35-36
 
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 48-51
+\textbf{SUPPLEMENTARY TABLE 1} \dotfill 37
 
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 52
+\textbf{SUPPLEMENTARY TABLE 2} \dotfill 38
 
-\newpage
+\textbf{SUPPLEMENTARY TABLE 3} \dotfill 39
 
+\textbf{SUPPLEMENTARY TABLE 4} \dotfill 40
 
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 41-42
 
-\newpage
-
-\markright{\textit{Supplementary Figure 1}}
-
-\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 1}}
-
-\noindent{\fontsize{10}{12}\selectfont\textbf{Classification of detected chemicals.} Chemical superclasses (A) and subclasses (B) of all detected chemicals.}
-
-\vspace{0.5em}
-
-\begin{center}
-\includegraphics[width=0.88\textwidth]{Figures/PDF/S1.pdf}
-\end{center}
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 43
 
 \newpage
 
-\markright{\textit{Supplementary Figure 2}}
 
-\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2}}
-
-\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of select chemical identifications in thyroid tumor samples.} Mirrored plots comparing sample spectra (top, positive y-axis) to reference standard spectra (bottom, negative y-axis, flipped) for the top five quantitative mode chemicals from figure 3A: (A) 2,6-DCP-4'-NPE, (B) Cyfluthrin, (C) Guthion, (D) o-Toluidine, and (E) DNOP. For each chemical, the left panel shows retention time (RT) chromatograms with extracted ion chromatograms (EIC) for library m/z fragments, while the right panel shows mass spectra extracted within a RT window around the target peak. The Y axis on all plots represents intensity. Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3A. Figures A-C are displayed below and D-E are displayed on the following page.}
-
-\begin{center}
-\includegraphics[width=0.88\textwidth]{Figures/PDF/S2.1.pdf}
-\end{center}
-
-\newpage
-
-\markright{\textit{Supplementary Figure 2 (Continued)}}
-
-\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2 (CONTINUED)}}
-
-\vspace{0.5em}
-
-\begin{center}
-\includegraphics[width=0.88\textwidth]{Figures/PDF/S2.2.pdf}
-\end{center}
-
-\newpage
-
-\markright{\textit{Supplementary Figure 3}}
-
-\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3}}
-
-\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of o-Toluidine in tumor and non-cancer cadaver thyroid tissues.} Mirrored plots comparing sample spectra (top, positive y-axis) to reference standard spectra (bottom, negative y-axis, flipped) for o-Toluidine detected in (A) thyroid tumor tissue and (B) non-cancer cadaver thyroid tissue. Note that tumor and cadaver samples were analyzed in separate batches. For each tissue type, the left panel shows retention time (RT) chromatograms with extracted ion chromatograms (EIC) for library m/z fragments, while the right panel shows mass spectra extracted within a RT window around the target peak. The Y axis on all plots represents intensity. Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3D.}
-
-\begin{center}
-\includegraphics[width=0.88\textwidth]{Figures/PDF/S3.pdf}
-\end{center}
 
 \newpage
 
@@ -184,7 +143,7 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 Prior to processing samples, several individual reference standards were prepared by spiking pure chemical standards into pooled reference plasma to achieve a common concentration of 0·47 ng/mL. A majority of all chemical standards were purchased from AccuStandard (New Haven, CT, USA), Restek (Bellefonte, PA, USA), MilliporeSigma (Burlington, MA, USA), Santa Cruz Biotechnology (Dallas, TX, USA), Wellington Laboratories (Guelph, ON, Canada), Cambridge Isotope Laboratories (Tewksbury, MA, USA). Plasma reference standards and tissue samples were processed using a modified version of the express liquid extraction (XLE) method.[@hu2021] The XLE is optimized for biofluids; however, it was necessary to modify it to ensure analytical consistency across plasma standards and tumor tissue samples, as detailed below.
 
-First, $\sim$50 mg of tumor or non-tumor cadaver thyroid tissue was cut and placed into a glass vial (13$\times$100 mm), and exact tissue weights were recorded (mean $\pm$ SD = 52·7 $\pm$ 11·3 mg for tumor tissue, 43·1 $\pm$ 4·5 mg for non-cancer cadaver thyroid tissue). Next, 200 $\mu$L of each pooled reference plasma standard (an in-house standard referred to as QStd; see Go et al.[@go2015] for a full description of a previous iteration of this standard) was transferred to glass vials (13$\times$100 mm). For tissues, 500 $\mu$L of an extraction buffer comprised of acetone and petroleum ether (1:1 v/v) (MilliporeSigma, Catalog \#184519) with $\sim$2\% internal standard mix, was added to the glass vials containing tissues. For plasma, 200 $\mu$L of extraction buffer containing 2\% internal standard mix was added to the glass vials containing the pooled reference plasma. 50 $\mu$L of formic acid (Emprove\textregistered{} Essential DAC, 98-100\% pure, MilliporeSigma, Catalog \#1002631000) was then added to tissue and plasma standard vials. To the tissue vials, 20 mg of NaCl was added, and 45 $\pm$ 5 mg of MgSO$_4$ ($\geq$99·99\% trace metals basis, Sigma-Aldrich, Catalog \#203726) was added to tissue and plasma standard vials.
+First, approximately 50 mg of tumor or non-tumor cadaver thyroid tissue was cut and placed into a glass vial (13 $\times$ 100 mm), and exact tissue weights were recorded (mean $\pm$ SD = 52·7 $\pm$ 11·3 mg for tumor tissue, 43·1 $\pm$ 4·5 mg for non-cancer cadaver thyroid tissue). Next, 200 $\mu$L of each pooled reference plasma standard (an in-house standard referred to as QStd; see Go et al.[@go2015] for a full description of a previous iteration of this standard) was transferred to glass vials (13 $\times$ 100 mm). For tissues, 500 $\mu$L of an extraction buffer comprised of acetone and petroleum ether (1:1 v/v) (MilliporeSigma, Catalog \#184519) with 2\% internal standard mix, was added to the glass vials containing tissues. For plasma, 200 $\mu$L of extraction buffer containing 2\% internal standard mix was added to the glass vials containing the pooled reference plasma. 50 $\mu$L of formic acid (Emprove\textregistered{} Essential DAC, 98-100\% pure, MilliporeSigma, Catalog \#1002631000) was then added to tissue and plasma standard vials. To the tissue vials, 20 mg of NaCl was added, and 45 $\pm$ 5 mg of MgSO$_4$ ($\geq$99·99\% trace metals basis, Sigma-Aldrich, Catalog \#203726) was added to tissue and plasma standard vials.
 
 Tissue samples were then homogenized in this solution using a tissue-tearor, followed by water bath sonication for 30 minutes at room temperature. Plasma samples were shaken vigorously on ice using a multitube vortexer (VWR VX-2500) for 60 min. Following this, both tissue and plasma homogenates were centrifuged at 3000 rpm $\times$ 4 $^{\circ}$C $\times$ 10 min. Supernatants were then transferred to new glass vials (13 $\times$ 100 mm) and dried using a vacuum centrifuge for 60 min at 35 $^{\circ}$C. Finally, dried samples were reconstituted in 50 $\mu$L of isooctane. Reconstituted samples were transferred to autosampler vials with 150 $\mu$L vial inserts for analysis. Samples were prepared in batches containing 20 samples along with standard reference material (SRM) samples (NIST 1957, 1958, and several in-house SRMs discussed above). In addition, pooled reference plasma samples, a retention-time batch comparison standard, a method solvent blank that underwent solvent extraction, and a solvent blank were prepared in tandem as part of quality control measures. It should be noted that tumor tissues and non-cancer cadaver thyroid tissues were analyzed at different timepoints and in separate batches, although the same method was used for each tissue. As a result, direct comparison of raw spectral intensities between non-cancer thyroids and tumors was limited; however, quantitative estimates of chemical concentrations in tissues (see the section `Quantitative Estimates of Chemical Concentrations in Tissues' below) did enable some degree of direct comparison, though these comparisons should be interpreted conservatively and cautiously given the high potential for batch effects.
 
@@ -349,6 +308,64 @@ Targeted quantitative feature tables, which were additionally filtered for detec
 \noindent\textbf{Comparing Observed Concentrations to Literature Values for Select Chemicals}
 
 To compare the quantification estimates generated as described above with estimated values in other tissues and matrices, we identified values for select chemicals in the published literature and tabulated our data alongside these reported concentrations (Supplementary Table 2). We prioritized chemicals that were IARC Group 1 carcinogens and polycyclic aromatic hydrocarbon combustion byproducts. For quantitative estimates of 245 individual chemicals, see Supplementary Table 3.
+
+\newpage
+
+\markright{\textit{Supplementary Figure 1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Classification of detected chemicals.} Chemical superclasses (A) and subclasses (B) of all detected chemicals.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[width=0.90\textwidth]{Figures/PDF/S1.pdf}
+\end{center}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 2.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of select chemical identifications in thyroid tumor samples.} Sample spectra for all chemicals which showed differences in variants (quantity or presence), displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (2.1, pp. 7-28), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (2.2, pp. 29-31). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.87\textwidth]{Figures/PDF/S2.1.pdf}
+\end{center}
+
+\includepdf[pages=2-,scale=0.87,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S2.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 2.2}}
+
+\includepdf[pages=-,scale=0.87,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.2\ifthenelse{\value{page}>31}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 3.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of IARC Group 1 chemicals detected in tumor samples.} Sample spectra for all IARC Group 1 carcinogens detected in thyroid tumor tissue, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (3.1, pp. 32-34), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (3.2, pp. 35-36). For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.87\textwidth]{Figures/PDF/S3.1.pdf}
+\end{center}
+
+\includepdf[pages=2-,scale=0.87,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S3.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 3.2}}
+
+\includepdf[pages=-,scale=0.87,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.2\ifthenelse{\value{page}>37}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
 
 \newpage
 

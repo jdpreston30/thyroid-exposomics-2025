@@ -17,6 +17,7 @@ header-includes:
   - \usepackage{setspace}
   - \usepackage{pdflscape}
   - \usepackage[absolute]{textpos}
+  - \usepackage{ifthen}
   - \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
   - \setmainfont{Times New Roman}
   - \hyphenpenalty=10000
@@ -77,47 +78,55 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \fontsize{10}{11}\selectfont
 
-\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 2
+\textbf{EXPANDED METHODS} \dotfill 2-5
 
-\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 3-4
+\quad \textit{High-Resolution Exposomics} \dotfill 2
 
-\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 5
+\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 2
 
-\textbf{EXPANDED METHODS} \dotfill 6-11
+\quad \textit{Preprocessing of Exposomics Data} \dotfill 3
 
-\quad \textit{High-Resolution Exposomics} \dotfill 6
+\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 3
 
-\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 6
+\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 3
 
-\quad \textit{Preprocessing of Exposomics Data} \dotfill 7
+\quad \textit{Online Code and Data Repository} \dotfill 3
 
-\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 7
+\quad \textit{Exposome-Wide Association Study} \dotfill 3-4
 
-\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 7
+\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 4
 
-\quad \textit{Online Code and Data Repository} \dotfill 8
+\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues} \dotfill 4-5
 
-\quad \textit{Exposome-Wide Association Study} \dotfill 8
+\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 5
 
-\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 9
+\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 5
 
-\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues} \dotfill 9
+\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 6
 
-\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 11
+\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 7-31
 
-\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 11
+\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 7-28
 
-\textbf{SUPPLEMENTARY TABLE 1} \dotfill 12-31
+\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 29-31
 
-\textbf{SUPPLEMENTARY TABLE 2} \dotfill 32-45
+\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 32-36
 
-\textbf{SUPPLEMENTARY TABLE 3} \dotfill 46
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 32-34
 
-\textbf{SUPPLEMENTARY TABLE 4} \dotfill 47
+\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 35-36
 
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 48-51
+\textbf{SUPPLEMENTARY TABLE 1} \dotfill 37
 
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 52
+\textbf{SUPPLEMENTARY TABLE 2} \dotfill 38
+
+\textbf{SUPPLEMENTARY TABLE 3} \dotfill 39
+
+\textbf{SUPPLEMENTARY TABLE 4} \dotfill 40
+
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 41-42
+
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 43
 
 \newpage
 
