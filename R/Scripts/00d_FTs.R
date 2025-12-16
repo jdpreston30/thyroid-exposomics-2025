@@ -38,9 +38,9 @@ fragment_quality_info <- read_excel(config$paths$primary_data, sheet = "lib.subj
   select(name_sub_lib_id, iMean) |>
   rename(iMean_tumors = iMean)
 #- 0d.1.9: Import clean absolute quant for control IARCs
-IARC_controls_i <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary.cadaver")
+IARC_controls_ii <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary.cadaver")
 #- 0d.1.10: Import clean absolute quant for tumor IARCs
-IARC_tumors_i <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary")
+IARC_tumors_ii <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsummary")
 #- 0d.1.11: Import and clean library
 ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
   filter(Disposition != "Endogenous") |>

@@ -265,6 +265,9 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
       # Store plot
       plot_label <- sprintf("F%d_S%d", sample_idx, std_idx)
       plot_tag <- sprintf("F%d_S%d_%s", sample_idx, std_idx, id_val)
+      if (study == "cadaver") {
+        plot_tag <- paste0("C_", plot_tag)
+      }
       
       compound_result$plots[[plot_label]] <- list(
         plot = p_rtx,
@@ -875,6 +878,9 @@ rtx <- function(validation_list,
         # Store plot
         plot_label <- sprintf("F%d_S%d", sample_idx, std_idx)
         plot_tag <- sprintf("F%d_S%d_%s", sample_idx, std_idx, id_val)
+        if (study == "cadaver") {
+          plot_tag <- paste0("C_", plot_tag)
+        }
         
         compound_plots[[id_val]]$plots[[plot_label]] <- list(
           plot = p_rtx,
