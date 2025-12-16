@@ -1,4 +1,3 @@
-#!!!!! CHANGE FOLDERS
 #* 9: Validation Plots Adjustment and Manual Review
 if (!isTRUE(config$skip_validation_plots)) {
 #+ 9.2: Plots that failed after review
