@@ -2,6 +2,13 @@
 if (!isTRUE(config$skip_validation_plots)) {
 #+ 9.2: Plots that failed after review
 {
+  #_Methylparaben (CP2252)
+  F1_S1_CP2252_R <- vp(F1_S2_CP2252, xl = 4.3, xu = 4.50, subfolder = "failed")
+  F2_S1_CP2252_R <- vp(F2_S1_CP2252, xl = 4.3, xu = 4.50, subfolder = "failed")
+  F3_S1_CP2252_R <- vp(F3_S1_CP2252, xl = 4.3, xu = 4.50, subfolder = "failed")
+  F4_S1_CP2252_R <- vp(F4_S1_CP2252, xl = 4.3, xu = 4.50, subfolder = "failed")
+  F5_S1_CP2252_R <- vp(F5_S1_CP2252, xl = 4.3, xu = 4.50, subfolder = "failed")
+  F6_S1_CP2252_R <- vp(F6_S1_CP2252, xl = 4.3, xu = 4.50, subfolder = "failed")
   #_ Cyfluthrin (CP3153)
   F1_S2_CP3153_R <- vp(F1_S2_CP3153, subfolder = "failed")
   F2_S2_CP3153_R <- vp(F2_S2_CP3153, subfolder = "failed")
