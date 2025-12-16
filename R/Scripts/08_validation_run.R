@@ -8,6 +8,7 @@ file_inventory <- convert_raw_to_mzml(
 )
 #+ 8.2: Manual Validation Plots Creation
 #- 8.2.1: IARC Tumor
+# Run rtx
 iarc_tumor_rtx <- rtx(
   validation_list = iv_wide,
   iterate_through = 6,
@@ -17,9 +18,17 @@ iarc_tumor_rtx <- rtx(
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 8
+  n_cores = 9
+)
+# Create compiled PDF
+compile_validation_pdf(
+  compound_plots = iarc_tumor_rtx,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "iarc_tumor_rtx.pdf",
+  add_plot_tags = TRUE
 )
 #- 8.2.2: IARC Cadaver
+# Run rtx
 iarc_cadaver_rtx <- rtx(
   validation_list = ic_wide,
   study = "cadaver",
@@ -30,11 +39,20 @@ iarc_cadaver_rtx <- rtx(
   overwrite_rds = TRUE,
   save_compiled_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 8
+  n_cores = 9
+)
+# Create compiled PDF
+compile_validation_pdf(
+  compound_plots = iarc_cadaver_rtx,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "iarc_cadaver_rtx.pdf",
+  add_plot_tags = TRUE
 )
 #- 8.2.3: Variant Differences Chemicals (Part 1)
+# Subset to part 1
 vv_wide_pt1 <- vv_wide |>
   slice(1:20)
+# Run rtx
 variant_rtx_pt1 <- rtx(
   validation_list = vv_wide_pt1,
   iterate_through = 6,
@@ -47,9 +65,18 @@ variant_rtx_pt1 <- rtx(
   use_parallel = TRUE,
   n_cores = 8
 )
+# Write compiled PDF
+compile_validation_pdf(
+  compound_plots = variant_rtx_pt1,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "variant_rtx_pt1.pdf",
+  add_plot_tags = TRUE
+)
 #- 8.2.4: Variant Differences Chemicals (Part 2)
+# Subset to part 2
 vv_wide_pt2 <- vv_wide |>
   slice(21:40)
+# Run rtx
 variant_rtx_pt2<- rtx(
   validation_list = vv_wide_pt2,
   iterate_through = 6,
@@ -62,9 +89,18 @@ variant_rtx_pt2<- rtx(
   use_parallel = TRUE,
   n_cores = 8
 )
+# Write compiled PDF
+compile_validation_pdf(
+  compound_plots = variant_rtx_pt2,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "variant_rtx_pt2.pdf",
+  add_plot_tags = TRUE
+)
 #- 8.2.5: Variant Differences Chemicals (Part 3)
+# Subset to part 3
 vv_wide_pt3 <- vv_wide |>
   slice(41:n())
+# Run rtx
 variant_rtx_pt3 <- rtx(
   validation_list = vv_wide_pt3,
   iterate_through = 6,
@@ -77,43 +113,14 @@ variant_rtx_pt3 <- rtx(
   use_parallel = TRUE,
   n_cores = 8
 )
-#+ 8.3: Compile PDFs of all Validation Plots
-#- 8.3.1: IARC Tumor
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "iarc_tumor_rtx.pdf",
-  add_plot_tags = TRUE
-)
-#- 8.3.2: IARC Cadaver
-compile_validation_pdf(
-  compound_plots = iarc_cadaver_rtx,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "iarc_cadaver_rtx.pdf",
-  add_plot_tags = TRUE
-)
-#- 8.3.3: Variant Differences Chemicals (Part 1)
-compile_validation_pdf(
-  compound_plots = variant_rtx_pt1,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "variant_rtx_pt1.pdf",
-  add_plot_tags = TRUE
-)
-#- 8.3.4: Variant Differences Chemicals (Part 2)
-compile_validation_pdf(
-  compound_plots = variant_rtx_pt2,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "variant_rtx_pt2.pdf",
-  add_plot_tags = TRUE
-)
-#- 8.3.5: Variant Differences Chemicals (Part 3)
+# Write compiled PDF
 compile_validation_pdf(
   compound_plots = variant_rtx_pt3,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "variant_rtx_pt3.pdf",
   add_plot_tags = TRUE
 )
-#+ 8.4: Skip entire section if YAML specifies
+#+ 8.3: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation step (config$analysis$run_validation_step = FALSE)\n")
 }
