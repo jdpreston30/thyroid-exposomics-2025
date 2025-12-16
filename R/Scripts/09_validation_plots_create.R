@@ -120,6 +120,8 @@ if (!isTRUE(config$skip_validation_plots)) {
 }
 #+ 9.4: Revise Plots (Remove standard peak -> level 2)
 {
+  #_OD-PABA (CP2331)
+  F4_S2_CP2331_R <- vp(F4_S2_CP2331, xl = 11, xu = 11.25, remove_std = TRUE)
   #_2-ABP (CP3020)
   F2_S1_CP3020_R <- vp(F2_S1_CP3020, xl = 7.2, xu = 7.36, remove_std = TRUE)
   #_MOCA (CP3013)
