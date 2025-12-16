@@ -20,9 +20,3 @@ F5_S1_CP2475_R <- vp(F5_S1_CP2475)
 F6_S1_CP2475_R <- vp(F6_S1_CP2475)
 #_Methylparaben (CP2252)
 F1_S1_CP2252_R <- vp(F1_S1_CP2252, xl = 4.3, xu = 4.50)
-
-#+ check
-
-
-  #_OD-PABA (CP2331)
-  F4_S2_CP2331_R <- vp(F4_S2_CP2331, xl = NULL, xu = NULL)
