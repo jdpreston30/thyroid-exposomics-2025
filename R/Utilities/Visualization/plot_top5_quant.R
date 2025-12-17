@@ -98,11 +98,14 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
     facet_wrap(~chemical, ncol = 1, scales = "fixed", strip.position = "left") +
     scale_fill_manual(
       values = variant_colors_fill,
-      breaks = c("Follicular", "FV-PTC", "Papillary")
+      breaks = c("Follicular", "FV-PTC", "Papillary"),
+      labels = c("Follicular ", "FV-PTC   ", "Papillary"),
+      guide = guide_legend(nrow = 1, byrow = TRUE, label.hjust = 0)
     ) +
     scale_color_manual(
       values = variant_colors,
-      breaks = c("Follicular", "FV-PTC", "Papillary")
+      breaks = c("Follicular", "FV-PTC", "Papillary"),
+      guide = "none"
     ) +
     scale_x_continuous(
       breaks = seq(-2, 2, by = 1),
@@ -124,6 +127,7 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
         keyheight = unit(0.25, "cm"),
         byrow = TRUE,
         label.position = "right",
+        label.hjust = 0,
         nrow = 1,
         override.aes = list(color = variant_colors, alpha = 0.5)
       ),
@@ -141,19 +145,21 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       axis.text.y = element_blank(),
       axis.ticks.y = element_blank(),
       axis.title.x = element_text(face = "bold", size = 10),
+      axis.line = element_blank(),
       legend.position = "top",
       legend.justification = "center",
       legend.direction = "horizontal",
+      legend.box.margin = margin(l = 5/300, unit = "in"),
       legend.text = element_text(size = 8, face = "bold", family = "Arial"),
       legend.title = element_blank(),
       legend.background = element_rect(fill = "transparent", color = NA),
       legend.key = element_rect(fill = "white", linewidth = 0.5),
       legend.key.size = unit(0.25, "cm"),
-      legend.spacing.x = unit(0.05, "cm"),
+      legend.spacing.x = unit(0.15, "cm"),
       legend.spacing.y = unit(0.02, "cm"),
       legend.box.spacing = unit(0, "cm"),
       panel.spacing = unit(0, "lines"),
-      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.3)
     )
   
   # If return_legend is TRUE, extract legend and return both
