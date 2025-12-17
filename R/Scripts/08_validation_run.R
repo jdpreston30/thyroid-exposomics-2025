@@ -116,7 +116,6 @@ compile_validation_pdf(
   add_plot_tags = TRUE
 )
 #+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
-source("R/Scripts/07_validation_prep.R")
 #- 8.4.1: IARC Tumor
 iarc_tumor_rtx_validated <- rtx(
   validation_list = iv_wide_iarc_validated,
@@ -130,10 +129,11 @@ iarc_tumor_rtx_validated <- rtx(
   run_standard = FALSE
 )
 #- 8.4.1: IARC Tumor
+# Run rtx (no standards)
 iarc_cadaver_rtx_validated <- rtx(
   validation_list = ic_wide_iarc_validated,
   study = "cadaver",
-  iterate_through = 2,  # 16
+  iterate_through = 1,  # 16
   rt_lookup = "sample",
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx_validated",
