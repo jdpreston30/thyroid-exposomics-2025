@@ -1,7 +1,7 @@
 #* 12: Tumor v Control IARC Plots
 #+ 12.1: IARC Stats (ttest on log transformed)
 IARC_ttests <- full_joiner |>
-  mutate(across(where(is.numeric), ~ log2(. + 1e-6))) |>
+  mutate(across(where(is.numeric), ~ log2(.))) |>
   mutate(group = if_else(str_starts(sample_ID, "T00"), "Control", "Tumor")) |>
   pivot_longer(
     cols = where(is.numeric) & !any_of("group"),
@@ -25,7 +25,7 @@ toluidine_p <- IARC_ttests |>
 toluidine_data <- full_joiner %>%
   select(tumor_vs_ctrl, `o-Toluidine_0_BP3.GC2_CP3017`) %>%
   rename(concentration = `o-Toluidine_0_BP3.GC2_CP3017`)
-p3D <- plot_iarc(toluidine_data, chemical_name = "o-Toluidine", p_value = toluidine_p)
+p3E <- plot_iarc(toluidine_data, chemical_name = "o-Toluidine", p_value = toluidine_p)
 #- 12.2.2: 4-aminobiphenyl_0_BP3.GC2_CP3002
 #! This was the most detected and top frag
 # P-value
@@ -36,6 +36,41 @@ aminobiphenyl_0_p <- IARC_ttests |>
 aminobiphenyl_0_data <- full_joiner %>%
   select(tumor_vs_ctrl, `4-aminobiphenyl_0_BP3.GC2_CP3002`) %>%
   rename(concentration = `4-aminobiphenyl_0_BP3.GC2_CP3002`)
-p3E <- plot_iarc(aminobiphenyl_0_data, chemical_name = "4-Aminobiphenyl", p_value = aminobiphenyl_0_p)
+p3F <- plot_iarc(aminobiphenyl_0_data, chemical_name = "4-Aminobiphenyl", p_value = aminobiphenyl_0_p)
+#+ 12.3: Advanced Carcinogen Classificaiton
+carc_by_variant <- MTi |>
+  filter(cas %in% MT_final_cas_list) |>
+  # Expand rows for double counting when multiple highest groups
+  mutate(
+    highest = strsplit(highest, ", ")
+  ) |>
+  unnest(highest) |>
+  # Map the group names to the variant labels
+  mutate(
+    Variant = recode(highest,
+      "FTC" = "Follicular",
+      "FV_PTC" = "FV-PTC",
+      "PTC" = "Papillary"
+    )
+  ) |>
+  # Count occurrences for each Variant and Carcinogenicity
+  count(Variant, Carcinogenicity) |>
+  # Pivot to wide format
+  pivot_wider(
+    names_from = Carcinogenicity,
+    values_from = n,
+    values_fill = 0 # Fill missing counts with 0
+  ) |>
+  # Reorder columns for readability
+  select(
+    Variant,
+    "Known Carcinogen",
+    "Likely Carcinogen",
+    "Possible Carcinogen",
+    "Uncertain Risk",
+    "Unclassified",
+    everything()
+  ) |>
+  filter(Variant != "Equal")
 #+ 12.5: IARC detection heatmap
 #! Leaving out for now but may revisit if individual check of top fragments proceeds

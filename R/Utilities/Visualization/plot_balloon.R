@@ -69,9 +69,9 @@
 plot_balloon <- function(data,
                          y_var = "usage_class",
                          size_range = c(0.9, 4.5),
-                         size_breaks = c(1, 3, 5, 7),
+                         size_breaks = c(1, 2, 3),
                          show_x_labels = FALSE,
-                         y_text_size = 8) {
+                         y_text_size = 9) {
   # Validate inputs
   required_cols <- c("Variant", y_var, "n")
   missing_cols <- setdiff(required_cols, names(data))
@@ -94,7 +94,7 @@ plot_balloon <- function(data,
     theme(
       text = element_text(family = "Arial", face = "bold", size = 14, color = "black"),
       axis.text.y = element_text(family = "Arial", face = "bold", size = y_text_size, color = "black"),
-      legend.text = element_text(family = "Arial", face = "bold", size = 10, color = "black"),
+      legend.text = element_text(family = "Arial", face = "bold", size = 8, color = "black"),
       legend.title = element_text(size = 10),
       axis.title.x = element_blank(),
       axis.title.y = element_blank(),
@@ -109,9 +109,10 @@ plot_balloon <- function(data,
       axis.text.x = element_text(
         angle = 45,
         hjust = 1,
+        vjust = 1,
         family = "Arial",
         face = "bold",
-        size = 10.25,
+        size = 10,
         color = "black"
       )
     )

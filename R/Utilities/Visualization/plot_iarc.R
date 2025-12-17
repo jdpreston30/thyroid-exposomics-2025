@@ -106,7 +106,7 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
     geom_point(
       data = plot_data,
       aes(x = x_label, y = concentration, color = tumor_vs_ctrl_full),
-      size = 1.2,
+      size = 1,
       alpha = 1,
       shape = 16,
       position = position_jitter(width = 0.15, seed = 42)
