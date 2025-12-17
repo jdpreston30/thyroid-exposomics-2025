@@ -182,19 +182,7 @@ C_F1_S1_CP3002_R <- vp(C_F1_S1_CP3002, xl = 5.13, xu = 5.22, yl = 0, yu = 1e5,re
 #- 9.8.2: MOCA (CP3013)
 C_F1_S1_CP3013_R <- vp(C_F1_S1_CP3013, xl = 12.63, xu = 12.76, remove_std = TRUE)
 #+ 9.9: IARC 1 Top Fragments
-#- 9.9.1: Bring in top fragments list
-validation_check_files_subids <- validation_check_files |>
-  filter(!is.na(top_frag)) |>
-  select(id, top_frag)
-#- 9.9.2: o-Toluidine (CP3017)
-F3_S2_CP3017_top <- vp_top(F1_S1_CP3017, frag_lookup = validation_check_files_subids, subfolder = "top_fragments")
-
-
-#- Gamma BHC
-F3_S2_CP3017_top <- vp_top(F1_S1_CP1074, frag_lookup = validation_check_files_subids, subfolder = "top_fragments")
-F3_S2_CP3017_R <- vp(F3_S2_CP3017, subfolder = "top_fragments", mz_fragment = 3)
-
-
+#! May not need to if PDF looks ok
 #+ 9.9: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation plots adjustment (config$analysis$run_validation_step = FALSE)\n")
