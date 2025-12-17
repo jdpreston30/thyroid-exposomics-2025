@@ -11,7 +11,7 @@ library(ggtext)
 process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_through,
                                    rt_lookup, window, ppm_tolerance, stick, max_i,
                                    save_rds, rds_save_folder, overwrite_rds, output_dir, study = "tumor",
-                                   run_standard = TRUE, fragment_pare = FALSE) {
+                                   run_standard = TRUE, fragment_pare = FALSE, force_plot = FALSE) {
   
   # Helper function to open and cache mzML files (per-worker cache)
   get_mzml_data_worker <- function(file_name, cache_env) {
@@ -137,12 +137,22 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   
   # Get sample files
   all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
-  all_samples <- all_samples[!is.na(all_samples)]
-  samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+  
+  if (force_plot) {
+    # When force_plot=TRUE, iterate through ALL slots up to iterate_through
+    samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+  } else {
+    # Normal behavior: only process non-NA files
+    all_samples <- all_samples[!is.na(all_samples)]
+    samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+  }
   
   # Process each sample
   for (sample_idx in seq_along(samples_to_process)) {
     sample_file <- samples_to_process[sample_idx]
+    
+    # Skip if file is NA and force_plot is FALSE
+    if (is.na(sample_file) && !force_plot) next
     
     # Determine RT range
     sample_rt_range <- base_rt_range_expanded
@@ -174,7 +184,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
       # Extract sample chromatogram
       sample_chrom <- extract_chrom_worker(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
       
-      if (is.null(sample_chrom)) next
+      if (is.null(sample_chrom) && !force_plot) next
       
       # Adjust mz_index if fragment_pare is TRUE to preserve original fragment number
       if (!is.null(original_frag_index)) {
@@ -203,16 +213,26 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
       }
       
       # Filter to only rows with non-zero intensity
-      sample_chrom <- sample_chrom |>
-        filter(intensity > 0)
+      if (!is.null(sample_chrom)) {
+        sample_chrom <- sample_chrom |>
+          filter(intensity > 0)
+      }
       
-      if (nrow(sample_chrom) == 0) next
+      if ((is.null(sample_chrom) || nrow(sample_chrom) == 0) && !force_plot) next
       
-      # Calculate intensity limits
-      y_limit <- max(abs(sample_chrom$intensity), na.rm = TRUE) * 1.05
+      # Check if we have data or need to create a no-data plot
+      has_data <- !is.null(sample_chrom) && nrow(sample_chrom) > 0
       
-      # Add asterisks to marked m/z values
-      if (!is.na(row$asterisk)) {
+      if (has_data) {
+        # Calculate intensity limits
+        y_limit <- max(abs(sample_chrom$intensity), na.rm = TRUE) * 1.05
+      } else {
+        # No data - use default y limit for empty plot
+        y_limit <- 1000
+      }
+      
+      # Add asterisks to marked m/z values (only if we have data)
+      if (has_data && !is.na(row$asterisk)) {
         marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
         for (marked_mz in marked_mzs) {
           mz_num <- as.numeric(gsub("mz", "", marked_mz))
@@ -224,37 +244,50 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         }
       }
       
-      sample_id <- gsub("\\.mzML$", "", basename(sample_file))
+      sample_id <- if (!is.na(sample_file)) gsub("\\.mzML$", "", basename(sample_file)) else sprintf("File%d", sample_idx)
       
-      # Define fixed color palette for mz indices (matches vp() function palette)
-      mz_colors <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
-                     "#D4A017", "#0072B2", "#D55E00", "#CC79A7", "#999999")
-      names(mz_colors) <- paste0("mz", 0:8)
-      
-      # Create named vector for actual mz_labels present in the data
-      mz_labels_present <- unique(sample_chrom$mz_label)
-      mz_indices_present <- unique(sample_chrom$mz_index)
-      color_mapping <- setNames(
-        mz_colors[paste0("mz", mz_indices_present)],
-        mz_labels_present
-      )
-      
-      if (stick) {
-        p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
-          geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4)
-      } else {
-        p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
-          geom_line(linewidth = 0.4)
-      }
-      
-      p_rtx <- p_rtx +
-        scale_color_manual(values = color_mapping) +
-        scale_y_continuous(
-          expand = c(0, 0),
-          limits = c(0, y_limit),
-          n.breaks = 8,
-          labels = scales::label_scientific(digits = 2)
+      if (has_data) {
+        # Define fixed color palette for mz indices (matches vp() function palette)
+        mz_colors <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+                       "#D4A017", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+        names(mz_colors) <- paste0("mz", 0:8)
+        
+        # Create named vector for actual mz_labels present in the data
+        mz_labels_present <- unique(sample_chrom$mz_label)
+        mz_indices_present <- unique(sample_chrom$mz_index)
+        color_mapping <- setNames(
+          mz_colors[paste0("mz", mz_indices_present)],
+          mz_labels_present
         )
+        
+        if (stick) {
+          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+            geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4)
+        } else {
+          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+            geom_line(linewidth = 0.4)
+        }
+        
+        p_rtx <- p_rtx +
+          scale_color_manual(values = color_mapping) +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(0, y_limit),
+            n.breaks = 8,
+            labels = scales::label_scientific(digits = 2)
+          )
+      } else {
+        # Create empty plot for no-data case
+        p_rtx <- ggplot() +
+          annotate("text", x = mean(sample_rt_range), y = y_limit/2, 
+                  label = "NO DATA", size = 6, color = "gray50", fontface = "bold") +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(0, y_limit),
+            n.breaks = 8,
+            labels = scales::label_scientific(digits = 2)
+          )
+      }
       
       # Apply x-axis scaling based on whether hard limits are used
       if (use_hard_limits) {
@@ -652,7 +685,8 @@ rtx <- function(validation_list,
                 n_cores = NULL,
                 skip_if_disabled = TRUE,
                 run_standard = TRUE,
-                fragment_pare = FALSE) {
+                fragment_pare = FALSE,
+                force_plot = FALSE) {
   
   # Check output_dir only if needed (when config is not available)
   if (is.null(output_dir) && save_rds && !is.null(rds_save_folder)) {
@@ -851,7 +885,7 @@ rtx <- function(validation_list,
                                    "stick", "max_i", "ppm_tolerance",
                                    "save_rds", "rds_save_folder", "overwrite_rds",
                                    "output_dir", "study", "config", "process_single_compound",
-                                   "run_standard", "fragment_pare"),
+                                   "run_standard", "fragment_pare", "force_plot"),
                            envir = environment())
     
     # Load required packages on each worker
@@ -902,7 +936,8 @@ rtx <- function(validation_list,
         output_dir = output_dir,
         study = study,
         run_standard = run_standard,
-        fragment_pare = fragment_pare
+        fragment_pare = fragment_pare,
+        force_plot = force_plot
       )
     }
     
