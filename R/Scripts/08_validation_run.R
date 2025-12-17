@@ -141,7 +141,7 @@ compile_validation_pdf(
 iarc_cadaver_rtx_validated <- rtx(
   validation_list = ic_wide_iarc_validated,
   study = "cadaver",
-  iterate_through = 2,  # 16
+  iterate_through = 16,  # 16
   rt_lookup = "sample",
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx_validated",
