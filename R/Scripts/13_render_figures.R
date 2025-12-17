@@ -52,7 +52,7 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     width = 3.5, height = 5
   ) +
   draw_plot(p3E,
-    x = 0.915-0.25, y = 0.538-.2,
+    x = 0.915-0.25, y = 0.588-.2,
     width = 2.5, height = 2.5
   ) +
   draw_plot(p3F,
