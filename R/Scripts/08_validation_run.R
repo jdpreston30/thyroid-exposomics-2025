@@ -24,7 +24,8 @@ compile_validation_pdf(
   compound_plots = iarc_tumor_rtx,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_tumor_rtx.pdf",
-  add_plot_tags = TRUE
+  add_plot_tags = TRUE,
+  external_subfolder = "iarc_tumor_rtx"
 )
 #- 8.2.2: IARC Cadaver
 # Run rtx
@@ -44,7 +45,8 @@ compile_validation_pdf(
   compound_plots = iarc_cadaver_rtx,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_cadaver_rtx.pdf",
-  add_plot_tags = TRUE
+  add_plot_tags = TRUE,
+  external_subfolder = "iarc_cadaver_rtx"
 )
 #- 8.2.3: Variant Differences Chemicals (Part 1)
 # Subset to part 1
@@ -67,7 +69,8 @@ compile_validation_pdf(
   compound_plots = variant_rtx_pt1,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "variant_rtx_pt1.pdf",
-  add_plot_tags = TRUE
+  add_plot_tags = TRUE,
+  external_subfolder = "variant_rtx"
 )
 #- 8.2.4: Variant Differences Chemicals (Part 2)
 # Subset to part 2
@@ -90,7 +93,8 @@ compile_validation_pdf(
   compound_plots = variant_rtx_pt2,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "variant_rtx_pt2.pdf",
-  add_plot_tags = TRUE
+  add_plot_tags = TRUE,
+  external_subfolder = "variant_rtx"
 )
 #- 8.2.5: Variant Differences Chemicals (Part 3)
 # Subset to part 3
@@ -113,7 +117,8 @@ compile_validation_pdf(
   compound_plots = variant_rtx_pt3,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "variant_rtx_pt3.pdf",
-  add_plot_tags = TRUE
+  add_plot_tags = TRUE,
+  external_subfolder = "variant_rtx"
 )
 #+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
 #- 8.4.1: IARC Tumor
@@ -134,9 +139,10 @@ compile_validation_pdf(
   compound_plots = iarc_tumor_rtx_validated,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_tumor_rtx_validated.pdf",
-  add_plot_tags = TRUE
+  add_plot_tags = TRUE,
+  external_subfolder = "iarc_tumor_rtx_validated"
 )
-#- 8.4.1: IARC Tumor
+#- 8.4.1: IARC Cadaver
 # Run rtx (no standards)
 iarc_cadaver_rtx_validated <- rtx(
   validation_list = ic_wide_iarc_validated,
@@ -148,14 +154,16 @@ iarc_cadaver_rtx_validated <- rtx(
   overwrite_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 9,
-  run_standard = FALSE
+  run_standard = FALSE,
+  fragment_pare = TRUE 
 )
 # Generate compiled PDF
 compile_validation_pdf(
   compound_plots = iarc_cadaver_rtx_validated,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_cadaver_rtx_validated.pdf",
-  add_plot_tags = TRUE
+  add_plot_tags = TRUE,
+  external_subfolder = "iarc_cadaver_rtx_validated"
 )
 #+ 8.3: Skip entire section if YAML specifies
 } else {

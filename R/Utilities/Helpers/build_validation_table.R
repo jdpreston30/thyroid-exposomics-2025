@@ -4,7 +4,8 @@ build_validation_table <- function(validate_ids,
                                     short_name_join = NULL,
                                     peakwalk_data = combined_peakwalk_tumor,
                                     rt_data = tumor_rt_long,
-                                    order_by = "intensity") {
+                                    order_by = "intensity",
+                                    buffer = 10/60) {
   #' Build Validation Table
   #' 
   #' Creates a validation table with RT ranges, mz values, top sample files, and file-specific RT ranges
@@ -16,6 +17,7 @@ build_validation_table <- function(validate_ids,
   #' @param peakwalk_data Tibble with peakwalk data (default: combined_peakwalk_tumor, can use combined_peakwalk_cadaver)
   #' @param rt_data Tibble with RT data in long format (default: tumor_rt_long, can use cadaver_rt_long)
   #' @param order_by Character: "intensity" (default) orders files by intensity, "tag" orders by numeric file suffix
+  #' @param buffer Numeric: RT buffer in minutes to add/subtract from RT for range (default: 10/60 = 0.16667 min)
   #' 
   #' @return Tibble with validation metadata including file-specific RT ranges
   
