@@ -228,19 +228,3 @@ IARC_controls_i <- IARC_controls_ii |>
 IARC_tumors_i <- IARC_tumors_ii |>
   filter(cas %in% iarc_1) |>
   arrange(name)
-#- 6.5.4: Determine the matches, filter to 30% NA quant, pull features
-IARC_tumors_ctrl_filtered_id_frag <- IARC_tumors |>
-  left_join(IARC_controls_i, by = "name_sub_lib_id") |>
-  select(cas, name, name_sub_lib_id, id = id.x, pct_NA, pct_NA_ctrl, iMean, iMean_ctrl) |>
-  filter(!is.na(pct_NA_ctrl)) |>
-  group_by(cas) |>
-  arrange(pct_NA, pct_NA_ctrl, desc(iMean)) |>
-  slice(1) |>
-  ungroup() |>
-  filter(pct_NA < 0.3, pct_NA_ctrl < 0.3)
-#- 6.5.5: Pull the name_sub_lib_id
-IARC_tumors_ctrl_filtered <- IARC_tumors_ctrl_filtered_id_frag |>
-  pull(name_sub_lib_id)
-#- 6.5.5: Pull ID
-IARC_tumors_ctrl_filtered_id <- IARC_tumors_ctrl_filtered_id_frag |>
-  pull(id)
