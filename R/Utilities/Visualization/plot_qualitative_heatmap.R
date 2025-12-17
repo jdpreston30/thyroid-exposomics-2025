@@ -35,12 +35,13 @@ plot_qualitative_heatmap <- function(data) {
     scale_fill_gradient2(
       low = "#0C5EA5", mid = "#DDC9C2", high = "#BE4E4D", 
       midpoint = 50, limits = c(0, 100),
+      breaks = c(0, 25, 50, 75, 100),
       name = "Percent Detection",
       guide = guide_colorbar(
         title.position = "left",
         title.hjust = 0.5,
         barwidth = 0.8,
-        barheight = 6,
+        barheight = 7,
         ticks.colour = "black",
         ticks.linewidth = 0.3,
         frame.colour = "black",
@@ -51,19 +52,19 @@ plot_qualitative_heatmap <- function(data) {
     labs(x = NULL, y = NULL) +
     scale_x_discrete(expand = c(0, 0)) +
     scale_y_discrete(expand = c(0, 0), position = "right") +
-    coord_fixed(ratio = 0.5) +
+    # coord_fixed(ratio = 0.5) +
     theme_minimal(base_size = 10, base_family = "Arial") +
     theme(
       plot.background = element_rect(fill = "transparent", color = NA),
       panel.background = element_rect(fill = "transparent", color = NA),
-      axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, face = "bold", size = 10, color = "black", family = "Arial"),
+      axis.text.x = element_text(angle = 45, hjust = 1, vjust = 0.97, face = "bold", size = 10, color = "black", family = "Arial"),
       axis.text.y.right = element_text(hjust = 0, size = 9, face = "bold", color = "black", family = "Arial"),
       axis.text.y.left = element_blank(),
       axis.ticks = element_line(color = "black", linewidth = 0.3),
       axis.ticks.length = unit(0.1, "cm"),
-      axis.line = element_line(color = "black", linewidth = 0.3),
+      axis.line = element_blank(),
       panel.grid = element_blank(),
-      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.3),
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.6),
       legend.position = "right",
       legend.title = element_text(face = "bold", size = 10, color = "black", family = "Arial", angle = 90),
       legend.text = element_text(face = "bold", size = 8, color = "black", family = "Arial"),

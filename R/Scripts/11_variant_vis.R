@@ -68,13 +68,12 @@ qualitative_heatmap_data <- qualitative_final_features |>
                     levels = c("FTC", "FV_PTC", "PTC"),
                     labels = c("Follicular", "FV-PTC", "Papillary"))
   )
-#- 11.4.3: Order compounds by hierarchical clustering
-wide_for_clustering <- qualitative_final_features |>
+#- 11.4.3: Order compounds from least to greatest by Papillary, then FV-PTC, then Follicular
+compound_order <- qualitative_final_features |>
   mutate(across(c(FTC, FV_PTC, PTC), ~as.numeric(gsub("%", "", .)))) |>
-  column_to_rownames("short_name")
-hc <- hclust(dist(wide_for_clustering))
-compound_order <- rownames(wide_for_clustering)[hc$order]
-#- 11.4.4: Apply clustering order
+  arrange(PTC, FV_PTC, FTC) |>
+  pull(short_name)
+#- 11.4.4: Apply order
 qualitative_heatmap_data <- qualitative_heatmap_data |>
   mutate(short_name = factor(short_name, levels = compound_order))
 #- 11.4.5: Create heatmap
