@@ -6,6 +6,7 @@
 #' @param output_dir Directory to save PDF
 #' @param pdf_name Name of PDF file
 #' @param add_plot_tags Logical, whether to add plot tags to subtitles (default TRUE)
+#' @param external_subfolder Optional subfolder name within OneDrive validation_plots directory
 #'
 #' @return Path to created PDF file
 #' @export
@@ -13,7 +14,8 @@ compile_validation_pdf <- function(compound_plots,
                                    output_dir, 
                                    pdf_name,
                                    add_plot_tags = TRUE,
-                                   skip_if_disabled = TRUE) {
+                                   skip_if_disabled = TRUE,
+                                   external_subfolder = NULL) {
   
   if (is.null(compound_plots) || length(compound_plots) == 0) {
     stop("No plots provided. compound_plots must be a non-empty list.")
@@ -84,6 +86,16 @@ compile_validation_pdf <- function(compound_plots,
       end_idx <- min(page_num * plots_per_page, length(pdf_plots))
       page_plots <- pdf_plots[start_idx:end_idx]
       
+      # Pad with blank plots to maintain 3x2 grid layout
+      n_plots_on_page <- length(page_plots)
+      if (n_plots_on_page < plots_per_page) {
+        blank_plot <- ggplot2::ggplot() + ggplot2::theme_void()
+        n_blanks_needed <- plots_per_page - n_plots_on_page
+        for (i in 1:n_blanks_needed) {
+          page_plots[[n_plots_on_page + i]] <- blank_plot
+        }
+      }
+      
       # Create title
       if (n_pages == 1) {
         title_text <- sprintf("%s (%s)", compound$short_name, compound$id)
@@ -139,7 +151,15 @@ compile_validation_pdf <- function(compound_plots,
   if (exists("config", envir = .GlobalEnv)) {
     config <- get("config", envir = .GlobalEnv)
     if (!is.null(config$paths$validation_plot_directory_onedrive)) {
-      onedrive_pdf_path <- file.path(config$paths$validation_plot_directory_onedrive, pdf_name)
+      # Build OneDrive path with optional subfolder
+      if (!is.null(external_subfolder)) {
+        onedrive_dir <- file.path(config$paths$validation_plot_directory_onedrive, external_subfolder)
+        dir.create(onedrive_dir, recursive = TRUE, showWarnings = FALSE)
+        onedrive_pdf_path <- file.path(onedrive_dir, pdf_name)
+      } else {
+        onedrive_pdf_path <- file.path(config$paths$validation_plot_directory_onedrive, pdf_name)
+      }
+      
       cat(sprintf("\n📤 Copying PDF to OneDrive...\n"))
       
       copy_success <- tryCatch({

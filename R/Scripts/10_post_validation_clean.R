@@ -16,10 +16,17 @@ validated_iarc <- validated_compounds |>
 validated_list <- validated_compounds |>
   select(id, quality)
 #+ 10.2: Modify MT_final per validation results
+#- 10.2.1: Subset MT_final to validated variant differences
 MT_final <- MT_final_i |>
   filter(id %in% validated_variant) |>
   inner_join(validated_list, by = "id") |>
   relocate(quality, .before = annot_ident)
+#- 10.2.2: Pull name_sub_lib_id list
+MT_final_namesub_list <- MT_final |>
+  pull(name_sub_lib_id)
+#- 10.2.2: Pull cas list
+MT_final_cas_list <- MT_final |>
+  pull(cas)
 #+ 10.3: Modify cadaver/tumor comparisons by validation results
 #- 10.3.1: Subset controls to validated IARCs
 IARC_controls <- IARC_controls_i |>
@@ -28,8 +35,6 @@ IARC_controls <- IARC_controls_i |>
     select(id, short_name), by = "id") |>
   select(pct_NA_ctrl, id, short_name, name_sub_lib_id, iMean_ctrl, subid)
 #- 10.3.2: Subset tumors to validated IARCs
-IARC_tumors_i |>
-  filter(id == "CP2535")
 IARC_tumors <- IARC_tumors_i |>
   filter(id %in% validated_iarc) |>
   left_join(validated_compounds |>
@@ -38,59 +43,28 @@ IARC_tumors <- IARC_tumors_i |>
 #- 10.3.4: Do a full join of the detection percentages of both
 IARC_combined <- IARC_controls |>
   full_join(IARC_tumors, by = c("name_sub_lib_id", "id", "subid", "short_name"), suffix = c("_ctrl", "_tumor")) |>
-    mutate(
-    pct_NA_tumor = replace_na(pct_NA_tumor, 1),
-    pct_NA_ctrl = replace_na(pct_NA_ctrl, 1)
-  ) |>
-  arrange(short_name, pct_NA_tumor) |>
-  select(short_name, id, subid, pct_NA_tumor, pct_NA_ctrl, iMean_ctrl, iMean_tumor)
-#- 10.3.5: Subset to top subids of the variants
-validation_check_files_subids <- validation_check_files |>
-  filter(!is.na(top_frag_subid)) |>
-  rename(subid = top_frag_subid) |>
-  select(id, subid, short_name)
-#- 10.3.6: Now filter the combined table to just those subids
-IARC_combined_top <- validation_check_files_subids |>
-  left_join(IARC_combined, by = c("id", "subid"))
-#! Pentachlorophenol excluded as the mz4 used for the "top" was not in original algorithm list
-#+ 10.4: Full Joiner (Quant)
-#- 10.3.2: full_joiner_i
-#!!!!!!!!!!!!!!!!!!!!!
-full_joiner <- full_joiner_i |>
-  select(sample_ID, variant, tumor_vs_ctrl, any_of(cadaver_iarc_keep))
-#!!!!!!!!!!!!!!!!!!!!
-#+ 10.5: IARC detection heatmap
-#- 10.4.0: Consolidate percentages per id
-IARC_consolidated <- IARC_combined_top |>
-  group_by(short_name, id) |>
-  summarise(
-    pct_NA_tumor = mean(pct_NA_tumor, na.rm = TRUE),
-    pct_NA_ctrl = mean(pct_NA_ctrl, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  arrange(desc(pct_NA_tumor))
-#- 10.4.1: Prepare data for heatmap
-IARC_heatmap_data <- IARC_consolidated |>
-  mutate(short_name = factor(short_name, levels = unique(short_name))) |>
-  pivot_longer(cols = c(pct_NA_tumor, pct_NA_ctrl), 
-               names_to = "tissue_type", 
-               values_to = "pct_NA") |>
   mutate(
-    pct_detection = (1 - pct_NA) * 100,
-    tissue_type = case_when(
-      tissue_type == "pct_NA_tumor" ~ "Tumor",
-      tissue_type == "pct_NA_ctrl" ~ "Control"
-    )
-  )
-#- 10.4.2: Create heatmap
-IARC_heatmap <- ggplot(IARC_heatmap_data, aes(x = tissue_type, y = short_name, fill = pct_detection)) +
-  geom_tile(color = "white", linewidth = 0.5) +
-  scale_fill_gradient2(low = "#0B5DA4", mid = "#dfdbd7ff", high = "#BF2E39", 
-                       midpoint = 50, limits = c(0, 100),
-                       name = "% Detection") +
-  labs(x = NULL, y = NULL, title = "IARC Group 1 Chemical Detection") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 0, hjust = 0.5),
-        axis.text.y = element_text(size = 9),
-        panel.grid = element_blank())
-#+ 10.5: 
+    pct_detected_tumor = 1 - replace_na(pct_NA_tumor, 1),
+    pct_detected_ctrl = 1 - replace_na(pct_NA_ctrl, 1)
+  ) |>
+  filter(pct_detected_tumor >= 0.7 & pct_detected_ctrl >= 0.7) |>
+  arrange(short_name, desc(pct_detected_tumor)) |>
+  select(name_sub_lib_id, short_name, id, subid, pct_detected_tumor, pct_detected_ctrl, iMean_ctrl, iMean_tumor) |>
+  arrange(desc(pct_detected_tumor), desc(pct_detected_ctrl))
+#- 10.3.5: Create list of those remaining IARCs
+IARC_namesub_pull <- IARC_combined |>
+  pull(name_sub_lib_id)
+#- 10.3.2: Use these to complete full joiner (ppm ppb estimates)
+full_joiner <- full_joiner_i |>
+  select(sample_ID, variant, tumor_vs_ctrl, any_of(IARC_namesub_pull))
+#+ 10.4: Modify the posthoc and quant sig to only validated compounds
+#- 10.4.1: Subset quant sig to validated compounds
+tumors_quant_sig <- tumors_quant_sig_i |>
+  select(variant, any_of(MT_final_namesub_list))
+#- 10.4.2: Subset posthoc table to validated compounds
+posthoc_table_pvalues <- posthoc_table_pvalues_i |>
+  filter(cas %in% MT_final_cas_list) |>
+  arrange(p_value)
+#- 10.4.4: Subset fisher results to validated
+fisher_results <- fisher_results_i |>
+  filter(name_sub_lib_id %in% MT_final_namesub_list)

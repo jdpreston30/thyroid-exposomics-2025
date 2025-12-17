@@ -64,6 +64,17 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
                       labels = c("Cadaver\nThyroid", "Thyroid\nTumor"))
     )
   
+  # Calculate dynamic y-axis limits based on data range
+  min_val <- min(plot_data$concentration, na.rm = TRUE)
+  max_val <- max(plot_data$concentration, na.rm = TRUE)
+  
+  # Find appropriate log10 scale bounds (round down min, round up max)
+  y_min <- 10^floor(log10(min_val))
+  y_max <- 10^ceiling(log10(max_val))
+  
+  # Generate breaks from y_min to y_max
+  y_breaks <- 10^seq(log10(y_min), log10(y_max), by = 1)
+  
   # Calculate summary statistics (mean and SEM for error bars)
   summary_data <- plot_data |>
     group_by(tumor_vs_ctrl_full, x_label) |>
@@ -79,7 +90,7 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
     geom_rect(
       data = summary_data,
       aes(xmin = as.numeric(x_label) - 0.35, xmax = as.numeric(x_label) + 0.35,
-          ymin = 1e-1, ymax = mean_conc, fill = tumor_vs_ctrl_full),
+          ymin = y_min, ymax = mean_conc, fill = tumor_vs_ctrl_full),
       alpha = 0.5,
       color = NA
     ) +
@@ -87,22 +98,15 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
     geom_rect(
       data = summary_data,
       aes(xmin = as.numeric(x_label) - 0.35, xmax = as.numeric(x_label) + 0.35,
-          ymin = 1e-1, ymax = mean_conc, color = tumor_vs_ctrl_full),
+          ymin = y_min, ymax = mean_conc, color = tumor_vs_ctrl_full),
       fill = NA,
-      linewidth = 0.4
-    ) +
-    # Error bars (upward only - SEM)
-    geom_errorbar(
-      data = summary_data,
-      aes(x = x_label, y = mean_conc, ymin = mean_conc, ymax = mean_conc + sem, color = tumor_vs_ctrl_full),
-      width = 0.3,
-      linewidth = 0.8
+      linewidth = 0.6
     ) +
     # Individual points
     geom_point(
       data = plot_data,
       aes(x = x_label, y = concentration, color = tumor_vs_ctrl_full),
-      size = 1.5,
+      size = 1,
       alpha = 1,
       shape = 16,
       position = position_jitter(width = 0.15, seed = 42)
@@ -116,14 +120,14 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
       breaks = c("Thyroid Tumor Tissue", "Non-Cancer Cadaver Thyroids")
     ) +
     scale_y_log10(
-      limits = c(1e-1, 1e2),
-      breaks = c(1e-1, 1e0, 1e1, 1e2),
+      limits = c(y_min, y_max),
+      breaks = y_breaks,
       labels = function(x) sprintf("%.0e", x),
       expand = expansion(mult = c(0, 0.02))
     ) +
     labs(
       x = NULL,
-      y = "PPM (Logarithmic Scale)",
+      y = "log(PPM)",
       title = chemical_name,
       fill = NULL,
       color = NULL
@@ -155,9 +159,9 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
     p <- p + annotate(
       "text",
       x = -Inf,
-      y = 1e3,
+      y = y_max,
       label = p_text,
-      hjust = -0.1,
+      hjust = -0.25,
       vjust = 1.5,
       size = 8 / .pt,
       family = "Arial",

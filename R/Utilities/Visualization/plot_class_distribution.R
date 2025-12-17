@@ -1,6 +1,6 @@
 #' Plot Chemical Class Distribution
 #'
-#' Creates a horizontal bar plot showing the number of chemicals detected
+#' Creates a horizontal bar plot showing the number of chemicals annotated
 #' in each use class. Classes are ordered from top to bottom by frequency,
 #' with all bars in black.
 #'
@@ -16,7 +16,7 @@
 #' @details
 #' The plot includes:
 #' \itemize{
-#'   \item X-axis range: 0-100 with label "Number of Chemicals Detected"
+#'   \item X-axis range: 0-100 with label "Number of Chemicals annotated"
 #'   \item Y-axis: Chemical use classes ordered by frequency
 #'   \item Black bars with no color differentiation
 #'   \item Superscript symbols (†, ‡, §) in class labels
@@ -55,7 +55,7 @@ plot_class_distribution <- function(class_data, x_max = 100, sup = FALSE) {
       expand = expansion(mult = c(0, 0.05), add = 0)
     ) +
     labs(
-      x = "Number of Chemicals Detected",
+      x = "Number of Chemicals Annotated",
       y = NULL
     ) +
     theme_classic(base_size = 12, base_family = "Arial") +
