@@ -40,23 +40,23 @@ fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
 #+ 13.3: Figure 3
 fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   draw_plot(p3A,
-      x = 0.5+0.25, y = 6.838,
+      x = 0.75, y = 6.838,
     width = 7, height = 3.5
   ) +
   draw_plot(p3B,
-    x = 1, y = 3.3725-0.25,
+    x = 1, y = 3.1225,
     width = 4, height = 3.75
   ) +
   draw_plot(p3C,
-    x = 4.75+.5533, y = 1.3725+.13+.4733+0.69,
+    x = 5.3033, y = 2.6658,
     width = 3.5, height = 5
   ) +
   draw_plot(p3E,
-    x = 0.915-0.25, y = 0.588-.2,
+    x = 0.665, y = 0.388,
     width = 2.5, height = 2.5
   ) +
   draw_plot(p3F,
-    x = 4.57-1.5, y = 0.588-.2,
+    x = 3.07, y = 0.388,
     width = 2.5, height = 2.5
   ) +
   # Labels
@@ -64,7 +64,7 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     A = c(0.785, 10.125),
     B = c(0.785, 6.25),
     E = c(0.785, 2.75),
-    F = c(4.694-1.25-0.25, 2.75),
+    F = c(3.194, 2.75),
     "Figure 3" = c(0.49, 10.43)
   ))
   print_to_png(fig3+grdgd(), "Fig3.png", output_dir = "Outputs/Figures", dpi = 300)
