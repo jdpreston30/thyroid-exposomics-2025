@@ -129,8 +129,6 @@ ppm_full_table <- ppm_raw_ctrl |>
   ) |> # Add info for ideal fragment based on pct_det_tumor, then ctrl, then iMean_tumors below
   left_join(fragment_quality_info, by = "name_sub_lib_id") |>
   arrange(desc(pct_det_tumor), desc(pct_det_ctrl), desc(iMean_tumors)) |>
-  group_by(cas) |>
-  slice_head(n = 1) |>
   ungroup() |>
   select(-iMean_tumors) |>
   mutate(across(
