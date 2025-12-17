@@ -1,5 +1,4 @@
-#* 7: Manual Spectral Validation QC
-#+ 7.0: Change 
+#* 7: Prep Manual Spectral Validation QC
 #+ 7.1: Pull variant comparison features that need validation
 #- 7.1.0: Pull the id_subid for all variant features from MT_final_i
 fragements_variant_pull <- MT_final_i |> pull(id_subid)
@@ -264,7 +263,6 @@ monoisotopic_verification <- expanded_validation |>
     mz0_matches_monoisotopic = mz0_ppm_diff <= 20
   ) |>
   select(id, short_name, monoisotopic, mz0, mz0_ppm_diff, mz0_matches_monoisotopic)
-#+ 7.5: Create final versions with expanded fragments
 #+ 7.5: Update validation tables with expanded fragments
 #- 7.5.1: Update variant validation table
 vv_wide <- vv_wide_i |>
@@ -315,19 +313,41 @@ ic_wide <- ic_wide_i |>
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
   )
-#+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9)
+#+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9) with tag-ordered files
 #- 7.6.0: Get list of validated IARC1 chemicals
 validation_iarcs <- validation_check_files |>
   filter(!is.na(top_frag)) |>
   pull(id)
-#- 7.6.1: Subset validated IARC chemicals and pivot to long format for consistent file ordering
-ic_wide_iarc_validated_wide <- ic_wide |>
-  filter(id %in% validation_iarcs)
-iv_wide_iarc_validated_wide <- iv_wide |>
-  filter(id %in% validation_iarcs)
-#- 7.6.2: Pivot to long format for consistent file ordering across all compounds
-ic_wide_iarc_validated <- ic_wide_iarc_validated_wide |>
-  pivot_files_to_long()
-iv_wide_iarc_validated <- iv_wide_iarc_validated_wide |>
-  pivot_files_to_long()
-
+#- 7.6.1: Build IARC tumor validation table with tag ordering (reuse iarc_short_names from 7.2.3)
+iv_wide_iarc_validated_i <- build_validation_table(
+  validate_ids = validation_iarcs,
+  source_label = "iarc_tumor_validated",
+  short_name_join = iarc_short_names,
+  order_by = "tag"
+) |>
+  mutate(asterisk = NA_character_) |>
+  filter(!grepl("^PCB", short_name))
+#- 7.6.2: Build IARC cadaver validation table with tag ordering (reuse iarc_short_names from 7.2.3, peakwalk/rt data from 7.3)
+ic_wide_iarc_validated_i <- build_validation_table(
+  validate_ids = validation_iarcs,
+  source_label = "iarc_cadaver_validated",
+  short_name_join = iarc_short_names,
+  peakwalk_data = combined_peakwalk_cadaver,
+  rt_data = cadaver_rt_long,
+  order_by = "tag"
+) |>
+  mutate(asterisk = NA_character_) |>
+  filter(!grepl("^PCB", short_name))
+#- 7.6.3: Update with expanded fragments (reuse expanded_validation from 7.4.8)
+iv_wide_iarc_validated <- iv_wide_iarc_validated_i |>
+  select(-starts_with("mz")) |>
+  left_join(
+    expanded_validation |> select(id, starts_with("mz")),
+    by = "id"
+  )
+ic_wide_iarc_validated <- ic_wide_iarc_validated_i |>
+  select(-starts_with("mz")) |>
+  left_join(
+    expanded_validation |> select(id, starts_with("mz")),
+    by = "id"
+  )
