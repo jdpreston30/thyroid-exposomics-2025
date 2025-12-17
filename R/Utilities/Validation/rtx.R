@@ -103,11 +103,23 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   )
   
   # Extract m/z values
-  target_mzs <- row |>
-    dplyr::select(matches("^mz[0-9]+$")) |>
-    unlist() |>
-    as.numeric() |>
-    na.omit()
+  if (fragment_pare && "top_frag" %in% names(row) && !is.na(row$top_frag)) {
+    # Fragment paring mode: only extract the specific fragment from top_frag column
+    top_frag_col <- paste0("mz", row$top_frag)
+    if (top_frag_col %in% names(row)) {
+      target_mzs <- as.numeric(row[[top_frag_col]])
+      if (is.na(target_mzs)) target_mzs <- numeric(0)
+    } else {
+      target_mzs <- numeric(0)
+    }
+  } else {
+    # Default mode: extract all mz values
+    target_mzs <- row |>
+      dplyr::select(matches("^mz[0-9]+$")) |>
+      unlist() |>
+      as.numeric() |>
+      na.omit()
+  }
   
   if (length(target_mzs) == 0) return(compound_result)
   
@@ -276,6 +288,32 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         plot_tag = plot_tag,
         rt_range = sample_rt_range
       )
+      
+      # Save RDS if requested (sample-only mode)
+      if (save_rds && !is.null(rds_save_folder)) {
+        if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
+          rds_dir <- file.path(config$paths$validation_plot_directory, rds_save_folder)
+        } else {
+          rds_dir <- file.path(output_dir, "RDS", rds_save_folder)
+        }
+        
+        dir.create(rds_dir, recursive = TRUE, showWarnings = FALSE)
+        rds_path <- file.path(rds_dir, paste0(plot_tag, ".rds"))
+        
+        if (!file.exists(rds_path) || overwrite_rds) {
+          individual_plot <- list(
+            short_name = short_name,
+            id = id_val,
+            order = order_num,
+            plot = p_rtx,
+            sample_id = sample_id,
+            standard_file = NA,
+            plot_tag = plot_tag,
+            rt_range = sample_rt_range
+          )
+          saveRDS(individual_plot, file = rds_path, compress = "gzip")
+        }
+      }
       
     } else {
       #+ Standard comparison mode
@@ -484,6 +522,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
 #' @param use_parallel Logical, whether to use parallel processing (default: FALSE)
 #' @param n_cores Integer, number of cores to use for parallel processing (default: parallel::detectCores() - 1)
 #' @param run_standard Logical, whether to process standard files and create mirror plots (default: TRUE). When FALSE, only sample chromatograms are generated, significantly improving speed.
+#' @param fragment_pare Logical, whether to filter to only the top fragment (default: FALSE). When TRUE, looks for top_frag column in validation_list and only plots that specific fragment index.
 #'
 #' @return Named list of all plots (invisibly)
 #'
@@ -502,7 +541,8 @@ rtx <- function(validation_list,
                 use_parallel = FALSE,
                 n_cores = NULL,
                 skip_if_disabled = TRUE,
-                run_standard = TRUE) {
+                run_standard = TRUE,
+                fragment_pare = FALSE) {
   
   # Check output_dir only if needed (when config is not available)
   if (is.null(output_dir) && save_rds && !is.null(rds_save_folder)) {
@@ -861,11 +901,23 @@ rtx <- function(validation_list,
     )
     
     # Extract m/z values
-    target_mzs <- row |>
-      select(matches("^mz[0-9]+$")) |>
-      unlist() |>
-      as.numeric() |>
-      na.omit()
+    if (fragment_pare && "top_frag" %in% names(row) && !is.na(row$top_frag)) {
+      # Fragment paring mode: only extract the specific fragment from top_frag column
+      top_frag_col <- paste0("mz", row$top_frag)
+      if (top_frag_col %in% names(row)) {
+        target_mzs <- as.numeric(row[[top_frag_col]])
+        if (is.na(target_mzs)) target_mzs <- numeric(0)
+      } else {
+        target_mzs <- numeric(0)
+      }
+    } else {
+      # Default mode: extract all mz values
+      target_mzs <- row |>
+        select(matches("^mz[0-9]+$")) |>
+        unlist() |>
+        as.numeric() |>
+        na.omit()
+    }
     
     if (length(target_mzs) == 0) {
       warning(sprintf("No m/z values found for ID '%s' - skipping", id_val))
@@ -1038,6 +1090,39 @@ rtx <- function(validation_list,
           plot_tag = plot_tag,
           rt_range = sample_rt_range
         )
+        
+        # Save individual plot RDS if requested (sample-only mode)
+        if (save_rds && !is.null(rds_save_folder)) {
+          # Get validation_plot_directory from config
+          if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
+            rds_dir <- file.path(config$paths$validation_plot_directory, rds_save_folder)
+          } else {
+            # Fallback to local directory if config not available
+            rds_dir <- file.path(output_dir, "RDS", rds_save_folder)
+          }
+          
+          dir.create(rds_dir, recursive = TRUE, showWarnings = FALSE)
+          
+          # Check if file already exists (skip if overwrite_rds is FALSE)
+          rds_path <- file.path(rds_dir, paste0(plot_tag, ".rds"))
+          
+          if (!file.exists(rds_path) || overwrite_rds) {
+            # Create individual plot object with full metadata
+            individual_plot <- list(
+              short_name = short_name,
+              id = id_val,
+              order = order_num,
+              plot = p_rtx,
+              sample_id = sample_id,
+              standard_file = NA,
+              plot_tag = plot_tag,
+              rt_range = sample_rt_range
+            )
+            
+            # Save with plot_tag as filename
+            saveRDS(individual_plot, file = rds_path, compress = "gzip")
+          }
+        }
         
         # Increment and update progress
         progress_env$current_step <- progress_env$current_step + 1

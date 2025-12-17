@@ -314,16 +314,20 @@ ic_wide <- ic_wide_i |>
     by = "id"
   )
 #+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9) with tag-ordered files
-#- 7.6.0: Get list of validated IARC1 chemicals
-validation_iarcs <- validation_check_files |>
+#- 7.6.0: Get list of top frags 
+top_frags_validated_iarc <- validation_check_files |>
   filter(!is.na(top_frag)) |>
+  select(id, top_frag)
+#- 7.6.1: Get list of validated IARC1 chemicals
+validation_iarcs <- top_frags_validated_iarc |>
   pull(id)
 #- 7.6.1: Build IARC tumor validation table with tag ordering (reuse iarc_short_names from 7.2.3)
 iv_wide_iarc_validated_i <- build_validation_table(
   validate_ids = validation_iarcs,
   source_label = "iarc_tumor_validated",
   short_name_join = iarc_short_names,
-  order_by = "tag"
+  order_by = "tag",
+  buffer = (10/60)
 ) |>
   mutate(asterisk = NA_character_) |>
   filter(!grepl("^PCB", short_name))
@@ -334,20 +338,27 @@ ic_wide_iarc_validated_i <- build_validation_table(
   short_name_join = iarc_short_names,
   peakwalk_data = combined_peakwalk_cadaver,
   rt_data = cadaver_rt_long,
-  order_by = "tag"
+  order_by = "tag",
+  buffer = (10/60)
 ) |>
   mutate(asterisk = NA_character_) |>
   filter(!grepl("^PCB", short_name))
 #- 7.6.3: Update with expanded fragments (reuse expanded_validation from 7.4.8)
+# IARC tumor
 iv_wide_iarc_validated <- iv_wide_iarc_validated_i |>
   select(-starts_with("mz")) |>
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
-  )
+  ) |>
+  left_join(top_frags_validated_iarc, by = "id") |>
+  select(short_name, top_frag, everything())
+# IARC cadaver
 ic_wide_iarc_validated <- ic_wide_iarc_validated_i |>
   select(-starts_with("mz")) |>
   left_join(
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
-  )
+  ) |>
+  left_join(top_frags_validated_iarc, by = "id") |>
+  select(short_name, top_frag, everything())
