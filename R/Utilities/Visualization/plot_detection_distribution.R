@@ -1,6 +1,6 @@
 #' Plot Chemical Detection Frequency Distribution
 #'
-#' Creates a stacked bar plot showing the distribution of detected chemicals
+#' Creates a stacked bar plot showing the distribution of annotated chemicals
 #' across thyroid cancer variants. Bars are stacked by variant type with
 #' standardized colors and formatting for publication.
 #'
@@ -68,7 +68,7 @@ plot_detection_distribution <- function(freq_dist_data) {
       expand = expansion(mult = c(0, 0.05), add = 0)
     ) +
     labs(
-      x = "Chemicals Detected",
+      x = "Chemicals Annotated",
       y = "Number of Samples",
       fill = NULL
     ) +

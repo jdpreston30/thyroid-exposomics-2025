@@ -9,9 +9,9 @@ library(ggtext)
 #' Process Single Compound (Worker Function for Parallel Processing)
 #' @keywords internal
 process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_through,
-                                   rt_lookup, ppm_tolerance, stick, max_i,
+                                   rt_lookup, window, ppm_tolerance, stick, max_i,
                                    save_rds, rds_save_folder, overwrite_rds, output_dir, study = "tumor",
-                                   run_standard = TRUE) {
+                                   run_standard = TRUE, fragment_pare = FALSE, force_plot = FALSE, debug = FALSE) {
   
   # Helper function to open and cache mzML files (per-worker cache)
   get_mzml_data_worker <- function(file_name, cache_env) {
@@ -38,17 +38,28 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   }
   
   # Helper function to extract chromatogram
-  extract_chrom_worker <- function(file_name, target_mzs, rt_range, ppm_tol, use_max, cache_env) {
+  extract_chrom_worker <- function(file_name, target_mzs, rt_range, ppm_tol, use_max, cache_env, debug = FALSE) {
     mzml_data <- get_mzml_data_worker(file_name, cache_env)
-    if (is.null(mzml_data)) return(NULL)
+    if (is.null(mzml_data)) {
+      if (debug) cat(sprintf("  [DEBUG] File %s could not be opened\n", file_name))
+      return(NULL)
+    }
     
     ms_data <- mzml_data$ms_data
     header_info <- mzml_data$header_info
     
     extract_xic <- function(ms_data, header_info, target_mz, ppm_tol, rt_range, use_max) {
       ms1_scans <- header_info[header_info$msLevel == 1, ]
+      total_scans <- nrow(ms1_scans)
       ms1_scans <- ms1_scans[ms1_scans$retentionTime >= rt_range[1] * 60 & 
                              ms1_scans$retentionTime <= rt_range[2] * 60, ]
+      scans_in_range <- nrow(ms1_scans)
+      
+      if (debug && scans_in_range == 0) {
+        cat(sprintf("  [DEBUG] No scans found in RT range %.2f-%.2f min (total scans: %d, RT range: %.2f-%.2f min)\n", 
+                    rt_range[1], rt_range[2], total_scans, 
+                    min(header_info$retentionTime)/60, max(header_info$retentionTime)/60))
+      }
       
       mz_tol_da <- target_mz * ppm_tol / 1e6
       
@@ -65,7 +76,14 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         }
       })
       
-      do.call(rbind, xic_data)
+      xic_result <- do.call(rbind, xic_data)
+      
+      if (debug && (is.null(xic_result) || nrow(xic_result) == 0)) {
+        cat(sprintf("  [DEBUG] No ions detected at m/z %.4f (±%.4f Da) in %d scans\n", 
+                    target_mz, mz_tol_da, scans_in_range))
+      }
+      
+      xic_result
     }
     
     all_xics <- lapply(seq_along(target_mzs), function(i) {
@@ -77,7 +95,14 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
       }
     })
     
-    do.call(rbind, all_xics)
+    result <- do.call(rbind, all_xics)
+    
+    if (debug && is.null(result)) {
+      cat(sprintf("  [DEBUG] extract_chrom_worker returning NULL for file %s (target m/z: %s)\n", 
+                  file_name, paste(round(target_mzs, 4), collapse = ", ")))
+    }
+    
+    result
   }
   
   # Initialize worker cache
@@ -88,6 +113,13 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   id_val <- row$id
   short_name <- row$short_name
   
+  # Sanitize short_name: replace Greek letters with text equivalents
+  short_name <- gsub("\u03B1", "alpha", short_name)  # α
+  short_name <- gsub("\u03B2", "beta", short_name)   # β
+  short_name <- gsub("\u03B3", "gamma", short_name)  # γ
+  short_name <- gsub("\u03B4", "delta", short_name)  # δ
+  short_name <- gsub("\u03BC", "mu", short_name)     # μ
+  
   compound_result <- list(
     short_name = short_name,
     id = id_val,
@@ -96,11 +128,25 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   )
   
   # Extract m/z values
-  target_mzs <- row |>
-    dplyr::select(matches("^mz[0-9]+$")) |>
-    unlist() |>
-    as.numeric() |>
-    na.omit()
+  original_frag_index <- NULL
+  if (fragment_pare && "top_frag" %in% names(row) && !is.na(row$top_frag)) {
+    # Fragment paring mode: only extract the specific fragment from top_frag column
+    original_frag_index <- as.numeric(row$top_frag)
+    top_frag_col <- paste0("mz", row$top_frag)
+    if (top_frag_col %in% names(row)) {
+      target_mzs <- as.numeric(row[[top_frag_col]])
+      if (is.na(target_mzs)) target_mzs <- numeric(0)
+    } else {
+      target_mzs <- numeric(0)
+    }
+  } else {
+    # Default mode: extract all mz values
+    target_mzs <- row |>
+      dplyr::select(matches("^mz[0-9]+$")) |>
+      unlist() |>
+      as.numeric() |>
+      na.omit()
+  }
   
   if (length(target_mzs) == 0) return(compound_result)
   
@@ -114,17 +160,32 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   # Parse standards
   standards <- strsplit(row$standards, ", ")[[1]]
   
-  # Get sample files
-  all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
-  all_samples <- all_samples[!is.na(all_samples)]
-  samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+  # Get sample files - dynamically collect all file columns that exist
+  file_cols <- grep("^file\\d+$", names(row), value = TRUE)
+  all_samples <- as.character(row[file_cols])
+  names(all_samples) <- NULL
+  
+  if (force_plot) {
+    # When force_plot=TRUE, iterate through ALL slots up to iterate_through
+    samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+  } else {
+    # Normal behavior: only process non-NA files
+    all_samples <- all_samples[!is.na(all_samples)]
+    samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+  }
   
   # Process each sample
   for (sample_idx in seq_along(samples_to_process)) {
     sample_file <- samples_to_process[sample_idx]
     
+    # Skip if file is NA and force_plot is FALSE
+    if (is.na(sample_file) && !force_plot) next
+    
     # Determine RT range
     sample_rt_range <- base_rt_range_expanded
+    use_hard_limits <- FALSE
+    rt_is_fallback <- FALSE
+    
     if (rt_lookup == "sample") {
       rt_range_col_name <- paste0("f", sample_idx, "_rt_range")
       if (rt_range_col_name %in% names(row) && !is.na(row[[rt_range_col_name]])) {
@@ -132,30 +193,56 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         sample_rt_range <- eval(parse(text = rt_range_str))
         sample_rt_range <- c(sample_rt_range[1] - 0.2, sample_rt_range[2] + 0.2)
       }
+    } else if (rt_lookup == "window") {
+      rt_col_name <- paste0("f", sample_idx, "_rt")
+      if (rt_col_name %in% names(row) && !is.na(row[[rt_col_name]])) {
+        rt_value <- row[[rt_col_name]]
+        half_window <- window / 2
+        sample_rt_range <- c(rt_value - half_window, rt_value + half_window)
+        use_hard_limits <- TRUE
+      } else {
+        rt_is_fallback <- TRUE
+      }
     }
     
-    # Process each standard (skip if run_standard = FALSE)
-    standards_to_process <- if (run_standard) standards else character(0)
-    for (std_idx in seq_along(standards_to_process)) {
-      standard_file <- standards_to_process[std_idx]
+    # Process based on run_standard flag
+    if (!run_standard) {
+      #+ Sample-only mode (no standard comparison)
+      # Extract sample chromatogram
+      if (debug) {
+        cat(sprintf("\n[DEBUG] Processing %s (%s), sample %d: %s\n", short_name, id_val, sample_idx, sample_file))
+        cat(sprintf("[DEBUG] RT range: %.2f-%.2f, target m/z: %s\n", 
+                    sample_rt_range[1], sample_rt_range[2], paste(round(target_mzs, 4), collapse = ", ")))
+      }
+      sample_chrom <- extract_chrom_worker(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache, debug)
       
-      # Extract chromatograms
-      sample_chrom <- extract_chrom_worker(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
-      std_chrom <- extract_chrom_worker(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
+      if (is.null(sample_chrom) && !force_plot) next
       
-      if (is.null(sample_chrom) || is.null(std_chrom)) next
+      # Track whether we have actual data
+      has_data <- !is.null(sample_chrom)
+      if (debug && !has_data) {
+        cat(sprintf("[DEBUG] No data extracted for %s - creating placeholder plot\n", short_name))
+      }
       
-      # Combine data
-      sample_chrom$type <- "Sample"
-      std_chrom$type <- "Standard"
-      combined_data <- rbind(sample_chrom, std_chrom)
+      # Only process sample_chrom fields if we have data
+      if (has_data) {
+        # Adjust mz_index if fragment_pare is TRUE to preserve original fragment number
+        if (!is.null(original_frag_index)) {
+          sample_chrom$mz_index <- original_frag_index
+        }
+        
+        sample_chrom$type <- "Sample"
+        
+        # Create mz labels with actual m/z values (before stick transformation)
+        sample_chrom$mz_label <- sprintf("mz%d: %.4f", sample_chrom$mz_index, sample_chrom$mz)
+      }
       
-      # Apply stick transformation if needed
-      if (stick) {
-        combined_data <- combined_data |>
-          group_by(rt, mz_label, type) |>
+      # Apply stick transformation if needed (only if we have data)
+      if (has_data && stick) {
+        sample_chrom <- sample_chrom |>
+          group_by(rt, mz_label) |>
           summarize(intensity = max(intensity), .groups = "drop") |>
-          group_by(mz_label, type) |>
+          group_by(mz_label) |>
           arrange(rt) |>
           mutate(
             rt_start = rt,
@@ -166,28 +253,281 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           ungroup()
       }
       
-      # Filter to only rows with non-zero intensity (detected fragments)
-      combined_data <- combined_data |>
-        filter(intensity > 0)
+      # Filter to only rows with non-zero intensity (only if we have data)
+      if (has_data) {
+        sample_chrom <- sample_chrom |>
+          filter(intensity > 0)
+      }
       
-      if (nrow(combined_data) == 0) {
+      if ((is.null(sample_chrom) || nrow(sample_chrom) == 0) && !force_plot) next
+      
+      # Recheck if we still have data after filtering
+      has_data <- !is.null(sample_chrom) && nrow(sample_chrom) > 0
+      
+      if (has_data) {
+        # Calculate intensity limits
+        y_limit <- max(abs(sample_chrom$intensity), na.rm = TRUE) * 1.05
+      } else {
+        # No data - use default y limit for empty plot
+        y_limit <- 1000
+      }
+      
+      # Add asterisks to marked m/z values (only if we have data)
+      if (has_data && !is.na(row$asterisk)) {
+        marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
+        for (marked_mz in marked_mzs) {
+          mz_num <- as.numeric(gsub("mz", "", marked_mz))
+          sample_chrom$mz_label <- ifelse(
+            sample_chrom$mz_index == mz_num,
+            paste0("**", sample_chrom$mz_label, " \\*****"),
+            sample_chrom$mz_label
+          )
+        }
+      }
+      
+      sample_id <- if (!is.na(sample_file)) gsub("\\.mzML$", "", basename(sample_file)) else sprintf("File%d", sample_idx)
+      
+      if (has_data) {
+        # Define fixed color palette for mz indices (matches vp() function palette)
+        mz_colors <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+                       "#D4A017", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+        names(mz_colors) <- paste0("mz", 0:8)
+        
+        # Create named vector for actual mz_labels present in the data
+        mz_labels_present <- unique(sample_chrom$mz_label)
+        mz_indices_present <- unique(sample_chrom$mz_index)
+        color_mapping <- setNames(
+          mz_colors[paste0("mz", mz_indices_present)],
+          mz_labels_present
+        )
+        
+        if (stick) {
+          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+            geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4)
+        } else {
+          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+            geom_line(linewidth = 0.4)
+        }
+        
+        p_rtx <- p_rtx +
+          scale_color_manual(values = color_mapping) +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(0, y_limit),
+            n.breaks = 8,
+            labels = scales::label_scientific(digits = 2)
+          )
+      } else {
+        # Create empty plot for no-data case
+        p_rtx <- ggplot() +
+          annotate("text", x = mean(sample_rt_range), y = y_limit/2, 
+                  label = "NO DATA", size = 6, color = "gray50", fontface = "bold") +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(0, y_limit),
+            n.breaks = 8,
+            labels = scales::label_scientific(digits = 2)
+          )
+      }
+      
+      # Apply x-axis scaling based on whether hard limits are used
+      if (use_hard_limits) {
+        p_rtx <- p_rtx +
+          scale_x_continuous(
+            expand = c(0, 0),
+            limits = sample_rt_range,
+            breaks = function(limits) {
+              start <- ceiling(limits[1] * 20) / 20
+              end <- floor(limits[2] * 20) / 20
+              if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+            },
+            minor_breaks = function(limits) {
+              start <- ceiling(limits[1] * 40) / 40
+              end <- floor(limits[2] * 40) / 40
+              if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+            }
+          )
+      } else {
+        p_rtx <- p_rtx +
+          scale_x_continuous(
+            expand = expansion(mult = c(0.05, 0.05), add = 0),
+            breaks = function(limits) {
+              start <- ceiling(limits[1] * 20) / 20
+              end <- floor(limits[2] * 20) / 20
+              if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+            },
+            minor_breaks = function(limits) {
+              start <- ceiling(limits[1] * 40) / 40
+              end <- floor(limits[2] * 40) / 40
+              if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+            }
+          )
+      }
+      
+      # Create subtitle with RT info
+      if (rt_is_fallback) {
+        subtitle_text <- sprintf("Sample: %s  |  RT = NA (range: %.2f-%.2f min)", 
+                                sample_id, sample_rt_range[1], sample_rt_range[2])
+      } else {
+        subtitle_text <- sprintf("Sample: %s  |  RT = %.2f min", sample_id, mean(sample_rt_range))
+      }
+      
+      p_rtx <- p_rtx +
+        labs(
+          title = short_name,
+          subtitle = subtitle_text,
+          x = "Retention Time (min)",
+          y = "Intensity",
+          color = NULL
+        ) +
+        coord_cartesian(clip = "off") +
+        theme_classic(base_size = 12) +
+        theme(
+          panel.grid.major.x = element_line(color = "gray90", linewidth = 0.2),
+          panel.grid.minor.x = element_line(color = "gray90", linewidth = 0.2),
+          plot.margin = margin(10, 10, 20, 20),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          legend.position = "top",
+          legend.justification = "center",
+          legend.direction = "horizontal",
+          legend.text = ggtext::element_markdown(size = 4),
+          legend.title = element_blank(),
+          legend.background = element_rect(fill = "transparent", color = NA),
+          legend.key = element_rect(fill = "transparent", color = NA),
+          legend.key.size = unit(0.25, "cm"),
+          legend.key.width = unit(0.25, "cm"),
+          legend.spacing.x = unit(0.02, "cm"),
+          legend.box.margin = margin(0, 0, 0, 0),
+          legend.margin = margin(0, 0, 0, 0),
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
+          plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6, 
+                                                   color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0)),
+          axis.text.x = element_text(face = "bold", color = "black", size = 7),
+          axis.text.y = element_text(face = "bold", color = "black", size = 7),
+          axis.title.x = element_text(face = "bold", color = "black", size = 9),
+          axis.title.y = element_text(face = "bold", color = "black", size = 9, margin = margin(r = 8)),
+          axis.ticks.length = unit(0.15, "cm"),
+          axis.line = element_line(color = "black", linewidth = 0.4),
+          axis.ticks = element_line(color = "black", linewidth = 0.4)
+        ) +
+        guides(color = guide_legend(override.aes = list(linewidth = 0.4)))
+      
+      # Store plot (use S1 as standard index for sample-only)
+      plot_label <- sprintf("F%d_S1", sample_idx)
+      plot_tag <- sprintf("F%d_S1_%s", sample_idx, id_val)
+      if (study == "cadaver") {
+        plot_tag <- paste0("C_", plot_tag)
+      }
+      
+      compound_result$plots[[plot_label]] <- list(
+        plot = p_rtx,
+        sample_id = sample_id,
+        standard_file = NA,
+        plot_tag = plot_tag,
+        rt_range = sample_rt_range
+      )
+      
+      # Save RDS if requested (sample-only mode)
+      if (save_rds && !is.null(rds_save_folder)) {
+        if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
+          rds_dir <- file.path(config$paths$validation_plot_directory, rds_save_folder)
+        } else {
+          rds_dir <- file.path(output_dir, "RDS", rds_save_folder)
+        }
+        
+        dir.create(rds_dir, recursive = TRUE, showWarnings = FALSE)
+        rds_path <- file.path(rds_dir, paste0(plot_tag, ".rds"))
+        
+        if (!file.exists(rds_path) || overwrite_rds) {
+          individual_plot <- list(
+            short_name = short_name,
+            id = id_val,
+            order = order_num,
+            plot = p_rtx,
+            sample_id = sample_id,
+            standard_file = NA,
+            plot_tag = plot_tag,
+            rt_range = sample_rt_range
+          )
+          saveRDS(individual_plot, file = rds_path, compress = "gzip")
+        }
+      }
+      
+    } else {
+      #+ Standard comparison mode
+      standards_to_process <- standards
+      for (std_idx in seq_along(standards_to_process)) {
+        standard_file <- standards_to_process[std_idx]
+        
+        # Extract chromatograms
+        sample_chrom <- extract_chrom_worker(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
+        std_chrom <- extract_chrom_worker(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
+        
+        if ((is.null(sample_chrom) || is.null(std_chrom)) && !force_plot) next
+        
+        # Track whether we have actual data
+        has_data <- !is.null(sample_chrom) && !is.null(std_chrom)
+        
+        if (has_data) {
+          # Adjust mz_index if fragment_pare is TRUE to preserve original fragment number
+          if (!is.null(original_frag_index)) {
+            sample_chrom$mz_index <- original_frag_index
+            std_chrom$mz_index <- original_frag_index
+          }
+          
+          # Combine data
+          sample_chrom$type <- "Sample"
+          std_chrom$type <- "Standard"
+          combined_data <- rbind(sample_chrom, std_chrom)
+          
+          # Create mz labels with actual m/z values (before stick transformation)
+          combined_data$mz_label <- sprintf("mz%d: %.4f", combined_data$mz_index, combined_data$mz)
+          
+          # Apply stick transformation if needed
+          if (stick) {
+            combined_data <- combined_data |>
+              group_by(rt, mz_label, type) |>
+              summarize(intensity = max(intensity), .groups = "drop") |>
+              group_by(mz_label, type) |>
+              arrange(rt) |>
+              mutate(
+                rt_start = rt,
+                rt_end = rt,
+                intensity_start = 0,
+                intensity_end = intensity
+              ) |>
+              ungroup()
+          }
+          
+          # Filter to only rows with non-zero intensity (detected fragments)
+          combined_data <- combined_data |>
+            filter(intensity > 0)
+        }
+        
+        # Recheck if we still have data after filtering
+        has_data <- has_data && exists("combined_data") && nrow(combined_data) > 0
+      
+      if (!has_data && !force_plot) {
         next
       }
       
-      # Calculate absolute intensity limits
-      max_sample_int <- max(abs(combined_data$intensity[combined_data$type == "Sample"]), na.rm = TRUE)
-      max_standard_int <- max(abs(combined_data$intensity[combined_data$type == "Standard"]), na.rm = TRUE)
-      y_limit <- max(max_sample_int, max_standard_int) * 1.05
+      if (has_data) {
+        # Calculate absolute intensity limits
+        max_sample_int <- max(abs(combined_data$intensity[combined_data$type == "Sample"]), na.rm = TRUE)
+        max_standard_int <- max(abs(combined_data$intensity[combined_data$type == "Standard"]), na.rm = TRUE)
+        y_limit <- max(max_sample_int, max_standard_int) * 1.05
+        
+        # Set plot intensities (negative for standard, positive for sample)
+        combined_data <- combined_data |>
+          mutate(plot_intensity = ifelse(type == "Standard", -intensity, intensity))
+      } else {
+        # No data - use default y limit
+        y_limit <- 1000
+      }
       
-      # Set plot intensities (negative for standard, positive for sample)
-      combined_data <- combined_data |>
-        mutate(plot_intensity = ifelse(type == "Standard", -intensity, intensity))
-      
-      # Create mz labels with actual m/z values
-      combined_data$mz_label <- sprintf("mz%d: %.4f", combined_data$mz_index, combined_data$mz)
-      
-      # Add asterisks to marked m/z values
-      if (!is.na(row$asterisk)) {
+      # Add asterisks to marked m/z values (only if we have data)
+      if (has_data && !is.na(row$asterisk)) {
         marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
         for (marked_mz in marked_mzs) {
           mz_num <- as.numeric(gsub("mz", "", marked_mz))
@@ -199,34 +539,85 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         }
       }
       
-      sample_id <- gsub("\\.mzML$", "", basename(sample_file))
+      sample_id <- if (!is.na(sample_file)) gsub("\\.mzML$", "", basename(sample_file)) else sprintf("File%d", sample_idx)
       
-      if (stick) {
-        p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-          geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4) +
-          geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+      if (has_data) {
+        # Define fixed color palette for mz indices (matches vp() function palette)
+        mz_colors <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+                       "#D4A017", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+        names(mz_colors) <- paste0("mz", 0:8)
+        
+        # Create named vector for actual mz_labels present in the data
+        mz_labels_present <- unique(combined_data$mz_label)
+        mz_indices_present <- unique(combined_data$mz_index)
+        color_mapping <- setNames(
+          mz_colors[paste0("mz", mz_indices_present)],
+          mz_labels_present
+        )
+        
+        if (stick) {
+          p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+            geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4) +
+            geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+        } else {
+          p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+            geom_line(linewidth = 0.4) +
+            geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+        }
+        
+        p_rtx <- p_rtx +
+          scale_color_manual(values = color_mapping) +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(-y_limit, y_limit),
+            labels = function(x) scales::label_scientific(digits = 2)(abs(x)),
+            n.breaks = 8
+          )
       } else {
-        p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-          geom_line(linewidth = 0.4) +
-          geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+        # Create empty plot for no-data case
+        p_rtx <- ggplot() +
+          annotate("text", x = mean(sample_rt_range), y = 0, 
+                  label = "NO DATA", size = 6, color = "gray50", fontface = "bold") +
+          geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4) +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(-y_limit, y_limit),
+            labels = function(x) scales::label_scientific(digits = 2)(abs(x)),
+            n.breaks = 8
+          )
+      }
+      
+      # Apply x-axis scaling based on whether hard limits are used
+      if (use_hard_limits) {
+        p_rtx <- p_rtx +
+          scale_x_continuous(
+            expand = c(0, 0),
+            limits = sample_rt_range,
+            breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
+            minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)
+          )
+      } else {
+        p_rtx <- p_rtx +
+          scale_x_continuous(
+            expand = expansion(mult = c(0.05, 0.05), add = 0),
+            breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
+            minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)
+          )
+      }
+      
+      # Create subtitle with RT info
+      if (rt_is_fallback) {
+        subtitle_text <- sprintf("Sample: %s  |  Standard: %s  |  RT = NA (range: %.2f-%.2f min)", 
+                                sample_id, standard_file, sample_rt_range[1], sample_rt_range[2])
+      } else {
+        subtitle_text <- sprintf("Sample: %s  |  Standard: %s  |  RT = %.2f min", 
+                                sample_id, standard_file, mean(sample_rt_range))
       }
       
       p_rtx <- p_rtx +
-        scale_color_viridis_d(option = "turbo", end = 0.9) +
-        scale_y_continuous(
-          expand = c(0, 0),
-          limits = c(-y_limit, y_limit),
-          labels = function(x) abs(x),
-          n.breaks = 8
-        ) +
-        scale_x_continuous(
-          expand = expansion(mult = c(0.05, 0.05), add = 0),
-          breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
-          minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)
-        ) +
         labs(
           title = short_name,
-          subtitle = sprintf("Sample: %s  |  Standard: %s  |  RT = %.2f min", sample_id, standard_file, mean(sample_rt_range)),
+          subtitle = subtitle_text,
           x = "Retention Time (min)",
           y = sprintf("\u2190 Std  |  %s \u2192", tools::toTitleCase(study)),
           color = NULL
@@ -304,7 +695,8 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           saveRDS(individual_plot, file = rds_path, compress = "gzip")
         }
       }
-    }
+      }  # End else (standard comparison mode)
+    }  # End if/else run_standard
   }
   
   # Close all cached mzML files
@@ -330,7 +722,8 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
 #' @param output_dir Required character string: output directory for final PDF
 #' @param pdf_name Character string: name of output PDF file (default: "rtx_validation.pdf")
 #' @param ppm_tolerance Numeric mass tolerance in ppm (default: 5)
-#' @param rt_lookup Character: "range" uses compound_rt_range (default), "sample" uses file-specific RT ranges
+#' @param rt_lookup Character: "range" uses compound_rt_range (default), "sample" uses file-specific RT ranges, "window" uses file-specific RT ± window/2 as hard limits
+#' @param window Numeric: window size in minutes for rt_lookup = "window" mode (e.g., 10/60 for 10 seconds). Only used when rt_lookup = "window".
 #' @param stick Logical, whether to plot as vertical sticks (default: FALSE)
 #' @param max_i Logical, whether to use maximum intensity (default: FALSE)
 #' @param save_rds Logical, whether to save individual plot RDS files (default: TRUE)
@@ -339,6 +732,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
 #' @param use_parallel Logical, whether to use parallel processing (default: FALSE)
 #' @param n_cores Integer, number of cores to use for parallel processing (default: parallel::detectCores() - 1)
 #' @param run_standard Logical, whether to process standard files and create mirror plots (default: TRUE). When FALSE, only sample chromatograms are generated, significantly improving speed.
+#' @param fragment_pare Logical, whether to filter to only the top fragment (default: FALSE). When TRUE, looks for top_frag column in validation_list and only plots that specific fragment index.
 #'
 #' @return Named list of all plots (invisibly)
 #'
@@ -349,6 +743,7 @@ rtx <- function(validation_list,
                 output_dir = NULL,
                 ppm_tolerance = 5,
                 rt_lookup = "range",
+                window = NULL,
                 stick = FALSE,
                 max_i = FALSE,
                 save_rds = TRUE,
@@ -357,7 +752,10 @@ rtx <- function(validation_list,
                 use_parallel = FALSE,
                 n_cores = NULL,
                 skip_if_disabled = TRUE,
-                run_standard = TRUE) {
+                run_standard = TRUE,
+                fragment_pare = FALSE,
+                force_plot = FALSE,
+                debug = FALSE) {
   
   # Check output_dir only if needed (when config is not available)
   if (is.null(output_dir) && save_rds && !is.null(rds_save_folder)) {
@@ -371,8 +769,16 @@ rtx <- function(validation_list,
     stop("iterate_through must be a positive integer")
   }
   
-  if (!rt_lookup %in% c("range", "sample")) {
-    stop("rt_lookup must be either 'range' or 'sample'")
+  if (!rt_lookup %in% c("range", "sample", "window")) {
+    stop("rt_lookup must be 'range', 'sample', or 'window'")
+  }
+  
+  if (rt_lookup == "window" && is.null(window)) {
+    stop("window parameter is required when rt_lookup = 'window'")
+  }
+  
+  if (rt_lookup == "window" && (!is.numeric(window) || window <= 0)) {
+    stop("window must be a positive numeric value in minutes")
   }
   
   # Check for existing RDS files and prompt for overwrite if needed
@@ -528,11 +934,26 @@ rtx <- function(validation_list,
     total_steps <- 0
     for (i in 1:nrow(validation_list)) {
       row <- validation_list[i, ]
-      all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
-      all_samples <- all_samples[!is.na(all_samples)]
-      samples_count <- min(iterate_through, length(all_samples))
-      standards_count <- length(strsplit(row$standards, ", ")[[1]])
-      total_steps <- total_steps + (samples_count * standards_count)
+      # Dynamically collect all file columns
+      file_cols <- grep("^file\\d+$", names(row), value = TRUE)
+      all_samples <- as.character(row[file_cols])
+      
+      if (force_plot) {
+        # When force_plot=TRUE, iterate exactly iterate_through slots
+        samples_count <- iterate_through
+      } else {
+        # Normal: only count non-NA files
+        all_samples <- all_samples[!is.na(all_samples)]
+        samples_count <- min(iterate_through, length(all_samples))
+      }
+      
+      if (run_standard) {
+        standards_count <- length(strsplit(row$standards, ", ")[[1]])
+        total_steps <- total_steps + (samples_count * standards_count)
+      } else {
+        # When run_standard = FALSE, each sample gets 1 plot
+        total_steps <- total_steps + samples_count
+      }
     }
     
     cat(sprintf("\n▶ Starting parallel processing: %d compounds → %d total plots (using %d cores)\n\n", 
@@ -544,11 +965,11 @@ rtx <- function(validation_list,
     doParallel::registerDoParallel(cl)
     
     # Export necessary objects and functions to workers
-    parallel::clusterExport(cl, c("mzml_dir", "iterate_through", "rt_lookup", 
+    parallel::clusterExport(cl, c("mzml_dir", "iterate_through", "rt_lookup", "window",
                                    "stick", "max_i", "ppm_tolerance",
                                    "save_rds", "rds_save_folder", "overwrite_rds",
                                    "output_dir", "study", "config", "process_single_compound",
-                                   "run_standard"),
+                                   "run_standard", "fragment_pare", "force_plot", "debug"),
                            envir = environment())
     
     # Load required packages on each worker
@@ -589,6 +1010,7 @@ rtx <- function(validation_list,
         mzml_dir = mzml_dir,
         iterate_through = iterate_through,
         rt_lookup = rt_lookup,
+        window = window,
         ppm_tolerance = ppm_tolerance,
         stick = stick,
         max_i = max_i,
@@ -597,7 +1019,10 @@ rtx <- function(validation_list,
         overwrite_rds = overwrite_rds,
         output_dir = output_dir,
         study = study,
-        run_standard = run_standard
+        run_standard = run_standard,
+        fragment_pare = fragment_pare,
+        force_plot = force_plot,
+        debug = debug
       )
     }
     
@@ -610,23 +1035,54 @@ rtx <- function(validation_list,
                 nrow(validation_list), total_steps,
                 floor(elapsed / 3600), floor((elapsed %% 3600) / 60), floor(elapsed %% 60)))
     
-    # Convert list to named list by compound ID
-    compound_plots <- setNames(compound_results, sapply(validation_list$id, as.character))
+    # Filter out errors and convert list to named list by compound ID
+    # Check which results are errors
+    is_error <- sapply(compound_results, function(x) inherits(x, "error") || inherits(x, "simpleError"))
+    
+    if (any(is_error)) {
+      error_ids <- validation_list$id[is_error]
+      cat(sprintf("\n⚠️  Warning: %d compound(s) failed during processing:\n", sum(is_error)))
+      for (err_id in error_ids) {
+        err_msg <- compound_results[[which(validation_list$id == err_id)]]$message
+        cat(sprintf("  • %s: %s\n", err_id, err_msg))
+      }
+    }
+    
+    # Keep only successful results
+    compound_results_clean <- compound_results[!is_error]
+    validation_list_clean <- validation_list[!is_error, ]
+    
+    compound_plots <- setNames(compound_results_clean, sapply(validation_list_clean$id, as.character))
     
   } else {
     # Sequential processing with progress bar
     total_compounds <- nrow(validation_list)
     start_time <- Sys.time()
     
-    # Calculate total steps (compounds × samples × standards)
+    # Calculate total steps (compounds × samples × standards, or just samples if run_standard = FALSE)
     total_steps <- 0
     for (i in 1:nrow(validation_list)) {
       row <- validation_list[i, ]
-      all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
-      all_samples <- all_samples[!is.na(all_samples)]
-      samples_count <- min(iterate_through, length(all_samples))
-      standards_count <- length(strsplit(row$standards, ", ")[[1]])
-      total_steps <- total_steps + (samples_count * standards_count)
+      # Dynamically collect all file columns
+      file_cols <- grep("^file\\d+$", names(row), value = TRUE)
+      all_samples <- as.character(row[file_cols])
+      
+      if (force_plot) {
+        # When force_plot=TRUE, iterate exactly iterate_through slots
+        samples_count <- iterate_through
+      } else {
+        # Normal: only count non-NA files
+        all_samples <- all_samples[!is.na(all_samples)]
+        samples_count <- min(iterate_through, length(all_samples))
+      }
+      
+      if (run_standard) {
+        standards_count <- length(strsplit(row$standards, ", ")[[1]])
+        total_steps <- total_steps + (samples_count * standards_count)
+      } else {
+        # When run_standard = FALSE, each sample gets 1 plot
+        total_steps <- total_steps + samples_count
+      }
     }
     
     # Use environment to hold mutable counter
@@ -688,6 +1144,13 @@ rtx <- function(validation_list,
     id_val <- row$id
     short_name <- row$short_name
     
+    # Sanitize short_name: replace Greek letters with text equivalents
+    short_name <- gsub("\u03B1", "alpha", short_name)  # α
+    short_name <- gsub("\u03B2", "beta", short_name)   # β
+    short_name <- gsub("\u03B3", "gamma", short_name)  # γ
+    short_name <- gsub("\u03B4", "delta", short_name)  # δ
+    short_name <- gsub("\u03BC", "mu", short_name)     # μ
+    
     # Set current compound for display
     current_id <<- id_val
     current_name <<- short_name
@@ -704,11 +1167,25 @@ rtx <- function(validation_list,
     )
     
     # Extract m/z values
-    target_mzs <- row |>
-      select(matches("^mz[0-9]+$")) |>
-      unlist() |>
-      as.numeric() |>
-      na.omit()
+    original_frag_index <- NULL
+    if (fragment_pare && "top_frag" %in% names(row) && !is.na(row$top_frag)) {
+      # Fragment paring mode: only extract the specific fragment from top_frag column
+      original_frag_index <- as.numeric(row$top_frag)
+      top_frag_col <- paste0("mz", row$top_frag)
+      if (top_frag_col %in% names(row)) {
+        target_mzs <- as.numeric(row[[top_frag_col]])
+        if (is.na(target_mzs)) target_mzs <- numeric(0)
+      } else {
+        target_mzs <- numeric(0)
+      }
+    } else {
+      # Default mode: extract all mz values
+      target_mzs <- row |>
+        select(matches("^mz[0-9]+$")) |>
+        unlist() |>
+        as.numeric() |>
+        na.omit()
+    }
     
     if (length(target_mzs) == 0) {
       warning(sprintf("No m/z values found for ID '%s' - skipping", id_val))
@@ -728,8 +1205,12 @@ rtx <- function(validation_list,
     # Parse standards
     standards <- strsplit(row$standards, ", ")[[1]]
     
-    # Get sample files
-    all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
+    # Get sample files - dynamically collect all file columns that exist
+    file_cols <- grep("^file\\d+$", names(row), value = TRUE)
+    all_samples <- as.character(row[file_cols])
+    names(all_samples) <- NULL
+    all_samples <- all_samples[!is.na(all_samples)]
+    samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
     all_samples <- all_samples[!is.na(all_samples)]
     samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
     
@@ -739,6 +1220,8 @@ rtx <- function(validation_list,
       
       # Determine RT range for this sample
       sample_rt_range <- base_rt_range_expanded
+      use_hard_limits <- FALSE
+      rt_is_fallback <- FALSE
       
       if (rt_lookup == "sample") {
         rt_range_col_name <- paste0("f", sample_idx, "_rt_range")
@@ -746,103 +1229,410 @@ rtx <- function(validation_list,
           rt_range_str <- row[[rt_range_col_name]]
           sample_rt_range <- eval(parse(text = rt_range_str))
         }
+      } else if (rt_lookup == "window") {
+        rt_col_name <- paste0("f", sample_idx, "_rt")
+        if (rt_col_name %in% names(row) && !is.na(row[[rt_col_name]])) {
+          rt_value <- row[[rt_col_name]]
+          half_window <- window / 2
+          sample_rt_range <- c(rt_value - half_window, rt_value + half_window)
+          use_hard_limits <- TRUE
+        } else {
+          rt_is_fallback <- TRUE
+        }
       }
       
       # Extract chromatogram for sample
       sample_chrom <- extract_chromatogram(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
       
-      if (is.null(sample_chrom)) {
+      if (is.null(sample_chrom) && !force_plot) {
         warning(sprintf("Skipping sample %s - data extraction failed", sample_file))
         next
       }
       
-      sample_chrom$type <- "Sample"
-      sample_chrom$plot_intensity <- sample_chrom$intensity
+      # Track whether we have actual data or creating placeholder
+      has_data <- !is.null(sample_chrom)
       
-      # Iterate through standards (silent processing, skip if run_standard = FALSE)
-      standards_to_process <- if (run_standard) standards else character(0)
-      for (std_idx in seq_along(standards_to_process)) {
-        standard_file <- standards_to_process[std_idx]
+      # Only process sample_chrom if we have data
+      if (has_data) {
+        # Adjust mz_index if fragment_pare is TRUE to preserve original fragment number
+        if (!is.null(original_frag_index)) {
+          sample_chrom$mz_index <- original_frag_index
+        }
         
-        # Extract chromatogram for standard
-        standard_chrom <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
+        sample_chrom$type <- "Sample"
         
-        if (is.null(standard_chrom)) {
-          warning(sprintf("Skipping standard %s - data extraction failed", standard_file))
+        # Create mz labels with actual m/z values (before filtering)
+        sample_chrom$mz_label <- sprintf("mz%d: %.4f", sample_chrom$mz_index, sample_chrom$mz)
+      }
+      
+      # Process based on run_standard flag
+      if (!run_standard) {
+        #+ Sample-only mode (no standard comparison)
+        # Filter to only rows with non-zero intensity
+        if (has_data) {
+          sample_chrom <- sample_chrom |>
+            filter(intensity > 0)
+        }
+        
+        if (has_data && nrow(sample_chrom) == 0 && !force_plot) {
+          warning(sprintf("No fragments detected for %s in %s", id_val, sample_file))
           next
         }
         
-        standard_chrom$type <- "Standard"
-        standard_chrom$plot_intensity <- -standard_chrom$intensity
+        # Calculate intensity limits
+        if (has_data && nrow(sample_chrom) > 0) {
+          y_limit_chrom <- max(abs(sample_chrom$intensity), na.rm = TRUE) * 1.05
+        } else {
+          y_limit_chrom <- 1000
+        }
+        
+        sample_id <- if (!is.na(sample_file)) sample_file else paste0("F", sample_idx)
+        
+        # Create plot based on whether we have data
+        if (has_data && nrow(sample_chrom) > 0) {
+          # Add asterisks
+          if (!is.na(row$asterisk)) {
+            marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
+            for (marked_mz in marked_mzs) {
+              mz_num <- as.numeric(gsub("mz", "", marked_mz))
+              sample_chrom$mz_label <- ifelse(
+                sample_chrom$mz_index == mz_num,
+                paste0("**", sample_chrom$mz_label, " \\*****"),
+                sample_chrom$mz_label
+              )
+            }
+          }
+          
+          # Define fixed color palette for mz indices (matches vp() function palette)
+          mz_colors <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+                         "#D4A017", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+          names(mz_colors) <- paste0("mz", 0:8)
+          
+          # Create named vector for actual mz_labels present in the data
+          mz_labels_present <- unique(sample_chrom$mz_label)
+          mz_indices_present <- unique(sample_chrom$mz_index)
+          color_mapping <- setNames(
+            mz_colors[paste0("mz", mz_indices_present)],
+            mz_labels_present
+          )
+          
+          if (stick) {
+            p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+              geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4)
+          } else {
+            p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+              geom_line(linewidth = 0.4)
+          }
+          
+          p_rtx <- p_rtx +
+            scale_color_manual(values = color_mapping)
+        } else {
+          # Create NO DATA placeholder plot
+          p_rtx <- ggplot() +
+            annotate("text", x = 0.5, y = 0.5, label = "NO DATA", size = 8, color = "gray50") +
+            theme_void()
+        }
+        
+        # Apply x-axis scaling based on whether hard limits are used
+        if (use_hard_limits) {
+          p_rtx <- p_rtx +
+            scale_x_continuous(
+              limits = sample_rt_range,
+              expand = c(0, 0),
+              breaks = function(limits) {
+                start <- ceiling(limits[1] * 20) / 20
+                end <- floor(limits[2] * 20) / 20
+                if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+              },
+              minor_breaks = function(limits) {
+                start <- ceiling(limits[1] * 40) / 40
+                end <- floor(limits[2] * 40) / 40
+                if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+              }
+            )
+        } else {
+          p_rtx <- p_rtx +
+            scale_x_continuous(
+              limits = sample_rt_range,
+              expand = expansion(mult = c(0.05, 0.05), add = 0),
+              breaks = function(limits) {
+                start <- ceiling(limits[1] * 20) / 20
+                end <- floor(limits[2] * 20) / 20
+                if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+              },
+              minor_breaks = function(limits) {
+                start <- ceiling(limits[1] * 40) / 40
+                end <- floor(limits[2] * 40) / 40
+                if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+              }
+            )
+        }
+        
+        # Create subtitle with RT info
+        if (rt_is_fallback) {
+          subtitle_text <- sprintf("Sample: %s  |  RT = NA (range: %.2f-%.2f min)", 
+                                  sample_id, sample_rt_range[1], sample_rt_range[2])
+        } else {
+          subtitle_text <- sprintf("Sample: %s  |  RT = %.2f min", sample_id, mean(sample_rt_range))
+        }
+        
+        p_rtx <- p_rtx +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(0, y_limit_chrom),
+            n.breaks = 8,
+            labels = scales::label_scientific(digits = 2)
+          ) +
+          labs(
+            title = short_name,
+            subtitle = subtitle_text,
+            x = "Retention Time (min)",
+            y = "Intensity",
+            color = NULL
+          ) +
+          coord_cartesian(clip = "off") +
+          theme_classic(base_size = 12) +
+          theme(
+            panel.grid.major.x = element_line(color = "gray90", linewidth = 0.2),
+            panel.grid.minor.x = element_line(color = "gray90", linewidth = 0.2),
+            plot.margin = margin(10, 10, 20, 20),
+            plot.background = element_rect(fill = "transparent", color = NA),
+            panel.background = element_rect(fill = "transparent", color = NA),
+            legend.position = "top",
+            legend.justification = "center",
+            legend.direction = "horizontal",
+            legend.text = ggtext::element_markdown(size = 4),
+            legend.title = element_blank(),
+            legend.background = element_rect(fill = "transparent", color = NA),
+            legend.key = element_rect(fill = "transparent", color = NA),
+            legend.key.size = unit(0.25, "cm"),
+            legend.key.width = unit(0.25, "cm"),
+            legend.spacing.x = unit(0.02, "cm"),
+            legend.box.margin = margin(0, 0, 0, 0),
+            legend.margin = margin(0, 0, 0, 0),
+            plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
+            plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6, 
+                                                     color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0)),
+            axis.text.x = element_text(face = "bold", color = "black", size = 7),
+            axis.text.y = element_text(face = "bold", color = "black", size = 7),
+            axis.title.x = element_text(face = "bold", color = "black", size = 9),
+            axis.title.y = element_text(face = "bold", color = "black", size = 9, margin = margin(r = 8)),
+            axis.ticks.length = unit(0.15, "cm"),
+            axis.line = element_line(color = "black", linewidth = 0.4),
+            axis.ticks = element_line(color = "black", linewidth = 0.4)
+          ) +
+          guides(color = guide_legend(override.aes = list(linewidth = 0.4)))
+        
+        # Store plot (use S1 as standard index for sample-only)
+        plot_label <- sprintf("F%d_S1", sample_idx)
+        plot_tag <- sprintf("F%d_S1_%s", sample_idx, id_val)
+        if (study == "cadaver") {
+          plot_tag <- paste0("C_", plot_tag)
+        }
+        
+        compound_plots[[id_val]]$plots[[plot_label]] <- list(
+          plot = p_rtx,
+          sample_id = sample_id,
+          standard_file = NA,
+          plot_tag = plot_tag,
+          rt_range = sample_rt_range
+        )
+        
+        # Save individual plot RDS if requested (sample-only mode)
+        if (save_rds && !is.null(rds_save_folder)) {
+          # Get validation_plot_directory from config
+          if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
+            rds_dir <- file.path(config$paths$validation_plot_directory, rds_save_folder)
+          } else {
+            # Fallback to local directory if config not available
+            rds_dir <- file.path(output_dir, "RDS", rds_save_folder)
+          }
+          
+          dir.create(rds_dir, recursive = TRUE, showWarnings = FALSE)
+          
+          # Check if file already exists (skip if overwrite_rds is FALSE)
+          rds_path <- file.path(rds_dir, paste0(plot_tag, ".rds"))
+          
+          if (!file.exists(rds_path) || overwrite_rds) {
+            # Create individual plot object with full metadata
+            individual_plot <- list(
+              short_name = short_name,
+              id = id_val,
+              order = order_num,
+              plot = p_rtx,
+              sample_id = sample_id,
+              standard_file = NA,
+              plot_tag = plot_tag,
+              rt_range = sample_rt_range
+            )
+            
+            # Save with plot_tag as filename
+            saveRDS(individual_plot, file = rds_path, compress = "gzip")
+          }
+        }
+        
+        # Increment and update progress
+        progress_env$current_step <- progress_env$current_step + 1
+        update_progress()
+        
+      } else {
+        #+ Standard comparison mode
+        if (has_data) {
+          sample_chrom$plot_intensity <- sample_chrom$intensity
+        }
+        
+        standards_to_process <- standards
+        for (std_idx in seq_along(standards_to_process)) {
+          standard_file <- standards_to_process[std_idx]
+          
+          # Extract chromatogram for standard
+          standard_chrom <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
+          
+          if (is.null(standard_chrom) && !force_plot) {
+            warning(sprintf("Skipping standard %s - data extraction failed", standard_file))
+            next
+          }
+          
+          # Track whether we have actual data or creating placeholder (recheck with standard)
+          has_data <- !is.null(sample_chrom) && !is.null(standard_chrom)
+          
+          # Only process chromatograms if we have data
+          if (has_data) {
+            # Adjust mz_index if fragment_pare is TRUE to preserve original fragment number
+            if (!is.null(original_frag_index)) {
+              standard_chrom$mz_index <- original_frag_index
+            }
+            
+            standard_chrom$type <- "Standard"
+            standard_chrom$plot_intensity <- -standard_chrom$intensity
+          }
         
         # === CREATE RTX PLOT (Chromatogram) ===
-        max_sample_chrom <- max(abs(sample_chrom$intensity), na.rm = TRUE)
-        max_standard_chrom <- max(abs(standard_chrom$intensity), na.rm = TRUE)
-        y_limit_chrom <- max(max_sample_chrom, max_standard_chrom) * 1.05
+        if (has_data) {
+          max_sample_chrom <- max(abs(sample_chrom$intensity), na.rm = TRUE)
+          max_standard_chrom <- max(abs(standard_chrom$intensity), na.rm = TRUE)
+          y_limit_chrom <- max(max_sample_chrom, max_standard_chrom) * 1.05
+          
+          combined_chrom <- bind_rows(sample_chrom, standard_chrom)
+          
+          # Create mz labels with actual m/z values (before filtering)
+          combined_chrom$mz_label <- sprintf("mz%d: %.4f", combined_chrom$mz_index, combined_chrom$mz)
+          
+          # Filter to only rows with non-zero intensity (detected fragments)
+          combined_chrom <- combined_chrom |>
+            filter(intensity > 0)
+        } else {
+          y_limit_chrom <- 1000
+        }
         
-        combined_chrom <- bind_rows(sample_chrom, standard_chrom)
-        
-        # Filter to only rows with non-zero intensity (detected fragments)
-        combined_chrom <- combined_chrom |>
-          filter(intensity > 0)
-        
-        if (nrow(combined_chrom) == 0) {
+        if (has_data && nrow(combined_chrom) == 0 && !force_plot) {
           warning(sprintf("No fragments detected for %s in %s vs %s", id_val, sample_file, standard_file))
           next
         }
         
-        combined_chrom$mz_label <- sprintf("mz%d: %.4f", combined_chrom$mz_index, combined_chrom$mz)
-        
-        # Add asterisks
-        if (!is.na(row$asterisk)) {
-          marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
-          for (marked_mz in marked_mzs) {
-            mz_num <- as.numeric(gsub("mz", "", marked_mz))
-            combined_chrom$mz_label <- ifelse(
-              combined_chrom$mz_index == mz_num,
-              paste0("**", combined_chrom$mz_label, " \\*****"),
-              combined_chrom$mz_label
-            )
-          }
-        }
-        
         sample_id <- sample_file
         
-        # Define fixed color palette for mz indices
-        mz_colors <- c("mz0" = "black", "mz1" = "red", "mz2" = "gold", "mz3" = "blue")
-        
-        # Create named vector for actual mz_labels present in the data
-        mz_labels_present <- unique(combined_chrom$mz_label)
-        mz_indices_present <- unique(combined_chrom$mz_index)
-        color_mapping <- setNames(
-          mz_colors[paste0("mz", mz_indices_present)],
-          mz_labels_present
-        )
-        
-        if (stick) {
-          p_rtx <- ggplot(combined_chrom, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-            geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4) +
-            geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+        # Create plot based on whether we have data
+        if (has_data && nrow(combined_chrom) > 0) {
+          # Add asterisks
+          if (!is.na(row$asterisk)) {
+            marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
+            for (marked_mz in marked_mzs) {
+              mz_num <- as.numeric(gsub("mz", "", marked_mz))
+              combined_chrom$mz_label <- ifelse(
+                combined_chrom$mz_index == mz_num,
+                paste0("**", combined_chrom$mz_label, " \\*****"),
+                combined_chrom$mz_label
+              )
+            }
+          }
+          
+          # Define fixed color palette for mz indices (matches vp() function palette)
+          mz_colors <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+                         "#D4A017", "#0072B2", "#D55E00", "#CC79A7", "#999999")
+          names(mz_colors) <- paste0("mz", 0:8)
+          
+          # Create named vector for actual mz_labels present in the data
+          mz_labels_present <- unique(combined_chrom$mz_label)
+          mz_indices_present <- unique(combined_chrom$mz_index)
+          color_mapping <- setNames(
+            mz_colors[paste0("mz", mz_indices_present)],
+            mz_labels_present
+          )
+          
+          if (stick) {
+            p_rtx <- ggplot(combined_chrom, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+              geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4) +
+              geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+          } else {
+            p_rtx <- ggplot(combined_chrom, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
+              geom_line(linewidth = 0.4) +
+              geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+          }
+          
+          p_rtx <- p_rtx +
+            scale_color_manual(values = color_mapping)
         } else {
-          p_rtx <- ggplot(combined_chrom, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-            geom_line(linewidth = 0.4) +
-            geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
+          # Create NO DATA placeholder plot
+          p_rtx <- ggplot() +
+            annotate("text", x = 0.5, y = 0.5, label = "NO DATA", size = 8, color = "gray50") +
+            theme_void()
+        }
+        
+        # Apply x-axis scaling based on whether hard limits are used
+        if (use_hard_limits) {
+          p_rtx <- p_rtx +
+            scale_x_continuous(
+              limits = sample_rt_range,
+              expand = c(0, 0),
+              breaks = function(limits) {
+                start <- ceiling(limits[1] * 20) / 20
+                end <- floor(limits[2] * 20) / 20
+                if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+              },
+              minor_breaks = function(limits) {
+                start <- ceiling(limits[1] * 40) / 40
+                end <- floor(limits[2] * 40) / 40
+                if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+              }
+            )
+        } else {
+          p_rtx <- p_rtx +
+            scale_x_continuous(
+              limits = sample_rt_range,
+              expand = expansion(mult = c(0.05, 0.05), add = 0),
+              breaks = function(limits) {
+                start <- ceiling(limits[1] * 20) / 20
+                end <- floor(limits[2] * 20) / 20
+                if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+              },
+              minor_breaks = function(limits) {
+                start <- ceiling(limits[1] * 40) / 40
+                end <- floor(limits[2] * 40) / 40
+                if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+              }
+            )
+        }
+        
+        # Create subtitle with RT info
+        if (rt_is_fallback) {
+          subtitle_text <- sprintf("Sample: %s  |  Standard: %s  |  RT = NA (range: %.2f-%.2f min)", 
+                                  sample_id, standard_file, sample_rt_range[1], sample_rt_range[2])
+        } else {
+          subtitle_text <- sprintf("Sample: %s  |  Standard: %s  |  RT = %.2f min", 
+                                  sample_id, standard_file, mean(sample_rt_range))
         }
         
         p_rtx <- p_rtx +
-          scale_color_manual(values = color_mapping) +
-          scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0),
-                           breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
-                           minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)) +
           scale_y_continuous(
             expand = c(0, 0),
             limits = c(-y_limit_chrom, y_limit_chrom),
-            labels = function(x) abs(x),
+            labels = function(x) scales::label_scientific(digits = 2)(abs(x)),
             n.breaks = 8
           ) +
           labs(
             title = short_name,
-            subtitle = sprintf("Sample: %s  |  Standard: %s  |  RT = %.2f min", sample_id, standard_file, mean(sample_rt_range)),
+            subtitle = subtitle_text,
             x = "Retention Time (min)",
             y = sprintf("← Standard  |  %s →     ", tools::toTitleCase(study)),
             color = NULL
@@ -933,9 +1723,10 @@ rtx <- function(validation_list,
             saveRDS(individual_plot, file = rds_path, compress = "gzip")
           }
         }
-      }
-    }
-  }
+        }  # End for (std_idx in seq_along(standards_to_process))
+      }  # End else (standard comparison mode)
+    }  # End for (sample_idx in seq_along(samples_to_process))
+  }  # End for (i in 1:nrow(validation_list))
   } # End of sequential/parallel if-else
   
   # Final progress update for sequential mode

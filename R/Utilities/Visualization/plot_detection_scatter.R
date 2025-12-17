@@ -1,13 +1,13 @@
 #' Plot Chemical Detection Scatter Plot
 #'
-#' Creates a scatter plot showing the number of detected chemicals per sample,
+#' Creates a scatter plot showing the number of annotated chemicals per sample,
 #' grouped by thyroid cancer variant. Points are colored by variant type with
 #' optional statistical test result displayed.
 #'
 #' @param detection_data A data frame with the following columns:
 #'   \describe{
 #'     \item{variant}{Character indicating the cancer variant (Follicular, FV-PTC, Papillary)}
-#'     \item{total_detected}{Numeric count of total chemicals detected per sample}
+#'     \item{total_annotated}{Numeric count of total chemicals annotated per sample}
 #'   }
 #' @param p_value Optional numeric p-value from statistical test (e.g., Kruskal-Wallis).
 #'   If provided, will be displayed in the top-left corner of the plot.
@@ -28,7 +28,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' kw_p <- kruskal.test(total_detected ~ variant, data = detection_no_endog)$p.value
+#' kw_p <- kruskal.test(total_annotated ~ variant, data = detection_no_endog)$p.value
 #' p1B <- plot_detection_scatter(detection_no_endog, p_value = kw_p)
 #' ggsave("detection_scatter.pdf", p1B, width = 6, height = 6)
 #' }
@@ -69,7 +69,7 @@ plot_detection_scatter <- function(detection_data, p_value = NULL) {
     ) +
     labs(
       x = NULL,
-      y = "# of Chemicals Detected",
+      y = "# of Chemicals Annotated",
       color = NULL
     ) +
     coord_cartesian(clip = "off") +

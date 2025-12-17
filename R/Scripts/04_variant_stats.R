@@ -12,7 +12,7 @@ anova_results_sig <- tumors_quant_wt |>
   arrange(name_sub_lib_id) |>
   pull(name_sub_lib_id) # Extract significant feature names
 #- 4.1.2: Filter tumors_quant to keep only significant compounds and apply z-score 
-tumors_quant_sig <- tumors_quant_wt |>
+tumors_quant_sig_i <- tumors_quant_wt |>
   select(variant, all_of(anova_results_sig)) |>
   mutate(across(-variant, ~ scale(.)[, 1]))
 #- 4.1.3: Make a second cas key
@@ -20,7 +20,7 @@ cas_key_2 <- tumor_raw |>
   select(name_sub_lib_id, cas, short_display_name) |>
   rename(Name = short_display_name)
 #- 4.1.4: Create summary table with reran ANOVA
-summary_table_i <- tumors_quant_sig |>
+summary_table_i <- tumors_quant_sig_i |>
   pivot_longer(-variant, names_to = "name_sub_lib_id", values_to = "value") |>
   group_by(name_sub_lib_id, variant) |>
   mutate(variant = if_else(variant == "FV-PTC", "FV_PTC", variant)) |>
@@ -30,7 +30,7 @@ summary_table_i <- tumors_quant_sig |>
   ) |>
   pivot_wider(names_from = variant, values_from = mean_sd) |>
   left_join(
-    tumors_quant_sig |>
+    tumors_quant_sig_i |>
       pivot_longer(-variant, names_to = "name_sub_lib_id", values_to = "value") |>
       group_by(name_sub_lib_id) |>
       summarise(
@@ -46,7 +46,7 @@ summary_table_i <- tumors_quant_sig |>
   select(Name, cas, name_sub_lib_id, mode, p_value, everything()) |>
   arrange(p_value)
 #+ 4.2: Fisher's Stats (Qual)
-fisher_results <- tumors_qual |>
+fisher_results_i <- tumors_qual |>
   pivot_longer(-variant, names_to = "name_sub_lib_id", values_to = "detected") |>
   group_by(name_sub_lib_id) |>
   summarise(
@@ -70,7 +70,7 @@ fisher_results <- tumors_qual |>
 #_Bind names and modes to check for duplicates
 summary_table_i_dup <- summary_table_i |>
   select(Name, cas, name_sub_lib_id, mode)
-fisher_results_dup <- fisher_results |>
+fisher_results_dup <- fisher_results_i |>
   select(Name, cas, name_sub_lib_id, mode)
 #_Add duplicate check column
 dupl_check <- rbind(summary_table_i_dup, fisher_results_dup) |>
@@ -101,7 +101,7 @@ dupl_check_qual <- dupl_check |>
   ungroup()
 #_Subset to only those, then systematically choose lowest detection fragment to remove
 qual_only_ids <- dupl_check_qual$name_sub_lib_id
-qual_dup_removed_frags <- fisher_results |>
+qual_dup_removed_frags <- fisher_results_i |>
   filter(name_sub_lib_id %in% qual_only_ids) |>
   mutate(sum_det = Follicular + Papillary + FV_PTC) |>
   select(Name, cas, name_sub_lib_id, sum_det) |>
@@ -122,7 +122,7 @@ qual_quant_dupl_removed <- dupl_check_qual_quant |>
 qual_qual_dupl_removed <- qual_dup_removed_frags |>
   pull(name_sub_lib_id)
 #- 4.3.5: Remove duplicate fragments with lower detection or qual when a quant is available:
-qual_single_frag <- fisher_results |>
+qual_single_frag <- fisher_results_i |>
   filter(!name_sub_lib_id %in% qual_qual_dupl_removed) |>
   filter(!name_sub_lib_id %in% qual_quant_dupl_removed) |>
   select(cas,name_sub_lib_id,mode,everything()) |>

@@ -1,5 +1,4 @@
-#* 7: Manual Spectral Validation QC
-#+ 7.0: Change 
+#* 7: Prep Manual Spectral Validation QC
 #+ 7.1: Pull variant comparison features that need validation
 #- 7.1.0: Pull the id_subid for all variant features from MT_final_i
 fragements_variant_pull <- MT_final_i |> pull(id_subid)
@@ -115,6 +114,7 @@ emz_long <- expanded_lib_features |>
   pivot_longer(cols = emz1:emz8, names_to = "fragment", values_to = "mz") |>
   filter(!is.na(mz))
 #- 7.4.6: Merge: Keep original mz fragments, add unique emz fragments
+cat("⏳ Merging fragments and checking for duplicates (ppm distance matrix)...\n")
 merged_fragments <- bind_rows(
   # Original fragments (priority)
   mz_long,
@@ -139,6 +139,7 @@ merged_fragments <- bind_rows(
   ungroup() |>
   # Filter out emz fragments when potential_duplicate is "Y", keep original mz fragments
   filter(!(potential_duplicate == "Y" & grepl("^emz", fragment)))
+cat("✓ Fragment merging complete\n")
 #- 7.4.7: Convert back to wide format with proper numbering
 expanded_validation_i <- merged_fragments |>
   group_by(id) |>
@@ -165,6 +166,7 @@ expanded_validation_i <- merged_fragments |>
   # Reorder columns: id, short_name, monoisotopic, then all mz columns
   select(id, short_name, monoisotopic, starts_with("mz"))
 #- 7.4.8: Reorganize fragments to ensure mz0 is always monoisotopic
+cat("⏳ Reorganizing fragments (monoisotopic alignment and CP3017 filtering)...\n")
 expanded_validation <- expanded_validation_i |>
   rowwise() |>
   mutate(
@@ -257,6 +259,7 @@ expanded_validation <- expanded_validation_i |>
   ) |>
   # Clean up temporary columns, keeping id, short_name, monoisotopic and all mz columns
   select(id, short_name, monoisotopic, mz0:mz9, -fragments_to_keep)
+cat("✓ Fragment reorganization complete\n")
 #- 7.4.9: Verification: Check that mz0 now matches monoisotopic within 20 ppm for all compounds
 monoisotopic_verification <- expanded_validation |>
   mutate(
@@ -264,9 +267,9 @@ monoisotopic_verification <- expanded_validation |>
     mz0_matches_monoisotopic = mz0_ppm_diff <= 20
   ) |>
   select(id, short_name, monoisotopic, mz0, mz0_ppm_diff, mz0_matches_monoisotopic)
-#+ 7.5: Create final versions with expanded fragments
 #+ 7.5: Update validation tables with expanded fragments
 #- 7.5.1: Update variant validation table
+cat("⏳ Converting asterisk markers from m/z values to column names...\n")
 vv_wide <- vv_wide_i |>
   select(-starts_with("mz"), -asterisk) |> # Remove old mz columns and asterisk
   left_join(
@@ -301,6 +304,7 @@ vv_wide <- vv_wide_i |>
     }
   ) |>
   ungroup()
+cat("✓ Asterisk conversion complete\n")
 #- 7.5.2: Update IARC tumor validation table
 iv_wide <- iv_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
@@ -315,19 +319,52 @@ ic_wide <- ic_wide_i |>
     expanded_validation |> select(id, starts_with("mz")),
     by = "id"
   )
-#+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9)
-#- 7.6.0: Get list of validated IARC1 chemicals
-validation_iarcs <- validation_check_files |>
+#+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9) with tag-ordered files
+#- 7.6.0: Get list of top frags 
+top_frags_validated_iarc <- validation_check_files |>
   filter(!is.na(top_frag)) |>
+  select(id, top_frag)
+#- 7.6.1: Get list of validated IARC1 chemicals
+validation_iarcs <- top_frags_validated_iarc |>
   pull(id)
-#- 7.6.1: Subset validated IARC chemicals and pivot to long format for consistent file ordering
-ic_wide_iarc_validated_wide <- ic_wide |>
-  filter(id %in% validation_iarcs)
-iv_wide_iarc_validated_wide <- iv_wide |>
-  filter(id %in% validation_iarcs)
-#- 7.6.2: Pivot to long format for consistent file ordering across all compounds
-ic_wide_iarc_validated <- ic_wide_iarc_validated_wide |>
-  pivot_files_to_long()
-iv_wide_iarc_validated <- iv_wide_iarc_validated_wide |>
-  pivot_files_to_long()
-
+#- 7.6.1: Build IARC tumor validation table with tag ordering (reuse iarc_short_names from 7.2.3)
+iv_wide_iarc_validated_i <- build_validation_table(
+  validate_ids = validation_iarcs,
+  source_label = "iarc_tumor_validated",
+  short_name_join = iarc_short_names,
+  order_by = "tag",
+  buffer = (10/60)
+) |>
+  mutate(asterisk = NA_character_) |>
+  filter(!grepl("^PCB", short_name))
+#- 7.6.2: Build IARC cadaver validation table with tag ordering (reuse iarc_short_names from 7.2.3, peakwalk/rt data from 7.3)
+ic_wide_iarc_validated_i <- build_validation_table(
+  validate_ids = validation_iarcs,
+  source_label = "iarc_cadaver_validated",
+  short_name_join = iarc_short_names,
+  peakwalk_data = combined_peakwalk_cadaver,
+  rt_data = cadaver_rt_long,
+  order_by = "tag",
+  buffer = (10/60)
+) |>
+  mutate(asterisk = NA_character_) |>
+  filter(!grepl("^PCB", short_name))
+#- 7.6.3: Update with expanded fragments (reuse expanded_validation from 7.4.8)
+# IARC tumor
+iv_wide_iarc_validated <- iv_wide_iarc_validated_i |>
+  select(-starts_with("mz")) |>
+  left_join(
+    expanded_validation |> select(id, starts_with("mz")),
+    by = "id"
+  ) |>
+  left_join(top_frags_validated_iarc, by = "id") |>
+  select(short_name, top_frag, everything())
+# IARC cadaver
+ic_wide_iarc_validated <- ic_wide_iarc_validated_i |>
+  select(-starts_with("mz")) |>
+  left_join(
+    expanded_validation |> select(id, starts_with("mz")),
+    by = "id"
+  ) |>
+  left_join(top_frags_validated_iarc, by = "id") |>
+  select(short_name, top_frag, everything())

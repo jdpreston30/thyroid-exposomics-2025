@@ -1,5 +1,5 @@
-#* 12: Render Figures
-#+ 12.1: Figure 1
+#* 13: Render Figures
+#+ 13.1: Figure 1
 fig1 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   # 1A
   draw_plot(p1A, x = 1.18, y = 6.774, 
@@ -13,7 +13,7 @@ fig1 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     B = c(4.35, 10.00),
     "Figure 1" = c(0.49, 10.43)
   ))
-#+ 12.2: Figure 2
+#+ 13.2: Figure 2
 fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   # 2A
   draw_plot(p2A,
@@ -37,9 +37,39 @@ fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     C = c(4.6, 6.97),
     "Figure 2" = c(0.49, 10.43)
   ))
-#+ 12.3: Figure 3
-
-#+ 12.4: Print All Main Figures
+#+ 13.3: Figure 3
+fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
+  draw_plot(p3A,
+      x = 0.75, y = 6.838,
+    width = 7, height = 3.5
+  ) +
+  draw_plot(p3B,
+    x = 1, y = 3.1225,
+    width = 4, height = 3.75
+  ) +
+  draw_plot(p3C,
+    x = 5.3033, y = 2.6658,
+    width = 3.5, height = 5
+  ) +
+  draw_plot(p3E,
+    x = 0.665, y = 0.388,
+    width = 2.5, height = 2.5
+  ) +
+  draw_plot(p3F,
+    x = 3.07, y = 0.388,
+    width = 2.5, height = 2.5
+  ) +
+  # Labels
+  figure_labels(list(
+    A = c(0.785, 10.125),
+    B = c(0.785, 6.25),
+    E = c(0.785, 2.75),
+    F = c(3.194, 2.75),
+    "Figure 3" = c(0.49, 10.43)
+  ))
+  print_to_png(fig3+grdgd(), "Fig3.png", output_dir = "Outputs/Figures", dpi = 300)
+  u()
+  source("R/Scripts/11_variant_vis.R")
+#+ 13.4: Print All Main Figures
 print_to_png(fig1, "Fig1.png", output_dir = "Outputs/Figures")
 print_to_png(fig2, "Fig2.png", output_dir = "Outputs/Figures")
-print_to_png(fig3, "Fig3.png", output_dir = "Outputs/Figures")
