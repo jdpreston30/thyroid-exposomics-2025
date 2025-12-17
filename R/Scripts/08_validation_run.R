@@ -126,13 +126,15 @@ compile_validation_pdf(
 iarc_tumor_rtx_validated <- rtx(
   validation_list = iv_wide_iarc_validated,
   iterate_through = 120,
-  rt_lookup = "sample",
+  rt_lookup = "window",
+  window = 10/60,
   save_rds = TRUE,
   rds_save_folder = "iarc_tumor_rtx_validated",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 9,
-  run_standard = FALSE
+  n_cores = 6,
+  run_standard = FALSE,
+  fragment_pare = TRUE
 )
 # Generate compiled PDF
 compile_validation_pdf(
@@ -142,18 +144,19 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "iarc_tumor_rtx_validated"
 )
-#- 8.4.1: IARC Cadaver
+#- 8.4.2: IARC Cadaver
 # Run rtx (no standards)
 iarc_cadaver_rtx_validated <- rtx(
   validation_list = ic_wide_iarc_validated,
   study = "cadaver",
   iterate_through = 16,  # 16
-  rt_lookup = "sample",
+  rt_lookup = "window",
+  window = 10/60,
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx_validated",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 9,
+  n_cores = 6,
   run_standard = FALSE,
   fragment_pare = TRUE 
 )
@@ -165,7 +168,7 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "iarc_cadaver_rtx_validated"
 )
-#+ 8.3: Skip entire section if YAML specifies
+#+ 8.4: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation step (config$analysis$run_validation_step = FALSE)\n")
 }

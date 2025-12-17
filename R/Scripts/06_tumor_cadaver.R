@@ -126,7 +126,7 @@ ppm_full_table <- ppm_raw_ctrl |>
   mutate(
     pct_det_ctrl = sum(!is.na(c_across(T001:T009))) / length(c_across(T001:T009)),
     pct_det_tumor = sum(!is.na(c_across(F1:F20))) / length(c_across(F1:F20))
-  ) |> # Filter to ideal fragment based on pct_det_tumor, then ctrl, then iMean_tumors below
+  ) |> # Add info for ideal fragment based on pct_det_tumor, then ctrl, then iMean_tumors below
   left_join(fragment_quality_info, by = "name_sub_lib_id") |>
   arrange(desc(pct_det_tumor), desc(pct_det_ctrl), desc(iMean_tumors)) |>
   group_by(cas) |>
@@ -168,7 +168,8 @@ full_joiner_i <- ppm_full_table |>
   pivot_wider(names_from = name_sub_lib_id, values_from = value) |>
   mutate(
     tumor_vs_ctrl = ifelse(variant == "Ctrl", "Control", "Tumor")
-  )
+  ) |>
+    
 #- 6.4.4: Create version of ppm_full_table except no filtering
 ppm_ppb_inclusive <- ppm_raw_ctrl |>
   inner_join(ppm_raw, by = "name_sub_lib_id") |>
