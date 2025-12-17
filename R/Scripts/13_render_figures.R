@@ -39,26 +39,37 @@ fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   ))
 #+ 13.3: Figure 3
 fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
-  # 3D
-  draw_plot(p3D,
-    x = 1.18, y = 2.016,
-    width = 3, height = 2.5
+  draw_plot(p3A,
+      x = 0.5+0.25, y = 6.838,
+    width = 7, height = 3.5
   ) +
-  # 3E
+  draw_plot(p3B,
+    x = 1, y = 3.3725-0.25,
+    width = 4, height = 3.75
+  ) +
+  draw_plot(p3C,
+    x = 4.75+.5533, y = 1.3725+.13+.4733+0.69,
+    width = 3.5, height = 5
+  ) +
   draw_plot(p3E,
-    x = 4.23, y = 2.016,
-    width = 3, height = 2.5
+    x = 0.915-0.25, y = 0.538-.2,
+    width = 2.5, height = 2.5
+  ) +
+  draw_plot(p3F,
+    x = 4.57-1.5, y = 0.588-.2,
+    width = 2.5, height = 2.5
   ) +
   # Labels
   figure_labels(list(
-    D = c(1.26, 4.52),
-    E = c(4.35, 4.52),
+    A = c(0.785, 10.125),
+    B = c(0.785, 6.25),
+    E = c(0.785, 2.75),
+    F = c(4.694-1.25-0.25, 2.75),
     "Figure 3" = c(0.49, 10.43)
   ))
-  print_to_png(fig3+grdgd(), "Fig3.png", output_dir = "Outputs/Figures")
-
+  print_to_png(fig3+grdgd(), "Fig3.png", output_dir = "Outputs/Figures", dpi = 300)
   u()
-  source("R/Scripts/12_IARC_vis.R")
+  source("R/Scripts/11_variant_vis.R")
 #+ 13.4: Print All Main Figures
 print_to_png(fig1, "Fig1.png", output_dir = "Outputs/Figures")
 print_to_png(fig2, "Fig2.png", output_dir = "Outputs/Figures")

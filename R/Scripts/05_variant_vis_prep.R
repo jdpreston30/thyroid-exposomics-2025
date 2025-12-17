@@ -18,7 +18,7 @@ column_renames <- tibble(name_sub_lib_id = top_quant) |>
   select(name_sub_lib_id, Short_display_name) |>
   deframe()
 #- 5.1.3: Rename
-tumors_quant_sig_renamed <- tumors_quant_sig |>
+tumors_quant_sig_renamed <- tumors_quant_sig_i |>
   select(variant, all_of(top_quant)) |>
   mutate(variant = factor(variant, levels = c("Follicular", "FV-PTC", "Papillary"))) |>
   arrange(variant) |>
@@ -52,7 +52,7 @@ qual_i_reordered <- qual_i |>
   mutate(short_name = str_replace_all(short_name, "\u2020", "\u1d43"))
 #+ 5.3: Post-Hoc testing on quant
 #- 5.3.1: Post-hoc on quants with CLD notation
-posthoc_quant <- tumors_quant_sig |>
+posthoc_quant <- tumors_quant_sig_i |>
   mutate(variant = as.factor(variant)) |>
   mutate(variant = recode(variant,
     "Papillary" = "PTC",
@@ -186,7 +186,7 @@ MTii <- quant_qual_results |>
   ) |>
   ungroup()
 #- 5.3.8: Compute actual p-values/stars for top 5 ANOVA
-posthoc_table_pvalues <- dplyr::bind_rows(
+posthoc_table_pvalues_i <- dplyr::bind_rows(
   lapply(posthoc_compound_names, function(name_sub_lib_id) {
     formula <- as.formula(paste0("`", name_sub_lib_id, "` ~ variant"))
     aov_model <- aov(formula, data = posthoc_quant)
@@ -225,8 +225,7 @@ posthoc_table_pvalues <- dplyr::bind_rows(
   select(name_sub_lib_id, p_value,comparison, star) |>
   left_join(cas_key_2, by = "name_sub_lib_id") |>
   select(-name_sub_lib_id) |>
-  left_join(MTii |> select(cas,FTC_let:PTC_let), by = "cas") |>
-  slice_head(n = 15)
+  left_join(MTii |> select(cas,FTC_let:PTC_let), by = "cas")
 #+ 5.5: Carcinogen class per GHS+IARC
 #- 5.5.1: Apply classification function; add back subids
 MTi <- MTii |>
@@ -240,37 +239,3 @@ MTi <- MTii |>
   ) |>
   select(short_name, highest, Carcinogenicity, IARC_Group, GHS_var_diff_only, name_sub_lib_id, subid, everything()) |>
   arrange(Carcinogenicity)
-#- 5.5.2: Leftjoin and summarize
-carc_by_variant <- MTi |>
-  # Expand rows for double counting when multiple highest groups
-  mutate(
-    highest = strsplit(highest, ", ")
-  ) |>
-  unnest(highest) |>
-  # Map the group names to the variant labels
-  mutate(
-    Variant = recode(highest,
-      "FTC" = "Follicular",
-      "FV_PTC" = "FV-PTC",
-      "PTC" = "Papillary"
-    )
-  ) |>
-  # Count occurrences for each Variant and Carcinogenicity
-  count(Variant, Carcinogenicity) |>
-  # Pivot to wide format
-  pivot_wider(
-    names_from = Carcinogenicity,
-    values_from = n,
-    values_fill = 0 # Fill missing counts with 0
-  ) |>
-  # Reorder columns for readability
-  select(
-    Variant,
-    "Known Carcinogen",
-    "Likely Carcinogen",
-    "Possible Carcinogen",
-    "Uncertain Risk",
-    "Unclassified",
-    everything()
-  ) |>
-  filter(Variant != "Equal")
