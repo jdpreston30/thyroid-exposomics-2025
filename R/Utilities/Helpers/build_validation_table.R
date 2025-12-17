@@ -3,7 +3,8 @@ build_validation_table <- function(validate_ids,
                                     source_label = "validation",
                                     short_name_join = NULL,
                                     peakwalk_data = combined_peakwalk_tumor,
-                                    rt_data = tumor_rt_long) {
+                                    rt_data = tumor_rt_long,
+                                    order_by = "intensity") {
   #' Build Validation Table
   #' 
   #' Creates a validation table with RT ranges, mz values, top sample files, and file-specific RT ranges
@@ -14,6 +15,7 @@ build_validation_table <- function(validate_ids,
   #' @param short_name_join Optional tibble with columns: id, short_name (for adding short names)
   #' @param peakwalk_data Tibble with peakwalk data (default: combined_peakwalk_tumor, can use combined_peakwalk_cadaver)
   #' @param rt_data Tibble with RT data in long format (default: tumor_rt_long, can use cadaver_rt_long)
+  #' @param order_by Character: "intensity" (default) orders files by intensity, "tag" orders by numeric file suffix
   #' 
   #' @return Tibble with validation metadata including file-specific RT ranges
   
@@ -90,7 +92,7 @@ build_validation_table <- function(validate_ids,
     select(-bp_prefix)
   
   # Pull ALL sample files for each compound (not just top 6)
-  all_sample_files <- peakwalk_data |>
+  all_sample_files_pre <- peakwalk_data |>
     filter(id %in% validate_ids) |>
     group_by(id) |>
     slice(1) |>
@@ -98,8 +100,21 @@ build_validation_table <- function(validate_ids,
     select(id, starts_with("BL_")) |>
     pivot_longer(cols = starts_with("BL_"), names_to = "file", values_to = "intensity") |>
     filter(!is.na(intensity)) |>
-    group_by(id) |>
-    arrange(id, desc(intensity)) |>
+    group_by(id)
+  
+  # Apply ordering based on order_by parameter
+  if (order_by == "tag") {
+    all_sample_files <- all_sample_files_pre |>
+      mutate(file_suffix = as.numeric(stringr::str_extract(file, "_(\\d+)$", group = 1))) |>
+      arrange(id, file_suffix) |>
+      select(-file_suffix)
+  } else {
+    all_sample_files <- all_sample_files_pre |>
+      arrange(id, desc(intensity))
+  }
+  
+  # Add file rank and all_files column
+  all_sample_files <- all_sample_files |>
     mutate(
       file_rank = row_number(),
       all_files = paste(file, collapse = ", ")
