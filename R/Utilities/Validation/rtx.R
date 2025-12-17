@@ -88,6 +88,13 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   id_val <- row$id
   short_name <- row$short_name
   
+  # Sanitize short_name: replace Greek letters with text equivalents
+  short_name <- gsub("\u03B1", "alpha", short_name)  # α
+  short_name <- gsub("\u03B2", "beta", short_name)   # β
+  short_name <- gsub("\u03B3", "gamma", short_name)  # γ
+  short_name <- gsub("\u03B4", "delta", short_name)  # δ
+  short_name <- gsub("\u03BC", "mu", short_name)     # μ
+  
   compound_result <- list(
     short_name = short_name,
     id = id_val,
@@ -204,8 +211,16 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         ) +
         scale_x_continuous(
           expand = expansion(mult = c(0.05, 0.05), add = 0),
-          breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
-          minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)
+          breaks = function(limits) {
+            start <- ceiling(limits[1] * 20) / 20
+            end <- floor(limits[2] * 20) / 20
+            if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+          },
+          minor_breaks = function(limits) {
+            start <- ceiling(limits[1] * 40) / 40
+            end <- floor(limits[2] * 40) / 40
+            if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+          }
         ) +
         labs(
           title = short_name,
@@ -823,6 +838,13 @@ rtx <- function(validation_list,
     id_val <- row$id
     short_name <- row$short_name
     
+    # Sanitize short_name: replace Greek letters with text equivalents
+    short_name <- gsub("\u03B1", "alpha", short_name)  # α
+    short_name <- gsub("\u03B2", "beta", short_name)   # β
+    short_name <- gsub("\u03B3", "gamma", short_name)  # γ
+    short_name <- gsub("\u03B4", "delta", short_name)  # δ
+    short_name <- gsub("\u03BC", "mu", short_name)     # μ
+    
     # Set current compound for display
     current_id <<- id_val
     current_name <<- short_name
@@ -947,8 +969,16 @@ rtx <- function(validation_list,
         p_rtx <- p_rtx +
           scale_color_manual(values = color_mapping) +
           scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0),
-                           breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
-                           minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)) +
+                           breaks = function(limits) {
+                             start <- ceiling(limits[1] * 20) / 20
+                             end <- floor(limits[2] * 20) / 20
+                             if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+                           },
+                           minor_breaks = function(limits) {
+                             start <- ceiling(limits[1] * 40) / 40
+                             end <- floor(limits[2] * 40) / 40
+                             if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+                           }) +
           scale_y_continuous(
             expand = c(0, 0),
             limits = c(0, y_limit_chrom),
@@ -1089,8 +1119,16 @@ rtx <- function(validation_list,
         p_rtx <- p_rtx +
           scale_color_manual(values = color_mapping) +
           scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0),
-                           breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
-                           minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)) +
+                           breaks = function(limits) {
+                             start <- ceiling(limits[1] * 20) / 20
+                             end <- floor(limits[2] * 20) / 20
+                             if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
+                           },
+                           minor_breaks = function(limits) {
+                             start <- ceiling(limits[1] * 40) / 40
+                             end <- floor(limits[2] * 40) / 40
+                             if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
+                           }) +
           scale_y_continuous(
             expand = c(0, 0),
             limits = c(-y_limit_chrom, y_limit_chrom),
