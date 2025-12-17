@@ -117,6 +117,7 @@ compile_validation_pdf(
 )
 #+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
 #- 8.4.1: IARC Tumor
+# Run rtx (no standards)
 iarc_tumor_rtx_validated <- rtx(
   validation_list = iv_wide_iarc_validated,
   iterate_through = 120,
@@ -128,12 +129,19 @@ iarc_tumor_rtx_validated <- rtx(
   n_cores = 9,
   run_standard = FALSE
 )
+# Generate compiled PDF
+compile_validation_pdf(
+  compound_plots = iarc_tumor_rtx_validated,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "iarc_tumor_rtx_validated.pdf",
+  add_plot_tags = TRUE
+)
 #- 8.4.1: IARC Tumor
 # Run rtx (no standards)
 iarc_cadaver_rtx_validated <- rtx(
   validation_list = ic_wide_iarc_validated,
   study = "cadaver",
-  iterate_through = 1,  # 16
+  iterate_through = 2,  # 16
   rt_lookup = "sample",
   save_rds = TRUE,
   rds_save_folder = "iarc_cadaver_rtx_validated",
@@ -141,6 +149,13 @@ iarc_cadaver_rtx_validated <- rtx(
   use_parallel = TRUE,
   n_cores = 9,
   run_standard = FALSE
+)
+# Generate compiled PDF
+compile_validation_pdf(
+  compound_plots = iarc_cadaver_rtx_validated,
+  output_dir = "Outputs/Validation/initial_compile/",
+  pdf_name = "iarc_cadaver_rtx_validated.pdf",
+  add_plot_tags = TRUE
 )
 #+ 8.3: Skip entire section if YAML specifies
 } else {

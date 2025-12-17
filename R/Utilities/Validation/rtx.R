@@ -134,16 +134,145 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
       }
     }
     
-    # Process each standard (skip if run_standard = FALSE)
-    standards_to_process <- if (run_standard) standards else character(0)
-    for (std_idx in seq_along(standards_to_process)) {
-      standard_file <- standards_to_process[std_idx]
-      
-      # Extract chromatograms
+    # Process based on run_standard flag
+    if (!run_standard) {
+      #+ Sample-only mode (no standard comparison)
+      # Extract sample chromatogram
       sample_chrom <- extract_chrom_worker(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
-      std_chrom <- extract_chrom_worker(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
       
-      if (is.null(sample_chrom) || is.null(std_chrom)) next
+      if (is.null(sample_chrom)) next
+      
+      sample_chrom$type <- "Sample"
+      
+      # Apply stick transformation if needed
+      if (stick) {
+        sample_chrom <- sample_chrom |>
+          group_by(rt, mz_label) |>
+          summarize(intensity = max(intensity), .groups = "drop") |>
+          group_by(mz_label) |>
+          arrange(rt) |>
+          mutate(
+            rt_start = rt,
+            rt_end = rt,
+            intensity_start = 0,
+            intensity_end = intensity
+          ) |>
+          ungroup()
+      }
+      
+      # Filter to only rows with non-zero intensity
+      sample_chrom <- sample_chrom |>
+        filter(intensity > 0)
+      
+      if (nrow(sample_chrom) == 0) next
+      
+      # Calculate intensity limits
+      y_limit <- max(abs(sample_chrom$intensity), na.rm = TRUE) * 1.05
+      
+      # Create mz labels with actual m/z values
+      sample_chrom$mz_label <- sprintf("mz%d: %.4f", sample_chrom$mz_index, sample_chrom$mz)
+      
+      # Add asterisks to marked m/z values
+      if (!is.na(row$asterisk)) {
+        marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
+        for (marked_mz in marked_mzs) {
+          mz_num <- as.numeric(gsub("mz", "", marked_mz))
+          sample_chrom$mz_label <- ifelse(
+            sample_chrom$mz_index == mz_num,
+            paste0("**", sample_chrom$mz_label, " \\*****"),
+            sample_chrom$mz_label
+          )
+        }
+      }
+      
+      sample_id <- gsub("\\.mzML$", "", basename(sample_file))
+      
+      if (stick) {
+        p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+          geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4)
+      } else {
+        p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+          geom_line(linewidth = 0.4)
+      }
+      
+      p_rtx <- p_rtx +
+        scale_color_viridis_d(option = "turbo", end = 0.9) +
+        scale_y_continuous(
+          expand = c(0, 0),
+          limits = c(0, y_limit),
+          n.breaks = 8
+        ) +
+        scale_x_continuous(
+          expand = expansion(mult = c(0.05, 0.05), add = 0),
+          breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
+          minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)
+        ) +
+        labs(
+          title = short_name,
+          subtitle = sprintf("Sample: %s  |  RT = %.2f min", sample_id, mean(sample_rt_range)),
+          x = "Retention Time (min)",
+          y = "Intensity",
+          color = NULL
+        ) +
+        coord_cartesian(clip = "off") +
+        theme_classic(base_size = 12) +
+        theme(
+          panel.grid.major.x = element_line(color = "gray90", linewidth = 0.2),
+          panel.grid.minor.x = element_line(color = "gray90", linewidth = 0.2),
+          plot.margin = margin(10, 10, 20, 20),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA),
+          legend.position = "top",
+          legend.justification = "center",
+          legend.direction = "horizontal",
+          legend.text = ggtext::element_markdown(size = 4),
+          legend.title = element_blank(),
+          legend.background = element_rect(fill = "transparent", color = NA),
+          legend.key = element_rect(fill = "transparent", color = NA),
+          legend.key.size = unit(0.25, "cm"),
+          legend.key.width = unit(0.25, "cm"),
+          legend.spacing.x = unit(0.02, "cm"),
+          legend.box.margin = margin(0, 0, 0, 0),
+          legend.margin = margin(0, 0, 0, 0),
+          plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
+          plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6, 
+                                                   color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0)),
+          axis.text.x = element_text(face = "bold", color = "black", size = 7),
+          axis.text.y = element_text(face = "bold", color = "black", size = 7),
+          axis.title.x = element_text(face = "bold", color = "black", size = 9),
+          axis.title.y = element_text(face = "bold", color = "black", size = 9, margin = margin(r = 8)),
+          axis.ticks.length = unit(0.15, "cm"),
+          axis.line = element_line(color = "black", linewidth = 0.4),
+          axis.ticks = element_line(color = "black", linewidth = 0.4)
+        ) +
+        guides(color = guide_legend(override.aes = list(linewidth = 0.4)))
+      
+      # Store plot (use S1 as standard index for sample-only)
+      plot_label <- sprintf("F%d_S1", sample_idx)
+      plot_tag <- sprintf("F%d_S1_%s", sample_idx, id_val)
+      if (study == "cadaver") {
+        plot_tag <- paste0("C_", plot_tag)
+      }
+      
+      compound_result$plots[[plot_label]] <- list(
+        plot = p_rtx,
+        sample_id = sample_id,
+        standard_file = NA,
+        plot_tag = plot_tag,
+        rt_range = sample_rt_range
+      )
+      
+    } else {
+      #+ Standard comparison mode
+      standards_to_process <- standards
+      for (std_idx in seq_along(standards_to_process)) {
+        standard_file <- standards_to_process[std_idx]
+        
+        # Extract chromatograms
+        sample_chrom <- extract_chrom_worker(sample_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
+        std_chrom <- extract_chrom_worker(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i, worker_cache)
+        
+        if (is.null(sample_chrom) || is.null(std_chrom)) next
       
       # Combine data
       sample_chrom$type <- "Sample"
@@ -304,7 +433,8 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           saveRDS(individual_plot, file = rds_path, compress = "gzip")
         }
       }
-    }
+      }  # End else (standard comparison mode)
+    }  # End if/else run_standard
   }
   
   # Close all cached mzML files
@@ -618,15 +748,20 @@ rtx <- function(validation_list,
     total_compounds <- nrow(validation_list)
     start_time <- Sys.time()
     
-    # Calculate total steps (compounds × samples × standards)
+    # Calculate total steps (compounds × samples × standards, or just samples if run_standard = FALSE)
     total_steps <- 0
     for (i in 1:nrow(validation_list)) {
       row <- validation_list[i, ]
       all_samples <- c(row$file1, row$file2, row$file3, row$file4, row$file5, row$file6)
       all_samples <- all_samples[!is.na(all_samples)]
       samples_count <- min(iterate_through, length(all_samples))
-      standards_count <- length(strsplit(row$standards, ", ")[[1]])
-      total_steps <- total_steps + (samples_count * standards_count)
+      if (run_standard) {
+        standards_count <- length(strsplit(row$standards, ", ")[[1]])
+        total_steps <- total_steps + (samples_count * standards_count)
+      } else {
+        # When run_standard = FALSE, each sample gets 1 plot
+        total_steps <- total_steps + samples_count
+      }
     }
     
     # Use environment to hold mutable counter
@@ -757,23 +892,145 @@ rtx <- function(validation_list,
       }
       
       sample_chrom$type <- "Sample"
-      sample_chrom$plot_intensity <- sample_chrom$intensity
       
-      # Iterate through standards (silent processing, skip if run_standard = FALSE)
-      standards_to_process <- if (run_standard) standards else character(0)
-      for (std_idx in seq_along(standards_to_process)) {
-        standard_file <- standards_to_process[std_idx]
+      # Process based on run_standard flag
+      if (!run_standard) {
+        #+ Sample-only mode (no standard comparison)
+        # Filter to only rows with non-zero intensity
+        sample_chrom <- sample_chrom |>
+          filter(intensity > 0)
         
-        # Extract chromatogram for standard
-        standard_chrom <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
-        
-        if (is.null(standard_chrom)) {
-          warning(sprintf("Skipping standard %s - data extraction failed", standard_file))
+        if (nrow(sample_chrom) == 0) {
+          warning(sprintf("No fragments detected for %s in %s", id_val, sample_file))
           next
         }
         
-        standard_chrom$type <- "Standard"
-        standard_chrom$plot_intensity <- -standard_chrom$intensity
+        # Calculate intensity limits
+        y_limit_chrom <- max(abs(sample_chrom$intensity), na.rm = TRUE) * 1.05
+        
+        sample_chrom$mz_label <- sprintf("mz%d: %.4f", sample_chrom$mz_index, sample_chrom$mz)
+        
+        # Add asterisks
+        if (!is.na(row$asterisk)) {
+          marked_mzs <- strsplit(row$asterisk, ", ")[[1]]
+          for (marked_mz in marked_mzs) {
+            mz_num <- as.numeric(gsub("mz", "", marked_mz))
+            sample_chrom$mz_label <- ifelse(
+              sample_chrom$mz_index == mz_num,
+              paste0("**", sample_chrom$mz_label, " \\*****"),
+              sample_chrom$mz_label
+            )
+          }
+        }
+        
+        sample_id <- sample_file
+        
+        # Define fixed color palette for mz indices
+        mz_colors <- c("mz0" = "black", "mz1" = "red", "mz2" = "gold", "mz3" = "blue")
+        
+        # Create named vector for actual mz_labels present in the data
+        mz_labels_present <- unique(sample_chrom$mz_label)
+        mz_indices_present <- unique(sample_chrom$mz_index)
+        color_mapping <- setNames(
+          mz_colors[paste0("mz", mz_indices_present)],
+          mz_labels_present
+        )
+        
+        if (stick) {
+          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+            geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4)
+        } else {
+          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
+            geom_line(linewidth = 0.4)
+        }
+        
+        p_rtx <- p_rtx +
+          scale_color_manual(values = color_mapping) +
+          scale_x_continuous(limits = sample_rt_range, expand = expansion(mult = c(0.05, 0.05), add = 0),
+                           breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
+                           minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)) +
+          scale_y_continuous(
+            expand = c(0, 0),
+            limits = c(0, y_limit_chrom),
+            n.breaks = 8
+          ) +
+          labs(
+            title = short_name,
+            subtitle = sprintf("Sample: %s  |  RT = %.2f min", sample_id, mean(sample_rt_range)),
+            x = "Retention Time (min)",
+            y = "Intensity",
+            color = NULL
+          ) +
+          coord_cartesian(clip = "off") +
+          theme_classic(base_size = 12) +
+          theme(
+            panel.grid.major.x = element_line(color = "gray90", linewidth = 0.2),
+            panel.grid.minor.x = element_line(color = "gray90", linewidth = 0.2),
+            plot.margin = margin(10, 10, 20, 20),
+            plot.background = element_rect(fill = "transparent", color = NA),
+            panel.background = element_rect(fill = "transparent", color = NA),
+            legend.position = "top",
+            legend.justification = "center",
+            legend.direction = "horizontal",
+            legend.text = ggtext::element_markdown(size = 4),
+            legend.title = element_blank(),
+            legend.background = element_rect(fill = "transparent", color = NA),
+            legend.key = element_rect(fill = "transparent", color = NA),
+            legend.key.size = unit(0.25, "cm"),
+            legend.key.width = unit(0.25, "cm"),
+            legend.spacing.x = unit(0.02, "cm"),
+            legend.box.margin = margin(0, 0, 0, 0),
+            legend.margin = margin(0, 0, 0, 0),
+            plot.title = element_text(hjust = 0.5, face = "bold", size = 9, margin = margin(0, 0, 2, 0)),
+            plot.subtitle = ggtext::element_markdown(hjust = 0.5, face = "italic", size = 6, 
+                                                     color = "black", lineheight = 1.2, margin = margin(0, 0, 3, 0)),
+            axis.text.x = element_text(face = "bold", color = "black", size = 7),
+            axis.text.y = element_text(face = "bold", color = "black", size = 7),
+            axis.title.x = element_text(face = "bold", color = "black", size = 9),
+            axis.title.y = element_text(face = "bold", color = "black", size = 9, margin = margin(r = 8)),
+            axis.ticks.length = unit(0.15, "cm"),
+            axis.line = element_line(color = "black", linewidth = 0.4),
+            axis.ticks = element_line(color = "black", linewidth = 0.4)
+          ) +
+          guides(color = guide_legend(override.aes = list(linewidth = 0.4)))
+        
+        # Store plot (use S1 as standard index for sample-only)
+        plot_label <- sprintf("F%d_S1", sample_idx)
+        plot_tag <- sprintf("F%d_S1_%s", sample_idx, id_val)
+        if (study == "cadaver") {
+          plot_tag <- paste0("C_", plot_tag)
+        }
+        
+        compound_plots[[id_val]]$plots[[plot_label]] <- list(
+          plot = p_rtx,
+          sample_id = sample_id,
+          standard_file = NA,
+          plot_tag = plot_tag,
+          rt_range = sample_rt_range
+        )
+        
+        # Increment and update progress
+        progress_env$current_step <- progress_env$current_step + 1
+        update_progress()
+        
+      } else {
+        #+ Standard comparison mode
+        sample_chrom$plot_intensity <- sample_chrom$intensity
+        
+        standards_to_process <- standards
+        for (std_idx in seq_along(standards_to_process)) {
+          standard_file <- standards_to_process[std_idx]
+          
+          # Extract chromatogram for standard
+          standard_chrom <- extract_chromatogram(standard_file, target_mzs, sample_rt_range, ppm_tolerance, max_i)
+          
+          if (is.null(standard_chrom)) {
+            warning(sprintf("Skipping standard %s - data extraction failed", standard_file))
+            next
+          }
+          
+          standard_chrom$type <- "Standard"
+          standard_chrom$plot_intensity <- -standard_chrom$intensity
         
         # === CREATE RTX PLOT (Chromatogram) ===
         max_sample_chrom <- max(abs(sample_chrom$intensity), na.rm = TRUE)
@@ -933,9 +1190,10 @@ rtx <- function(validation_list,
             saveRDS(individual_plot, file = rds_path, compress = "gzip")
           }
         }
-      }
-    }
-  }
+        }  # End for (std_idx in seq_along(standards_to_process))
+      }  # End else (standard comparison mode)
+    }  # End for (sample_idx in seq_along(samples_to_process))
+  }  # End for (i in 1:nrow(validation_list))
   } # End of sequential/parallel if-else
   
   # Final progress update for sequential mode
