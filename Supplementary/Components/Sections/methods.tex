@@ -47,17 +47,17 @@ Any qualitative features with 100\% "0" values (indicating detection in referenc
 Alternatively, the remaining features with PMV $\leq$ 30\% were separated for analysis in "quantitative" mode. 
 The missing values for quantitative features were imputed using the half minimum method (study-wide).[@wei2018] 
 Following imputation, all spectral intensity values for quantitative features were log$_2$-transformed before further analysis. 
-Finally, to determine the total number of unique chemicals detected per sample, features were consolidated and grouped by their respective Chemical Abstracts Service registry numbers (CAS number), regardless of analytical mode (qualitative versus quantitative), such that the detection of at least one fragment for a given CAS number was considered as detection of that unique chemical. 
+Finally, to determine the total number of unique chemicals annotated per sample, features were consolidated and grouped by their respective Chemical Abstracts Service registry numbers (CAS number), regardless of analytical mode (qualitative versus quantitative), such that the detection of at least one fragment for a given CAS number was considered as detection of that unique chemical. 
 This list of chemicals was then compiled, and chemicals that were mainly endogenous (i.e., carnitines, cholesterol, arachidonic acid metabolites, bile acids, hormones, and hormone precursors) were removed and not considered for exposomics analysis (23 total). 
 Chemicals that had both exogenous and endogenous dispositions (7 total) were retained for exposomics analysis. 
-The number of unique chemicals detected was then tallied for each sample. 
-The median number of chemicals detected per variant (prior to imputation) was compared using the Kruskal-Wallis test.
+The number of unique chemicals annotated was then tallied for each sample. 
+The median number of chemicals annotated per variant (prior to imputation) was compared using the Kruskal-Wallis test.
 
 \vspace{1em}
 
 \noindent\textbf{Metadata Annotation of Environmental Chemicals}
 
-The name, IUPAC name, CAS number, PubChem Compound Identification (CID), SMILES, InChIKey, InChI, Toxin and Toxin-Target Database[@wishart2015] ID (when applicable), monoisotopic mass, and formula were obtained for each chemical detected in at least one sample. 
+The name, IUPAC name, CAS number, PubChem Compound Identification (CID), SMILES, InChIKey, InChI, Toxin and Toxin-Target Database[@wishart2015] ID (when applicable), monoisotopic mass, and formula were obtained for each chemical annotated in at least one sample. 
 For the purposes of data visualization and simplified naming in the manuscript text, a short name or abbreviation was assigned to a large portion of chemicals. 
 The Toxin-Toxin-Targeted Database[@wishart2015] (T3DB) ID and the International Agency for Research on Cancer (IARC) carcinogen group[@IARC2024] were assigned to chemicals when applicable and possible (when this information could not be ascertained, the T3DB ID was listed as "NA" and the IARC Group was listed as "Not Classified"). 
 Classification as either a potential endocrine-disrupting chemical (EDC) or non-EDC was assigned to each chemical, per the PARCEDC list.[@andres2024] 

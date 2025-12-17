@@ -157,10 +157,11 @@ iarc_cadaver_rtx_validated <- rtx(
   rds_save_folder = "iarc_cadaver_rtx_validated",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 6,
+  n_cores = 9,
   run_standard = FALSE,
   fragment_pare = TRUE, 
-  force_plot = TRUE
+  force_plot = TRUE,
+  debug = TRUE
 )
 # Generate compiled PDF
 compile_validation_pdf(

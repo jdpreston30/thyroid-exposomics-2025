@@ -166,8 +166,7 @@ full_joiner_i <- ppm_full_table |>
   pivot_wider(names_from = name_sub_lib_id, values_from = value) |>
   mutate(
     tumor_vs_ctrl = ifelse(variant == "Ctrl", "Control", "Tumor")
-  ) |>
-    
+  )
 #- 6.4.4: Create version of ppm_full_table except no filtering
 ppm_ppb_inclusive <- ppm_raw_ctrl |>
   inner_join(ppm_raw, by = "name_sub_lib_id") |>
