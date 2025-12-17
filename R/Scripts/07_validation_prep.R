@@ -114,6 +114,7 @@ emz_long <- expanded_lib_features |>
   pivot_longer(cols = emz1:emz8, names_to = "fragment", values_to = "mz") |>
   filter(!is.na(mz))
 #- 7.4.6: Merge: Keep original mz fragments, add unique emz fragments
+cat("⏳ Merging fragments and checking for duplicates (ppm distance matrix)...\n")
 merged_fragments <- bind_rows(
   # Original fragments (priority)
   mz_long,
@@ -138,6 +139,7 @@ merged_fragments <- bind_rows(
   ungroup() |>
   # Filter out emz fragments when potential_duplicate is "Y", keep original mz fragments
   filter(!(potential_duplicate == "Y" & grepl("^emz", fragment)))
+cat("✓ Fragment merging complete\n")
 #- 7.4.7: Convert back to wide format with proper numbering
 expanded_validation_i <- merged_fragments |>
   group_by(id) |>
@@ -164,6 +166,7 @@ expanded_validation_i <- merged_fragments |>
   # Reorder columns: id, short_name, monoisotopic, then all mz columns
   select(id, short_name, monoisotopic, starts_with("mz"))
 #- 7.4.8: Reorganize fragments to ensure mz0 is always monoisotopic
+cat("⏳ Reorganizing fragments (monoisotopic alignment and CP3017 filtering)...\n")
 expanded_validation <- expanded_validation_i |>
   rowwise() |>
   mutate(
@@ -256,6 +259,7 @@ expanded_validation <- expanded_validation_i |>
   ) |>
   # Clean up temporary columns, keeping id, short_name, monoisotopic and all mz columns
   select(id, short_name, monoisotopic, mz0:mz9, -fragments_to_keep)
+cat("✓ Fragment reorganization complete\n")
 #- 7.4.9: Verification: Check that mz0 now matches monoisotopic within 20 ppm for all compounds
 monoisotopic_verification <- expanded_validation |>
   mutate(
@@ -265,6 +269,7 @@ monoisotopic_verification <- expanded_validation |>
   select(id, short_name, monoisotopic, mz0, mz0_ppm_diff, mz0_matches_monoisotopic)
 #+ 7.5: Update validation tables with expanded fragments
 #- 7.5.1: Update variant validation table
+cat("⏳ Converting asterisk markers from m/z values to column names...\n")
 vv_wide <- vv_wide_i |>
   select(-starts_with("mz"), -asterisk) |> # Remove old mz columns and asterisk
   left_join(
@@ -299,6 +304,7 @@ vv_wide <- vv_wide_i |>
     }
   ) |>
   ungroup()
+cat("✓ Asterisk conversion complete\n")
 #- 7.5.2: Update IARC tumor validation table
 iv_wide <- iv_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns

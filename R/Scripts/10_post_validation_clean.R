@@ -28,8 +28,6 @@ IARC_controls <- IARC_controls_i |>
     select(id, short_name), by = "id") |>
   select(pct_NA_ctrl, id, short_name, name_sub_lib_id, iMean_ctrl, subid)
 #- 10.3.2: Subset tumors to validated IARCs
-IARC_tumors_i |>
-  filter(id == "CP2535")
 IARC_tumors <- IARC_tumors_i |>
   filter(id %in% validated_iarc) |>
   left_join(validated_compounds |>
@@ -38,26 +36,44 @@ IARC_tumors <- IARC_tumors_i |>
 #- 10.3.4: Do a full join of the detection percentages of both
 IARC_combined <- IARC_controls |>
   full_join(IARC_tumors, by = c("name_sub_lib_id", "id", "subid", "short_name"), suffix = c("_ctrl", "_tumor")) |>
-    mutate(
-    pct_NA_tumor = replace_na(pct_NA_tumor, 1),
-    pct_NA_ctrl = replace_na(pct_NA_ctrl, 1)
+  mutate(
+    pct_detected_tumor = 1 - replace_na(pct_NA_tumor, 1),
+    pct_detected_ctrl = 1 - replace_na(pct_NA_ctrl, 1)
   ) |>
-  arrange(short_name, pct_NA_tumor) |>
-  select(short_name, id, subid, pct_NA_tumor, pct_NA_ctrl, iMean_ctrl, iMean_tumor)
-#- 10.3.5: Subset to top subids of the variants
-validation_check_files_subids <- validation_check_files |>
-  filter(!is.na(top_frag_subid)) |>
-  rename(subid = top_frag_subid) |>
-  select(id, subid, short_name)
-#- 10.3.6: Now filter the combined table to just those subids
-IARC_combined_top <- validation_check_files_subids |>
-  left_join(IARC_combined, by = c("id", "subid"))
-#! Pentachlorophenol excluded as the mz4 used for the "top" was not in original algorithm list
-#+ 10.4: Full Joiner (Quant)
-#- 10.3.2: full_joiner_i
-#!!!!!!!!!!!!!!!!!!!!!
+  filter(pct_detected_tumor >= 0.7 & pct_detected_ctrl >= 0.7) |>
+  arrange(short_name, desc(pct_detected_tumor)) |>
+  select(name_sub_lib_id, short_name, id, subid, pct_detected_tumor, pct_detected_ctrl, iMean_ctrl, iMean_tumor) |>
+  arrange(desc(pct_detected_tumor), desc(pct_detected_ctrl))
+#- 10.3.5: Create list of those remaining IARCs
+IARC_namesub_pull <- IARC_combined |>
+  pull(name_sub_lib_id)
+#- 10.3.2: Use these to complete full joiner (ppm ppb estimates)
 full_joiner <- full_joiner_i |>
-  select(sample_ID, variant, tumor_vs_ctrl, any_of(cadaver_iarc_keep))
+  select(sample_ID, variant, tumor_vs_ctrl, any_of(IARC_namesub_pull))
+
+
+
+#!!!!!!!!
+#- 6.5.4: Determine the matches, filter to 30% NA quant, pull features
+IARC_tumors_ctrl_filtered_id_frag <- IARC_tumors_i |>
+  left_join(IARC_controls_i, by = "name_sub_lib_id") |>
+  select(cas, name, name_sub_lib_id, id = id.x, pct_NA, pct_NA_ctrl, iMean, iMean_ctrl) |>
+  filter(!is.na(pct_NA_ctrl)) |>
+  group_by(cas) |>
+  arrange(pct_NA, pct_NA_ctrl, desc(iMean)) |>
+  slice(1) |>
+  ungroup() |>
+  filter(pct_NA < 0.3, pct_NA_ctrl < 0.3)
+#- 6.5.5: Pull the name_sub_lib_id
+IARC_tumors_ctrl_filtered <- IARC_tumors_ctrl_filtered_id_frag |>
+  pull(name_sub_lib_id)
+#- 6.5.5: Pull ID
+IARC_tumors_ctrl_filtered_id <- IARC_tumors_ctrl_filtered_id_frag |>
+  pull(id)
+#!!!!!!!!!!
+
+#+ 10.4: Full Joiner (Quant)
+
 #!!!!!!!!!!!!!!!!!!!!
 #+ 10.5: IARC detection heatmap
 #- 10.4.0: Consolidate percentages per id
