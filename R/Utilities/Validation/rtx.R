@@ -1753,7 +1753,8 @@ rtx <- function(validation_list,
   
   # Report RDS saving summary
   if (save_rds && !is.null(rds_save_folder)) {
-    total_plots <- sum(sapply(compound_plots, function(x) length(x$plots)))
+    successful_plots <- compound_plots[!sapply(compound_plots, inherits, "error")]
+    total_plots <- sum(sapply(successful_plots, function(x) length(x$plots)))
     local_dir <- if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
       file.path(config$paths$validation_plot_directory, rds_save_folder)
     } else {
@@ -1897,9 +1898,10 @@ rtx <- function(validation_list,
               floor(total_elapsed / 3600), 
               floor((total_elapsed %% 3600) / 60), 
               floor(total_elapsed %% 60)))
+  successful_plots <- compound_plots[!sapply(compound_plots, inherits, "error")]
   cat(sprintf("  Generated %d compounds with %d total plots\n",
-              length(compound_plots),
-              sum(sapply(compound_plots, function(x) length(x$plots)))))
+              length(successful_plots),
+              sum(sapply(successful_plots, function(x) length(x$plots)))))
   cat(sprintf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"))
   
   return(compound_plots)
