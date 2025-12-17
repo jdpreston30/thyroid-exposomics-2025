@@ -38,6 +38,7 @@ aminobiphenyl_0_data <- full_joiner %>%
   rename(concentration = `4-aminobiphenyl_0_BP3.GC2_CP3002`)
 p3F <- plot_iarc(aminobiphenyl_0_data, chemical_name = "4-Aminobiphenyl", p_value = aminobiphenyl_0_p)
 #+ 12.3: Advanced Carcinogen Classificaiton
+#- 12.3.1: Advanced carcinogen classification run for variants
 carc_by_variant <- MTi |>
   filter(cas %in% MT_final_cas_list) |>
   # Expand rows for double counting when multiple highest groups
@@ -61,16 +62,16 @@ carc_by_variant <- MTi |>
     values_from = n,
     values_fill = 0 # Fill missing counts with 0
   ) |>
-  # Reorder columns for readability
+  # Reorder columns for readability and exclude Unclassified
   select(
     Variant,
     "Known Carcinogen",
     "Likely Carcinogen",
     "Possible Carcinogen",
-    "Uncertain Risk",
-    "Unclassified",
-    everything()
+    "Uncertain Risk"
   ) |>
   filter(Variant != "Equal")
+#- 12.3.2: Create carcinogen classification stacked bar plot
+p3D <- plot_carcinogen_stacked(carc_by_variant)
 #+ 12.5: IARC detection heatmap
 #! Leaving out for now but may revisit if individual check of top fragments proceeds
