@@ -79,7 +79,22 @@ validation_plot_metadata_ordered <- read_xlsx(config$paths$validation, sheet = "
 #- 0d.2.1: Pull the tumor columns
 tumor_column <- tumor_raw |>
   select(name_sub_lib_id, "F1":"F20")
-#- 0d.2.2: Pivot longer/wider to get into analysis format
+#- 0d.2.2: Check for all-zero rows in tumor_raw
+# Get column names matching the pattern (F, P, or FVPTC followed by numbers)
+variant_cols <- colnames(tumor_raw)[grepl("^(F|P|FVPTC)\\d+$", colnames(tumor_raw))]
+# Check each row has at least one non-zero value in variant columns
+has_value <- tumor_raw %>%
+  select(all_of(variant_cols)) %>%
+  mutate(across(everything(), ~ replace_na(., 0))) %>%
+  rowwise() %>%
+  mutate(has_nonzero = any(c_across(everything()) != 0)) %>%
+  ungroup() %>%
+  pull(has_nonzero)
+# Summary
+cat("Total rows:", nrow(tumor_raw), "\n")
+cat("Rows with at least one non-zero value:", sum(has_value), "\n")
+cat("Rows with all zeros:", sum(!has_value), "\n")
+#- 0d.2.3: Pivot longer/wider to get into analysis format
 tumor <- tumor_column |>
   pivot_longer(-name_sub_lib_id, names_to = "ID", values_to = "Value") |>
   pivot_wider(names_from = name_sub_lib_id, values_from = Value) |>

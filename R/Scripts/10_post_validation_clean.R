@@ -20,6 +20,10 @@ validated_list <- validated_compounds |>
 MT_final <- MT_final_i |>
   filter(id %in% validated_variant) |>
   inner_join(validated_list, by = "id") |>
+  mutate(
+    short_name = str_replace_all(short_name, "\\*", ""),
+    short_name = if_else(quality == 2, paste0(short_name, "*"), short_name)
+  ) |>
   relocate(quality, .before = annot_ident)
 #- 10.2.2: Pull name_sub_lib_id list
 MT_final_namesub_list <- MT_final |>

@@ -73,5 +73,26 @@ carc_by_variant <- MTi |>
   filter(Variant != "Equal")
 #- 12.3.2: Create carcinogen classification stacked bar plot
 p3D <- plot_carcinogen_stacked(carc_by_variant)
+#- 13.3.3: Summary of updated carcinogen classification
+carc_summary <- MTi |>
+  filter(cas %in% MT_final_cas_list) |>
+  filter(Carcinogenicity != "Unclassified") |>
+  # Expand rows for double counting when multiple highest groups
+  mutate(
+    highest = strsplit(highest, ", ")
+  ) |>
+  unnest(highest) |>
+  select(short_name, Carcinogenicity) |>
+  unique()
+  # Map the group names to the variant labels
+  mutate(
+    Variant = recode(highest,
+      "FTC" = "Follicular",
+      "FV_PTC" = "FV-PTC",
+      "PTC" = "Papillary"
+    )
+  ) |>
+  # Count occurrences for each Variant and Carcinogenicity
+  count(Variant, Carcinogenicity)
 #+ 12.5: IARC detection heatmap
 #! Leaving out for now but may revisit if individual check of top fragments proceeds
