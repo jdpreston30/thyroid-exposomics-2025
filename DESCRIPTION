@@ -12,6 +12,7 @@ Imports:
     foreach,
     openxlsx,
     dplyr,
+    png,
     readr,
     forcats,
     ggplot2,

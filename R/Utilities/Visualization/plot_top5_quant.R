@@ -9,6 +9,7 @@
 #' @param add_cld Logical, if TRUE adds compact letter display from posthoc_table_pvalues (default FALSE)
 #' @return ggplot object or list with plot and legend if return_legend = TRUE
 #' @export
+#' 
 plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, add_cld = FALSE) {
   
   # Get short names from MT_final if not provided
@@ -20,6 +21,18 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       stop("compound_names must be provided or MT_final must exist in global environment")
     }
   }
+  
+  # Get column order from original data (preserves order)
+  col_order <- colnames(data)[colnames(data) != "variant"]
+  
+  # Map to short names for ordering
+  chemical_order <- sapply(col_order, function(x) {
+    chem <- compound_names[x]
+    # Apply same overrides
+    if (!is.na(chem) && chem == "DNOP") return("Di-n-octyl phthalate")
+    if (!is.na(chem) && chem == "MEHP") return("Mono(2-ethylhexyl) phthalate")
+    return(chem)
+  }, USE.NAMES = FALSE)
   
   # Pivot to long format
   data_long <- data %>%
@@ -37,6 +50,8 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
         chemical == "MEHP" ~ "Mono(2-ethylhexyl) phthalate",
         TRUE ~ chemical
       ),
+      # Factor chemical with original column order
+      chemical = factor(chemical, levels = chemical_order),
       # Factor variant with correct order (reversed for y-axis top-to-bottom display)
       variant = factor(variant,
                       levels = c("Papillary", "FV-PTC", "Follicular"),
@@ -52,11 +67,6 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
   
   # Create alpha version for fills
   variant_colors_fill <- alpha(variant_colors, 0.5)
-  
-  # Order chemicals by their appearance in the original data columns (bottom-to-top)
-  chemical_order <- unique(data_long$chemical)
-  data_long <- data_long %>%
-    mutate(chemical = factor(chemical, levels = chemical_order))
   
   # Get CLD letters if requested
   cld_data <- NULL
@@ -83,6 +93,8 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
           Name == "MEHP" ~ "Mono(2-ethylhexyl) phthalate",
           TRUE ~ Name
         ),
+        # Factor chemical with same order as main plot
+        chemical = factor(chemical, levels = chemical_order),
         # Factor variant with same order as main plot
         variant = factor(variant,
                         levels = c("Papillary", "FV-PTC", "Follicular"),
@@ -95,7 +107,7 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
   p <- ggplot(data_long, aes(x = z_score, y = variant, fill = variant, color = variant)) +
     geom_boxplot(outlier.shape = NA, alpha = 0.5, linewidth = 0.5, show.legend = TRUE) +
     geom_jitter(height = 0.15, width = 0, size = 0.5, alpha = 1, show.legend = FALSE) +
-    facet_wrap(~chemical, ncol = 1, scales = "fixed", strip.position = "left") +
+    facet_wrap(~chemical, ncol = 1, scales = "fixed", strip.position = "left", drop = FALSE) +
     scale_fill_manual(
       values = variant_colors_fill,
       breaks = c("Follicular", "FV-PTC", "Papillary"),

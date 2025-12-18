@@ -44,12 +44,12 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     width = 7, height = 3.5
   ) +
   draw_plot(p3B,
-    x = 0.5, y = 2.935833,
-    width = 4, height = 3.75
+    x = 0.7258, y = 2.889133,
+    width = 3.346663, height = 3.74233
   ) +
   draw_plot(p3C,
-    x = 4.8133, y = 2.889133,
-    width = 3.346663, height = 3.74233
+    x = 3.96875, y = 2.935833,
+    width = 4, height = 3.75
   ) +
   draw_plot(p3D,
     x = 0.7182667, y = 0.4446667,
@@ -67,7 +67,7 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   figure_labels(list(
     A = c(0.785, 10.125),
     B = c(0.785, 6.563333),
-    C = c(4.54, 6.563333),
+    C = c(4.14, 6.563333),
     D = c(0.785, 2.75),
     E = c(3.424, 2.75),
     F = c(5.709, 2.75),
@@ -77,3 +77,19 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
 print_to_png(fig1, "Fig1.png", output_dir = "Outputs/Figures")
 print_to_png(fig2, "Fig2.png", output_dir = "Outputs/Figures")
 print_to_png(fig3, "Fig3.png", output_dir = "Outputs/Figures")
+#+ 13.5: Save All Main Figures as PDF from PNGs
+pdf("Outputs/Figures/Figs1-3.pdf", width = 8.5, height = 11)
+# Page 1: Fig1
+img1 <- readPNG("Outputs/Figures/Fig1.png")
+grid.newpage()
+grid.raster(img1, width = unit(8.5, "inches"), height = unit(11, "inches"))
+# Page 2: Fig2
+img2 <- readPNG("Outputs/Figures/Fig2.png")
+grid.newpage()
+grid.raster(img2, width = unit(8.5, "inches"), height = unit(11, "inches"))
+# Page 3: Fig3
+img3 <- readPNG("Outputs/Figures/Fig3.png")
+grid.newpage()
+grid.raster(img3, width = unit(8.5, "inches"), height = unit(11, "inches"))
+dev.off()
+cat("PDF compiled: Outputs/Figures/Figs1-3.pdf\n")

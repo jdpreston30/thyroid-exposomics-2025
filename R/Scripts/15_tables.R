@@ -1,10 +1,10 @@
-#* 10: Supplementary Tables
-#+ 10.1: Build Table 1 (with function); export
+#* 15: Tables
+#+ 15.1: Build Table 1 (with function); export
 table_1 <- build_table_1(
   data = demographic_table,
   export_path = "Outputs/Tables/T1.xlsx"
 )
-#+ 10.2: Build Table 2 (with function); export
+#+ 15.2: Build Table 2 (with function); export
 table_2 <- build_table_2(
   data = feature_metadata,
   header_col = "Table_Header",
@@ -12,8 +12,8 @@ table_2 <- build_table_2(
   subclass_col = "Table_Subclass",
   export_path = "Outputs/Tables/T2.xlsx"
 )
-#+ 10.3: Build Table 3 (with function); export
-#- 10.3.1: Create table columns and format
+#+ 15.3: Build Table 3 (with function); export
+#- 15.3.1: Create table columns and format
 table_3_tibble <- MT_final |>
   mutate(
     Table_Class = case_when(
@@ -46,7 +46,6 @@ table_3_tibble <- MT_final |>
   mutate(
     short_name = paste0(
       short_name,
-      if_else(quality == 2, "*", ""),
       if_else(
         Carcinogenicity %in% c("Likely Carcinogen", "Possible Carcinogen", "Known Carcinogen"),
         "\u2020", ""
@@ -61,9 +60,8 @@ table_3_tibble <- MT_final |>
   mutate(short_name = str_replace(short_name, "NA$", "")) |>
   arrange(p_value) |>
   select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC_let, `FV-PTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value)
-#- 10.3.2: Build Table 3 with function
+#- 15.3.2: Build Table 3 with function
 table_3 <- build_table_3(
   data = table_3_tibble,
   export_path = "Outputs/Tables/T3.xlsx"
 )
-#!!!!!!!!1 UPDATE FOOTNOE TEXT

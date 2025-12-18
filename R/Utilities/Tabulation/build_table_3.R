@@ -124,10 +124,10 @@ build_table_3 <- function(data, export_path) {
   
   # Add footnote text to merged cell
   footnote_text <- paste(
-    "*- Indicates an annotation (as opposed to an identification)",
+    "*- Indicates level 2 identification",
     "†- Possible, likely, or known carcinogen",
     "‡- Potential endocrine disrupting chemical",
-    "Abbreviations: 2,6-DCP-4'-NPE = 2,6-Dichlorophenyl-4'-nitrophenyl ether; 4-NQO = 4-Nitroquinoline-1-oxide; 5-NOT = 5-Nitro-o-toluidine; BDCM = Bromodichloromethane; BPA = Bisphenol A; DEET = N,N-Diethyl-meta-toluamide; DNOP = Di-n-octyl phthalate; MDA = 4,4'-Diaminodiphenylmethane; MEHP = Mono-2-ethylhexyl phthalate; MMS = Methyl methanesulfonate; N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear); NDPA = N-Nitrosodi-n-propylamine; OD-PABA = Octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; PFAS = Per- and polyfluoroalkyl substances; TBBA = 2,3,4,5-Tetrabromobenzoic acid; TDA = 4,4'-Thiodianiline; TEEP = Tetraethyl ethylenediphosphonate; THPI = Tetrahydrophthalimide; TTBNP = Tris(tribromoneopentyl); UV = ultraviolet",
+    "Abbreviations: 5-NOT = 5-Nitro-o-toluidine; DEET = N,N-Diethyl-meta-toluamide; DNOP = Di-n-octyl phthalate; MDA = 4,4'-Diaminodiphenylmethane; MEHP = Mono-2-ethylhexyl phthalate; N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = Octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; TEEP = Tetraethyl ethylenediphosphonate; TTBNP = Tris(tribromoneopentyl); UV = ultraviolet",
     sep = "\n"
   )
   writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
