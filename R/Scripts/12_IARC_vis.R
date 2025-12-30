@@ -82,8 +82,8 @@ carc_summary <- MTi |>
     highest = strsplit(highest, ", ")
   ) |>
   unnest(highest) |>
-  select(short_name, Carcinogenicity) |>
-  unique()
+  select(short_name, Carcinogenicity, highest) |>
+  unique() |>
   # Map the group names to the variant labels
   mutate(
     Variant = recode(highest,
