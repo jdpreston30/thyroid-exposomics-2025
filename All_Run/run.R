@@ -25,7 +25,3 @@ source("R/Scripts/15_tables.R")
 source("R/Scripts/16_supplementary_tables.R")
 source("R/Scripts/17_construct_supplementary.R")
 }
-# source("R/Scripts/10_tables.R")
-# source("R/Scripts/11_supplementary_tables.R")
-# source("R/Scripts/12_render_figures.R")
-
