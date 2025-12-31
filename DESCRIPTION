@@ -18,6 +18,7 @@ Imports:
     ggplot2,
     gridExtra,
     ggtext,
+    gt,
     here,
     jsonlite,
     magick,

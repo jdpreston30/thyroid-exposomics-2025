@@ -1,0 +1,468 @@
+================================================================================
+THYROID EXPOSOMICS ANALYSIS PIPELINE - SCRIPT OUTLINE
+Generated: 2025-12-30 20:21:54.900535
+================================================================================
+
+
+--------------------------------------------------------------------------------
+00A_ENVIRONMENT_SETUP.R
+--------------------------------------------------------------------------------
+#* 0a: Environment Setup
+#+ 0a.1: Verify renv is active
+#+ 0a.2: Check if packages need to be installed
+#+ 0a.3: Load all packages from DESCRIPTION
+#+ 0a.4: Check TinyTeX installation for PDF rendering
+
+--------------------------------------------------------------------------------
+00B_SETUP.R
+--------------------------------------------------------------------------------
+#* 0b: Configuration Setup
+#+ 0b.1: Set up R options and repositories 
+#+ 0b.2: Load utility functions first (needed for dynamic config)
+#+ 0b.3: Load dynamic project configuration 
+#+ 0b.4: Set up global paths from config 
+#+ 0b.5: Create output directory if it doesn't exist 
+#+ 0b.6: Set up R environment preferences 
+#- 0b.6.1: Tibble preferences 
+#- 0b.6.2: Data.table preferences 
+
+--------------------------------------------------------------------------------
+00C_CLINICAL_DATA.R
+--------------------------------------------------------------------------------
+#* 0c: Load and Clean Clinical Data
+#+ 0c.1: Import clinical demographics data; clean
+
+--------------------------------------------------------------------------------
+00D_FTS.R
+--------------------------------------------------------------------------------
+#* 0d: Feature Table Import and Preprocessing
+#+ 0d.1: Import data, clean, preprocess
+#- 0d.1.1: Import raw feature table data
+#- 0d.1.2: Import tumor sequence/variant data
+#- 0d.1.3: Import feature metadata
+#- 0d.1.4: Import and clean tissue weights
+#- 0d.1.5: Import absolute quant data
+#- 0d.1.6: Import cadaver control tissue weights; clean
+#- 0d.1.7: Import cadaver absolute quant, clean
+#- 0d.1.8: Import in fragment quality info, clean
+#- 0d.1.9: Import clean absolute quant for control IARCs
+#- 0d.1.10: Import clean absolute quant for tumor IARCs
+#- 0d.1.11: Import and clean library
+#- 0d.1.12: ST1 Abbreviations
+#- 0d.1.13: Import File List
+#- 0d.1.13: Import GC2 feature list
+#- 0d.1.14: Import expanded library
+#- 0d.1.15: Validation
+#- 0d.1.15: Validation Plot Metadata
+#+ 0d.2: Structure data
+#- 0d.2.1: Pull the tumor columns
+#- 0d.2.2: Check for all-zero rows in tumor_raw
+#- 0d.2.3: Pivot longer/wider to get into analysis format
+#+ 0d.3: Split into quantitative and qualitative features based on missingness
+#- 0d.3.1: Calculate proportion of missing values per feature
+#- 0d.3.2: Create quantitative table with 1/2 minimum imputation and log2 transform
+#- 0d.3.3: Create qualitative table with binary presence/absence
+#+ 0d.4: Clean up targeted feature tables
+#- 0d.4.1: Normalize by weights
+#- 0d.4.2: Pull endogenous features
+#- 0d.4.3: Get endogenous feature key
+#- 0d.4.4: Remove endogenous features from quantitative weighted table
+
+--------------------------------------------------------------------------------
+00E_PEAKWALK_COMPILE.R
+--------------------------------------------------------------------------------
+#* 0e: PeakWalk Compilation
+#+ 0e.1: Import Data
+#- 0e.1.1: Tumors intensity tables from PeakWalk
+#- 0e.1.2: Cadaver intensity tables from PeakWalk
+#+ 0e.2: Bind Tables; create a name_sub_lib_id column
+#- 0e.2.1: Tumors
+#- 0e.2.2: Cadaver
+#+ 0e.3: Import RT Data
+#- 0e.3.1: Tumors RT tables from PeakWalk
+#- 0e.3.2: Cadaver RT tables from PeakWalk
+#+ 0e.4: Bind RT Tables; create a name_sub_lib_id column
+#- 0e.4.1: Tumors
+#- 0e.4.2: Cadaver
+#+ 0e.5: Simplify RT tables for lookup
+#- 0e.5.1: Tumors - pivot to long format with id_subid, file, and rt
+#- 0e.5.2: Cadaver - pivot to long format with id_subid, file, and rt
+
+--------------------------------------------------------------------------------
+01_DEMOGRAPHICS.R
+--------------------------------------------------------------------------------
+#* 1: Demographics
+#+ 1.1: Compute Mean age
+#+ 1.2: Summarize Sex
+#+ 1.3: Determine Collection bins
+#+ 1.4: Combine
+
+--------------------------------------------------------------------------------
+02_DETECTION.R
+--------------------------------------------------------------------------------
+#* 2: Detection Analysis
+#+ 2.1: Group by CAS and get total unique which were detected
+#+ 2.2: Remove endogenous features from detection analysis
+#- 2.2.1: Import the list which is purely endogenous which was compiled externally from above
+#- 2.2.2: Remove endogenous features and calculate total detected per sample
+#- Now, make a frequency distribution with bins for visualization
+#+ 2.3: Statistical testing
+#- 2.3.1: Kruskal-Wallis test comparing medians across variants
+#+ 2.4: Create Figures
+
+--------------------------------------------------------------------------------
+03_CLASSES.R
+--------------------------------------------------------------------------------
+#* 3: Use Classes and Detection Distribution
+#+ 3.1: Summarize Usage Classes
+#+ 3.2: IARC and EDC Class Summaries
+#- 3.2.1: IARC Group Summary
+#- 3.2.2: EDC Summary
+#+ 3.3: Chemical Classes and Superclasses
+#- 3.3.1: Superclass Summary
+#- 3.3.2: Class Summary
+#+ 3.4: Create Figures
+#- 3.4.1: Use Class Distribution Plot
+#- 3.4.2: IARC Donut Chart
+#- 3.4.3: EDC Donut Chart
+#- 3.4.4: Class and Superclass Distribution Plots
+
+--------------------------------------------------------------------------------
+04_VARIANT_STATS.R
+--------------------------------------------------------------------------------
+#* 4: Variant Analysis Stats
+#+ 4.1: ANOVA Stats (Quant)
+#- 4.1.1: Run ANOVA, pull significant features
+#- 4.1.2: Filter tumors_quant to keep only significant compounds and apply z-score 
+#- 4.1.3: Make a second cas key
+#- 4.1.4: Create summary table with reran ANOVA
+#+ 4.2: Fisher's Stats (Qual)
+#+ 4.3: Quality control
+#- 4.3.1: Visually inspect for duplicates (with different fragments) between the ANOVA and Fisher's
+#- 4.3.2: Duplicates with quant and qual fragments (quant chosen)
+#- 4.3.3: Duplicates with multiple qual frags (highest detection chosen)
+#- 4.3.4: Pull the duplicate fragment names for removal
+#- 4.3.5: Remove duplicate fragments with lower detection or qual when a quant is available:
+#+ 4.4: Compile final results
+#- 4.4.1: Pull short name from feature metadata
+#- 4.4.2: Bind with quant features
+
+--------------------------------------------------------------------------------
+05_VARIANT_VIS_PREP.R
+--------------------------------------------------------------------------------
+#* 5: Variant Visualization
+#+ 5.1: Prepare quantitative (top 5) for visualization
+#- 5.1.1: Pull the top 5 quant for visualization
+#- 5.1.2: Extract CAS numbers for top 5 compounds, merge
+#- 5.1.3: Rename
+#+ 5.2: Prepare qualitative data for visualization
+#- 5.2.1: Filter to only the qualitative
+#- 5.2.2: Make it a matrix
+#- 5.2.3: Perform hierarchical clustering on rows
+#- 5.2.4: Reorder the rows based on the clustering
+#+ 5.3: Post-Hoc testing on quant
+#- 5.3.1: Post-hoc on quants with CLD notation
+#- 5.3.2: Get the names for the quant data
+#- 5.3.3: Main posthoc creation
+#- 5.3.4: Separate superscripts from means
+#- 5.3.5: Systematically determine the ranking
+#- 5.3.6: Extract the highest group
+#- 5.3.7: Join w/ original, add simple rank for qual
+#- 5.3.8: Compute actual p-values/stars for top 5 ANOVA
+#+ 5.5: Carcinogen class per GHS+IARC
+#- 5.5.1: Apply classification function; add back subids
+
+--------------------------------------------------------------------------------
+06_TUMOR_CADAVER.R
+--------------------------------------------------------------------------------
+#* 6: Tumor/Cadaver Comparison
+#+ 6.1: Estimate PPM/PPB for cadaver thyroid
+#- 6.1.1: Normalize by tissue weight, compute PPM/PPB
+#- 6.1.2: Create PPM feature table
+#- 6.1.3: Create PPB feature table
+#- 6.1.4: Use to estimate PPM and PPB per chemical in DETECTED samples
+#+ 6.2: Estimate PPM/PPB for tumor samples (detected)
+#- 6.2.1: Pull the differing features by variant
+#- 6.2.2: Pivot long and normalize by tissue weight
+#- 6.2.3: Create PPM feature table
+#- 6.2.4: Create PPB feature table
+#- 6.2.5: Use to estimate PPM and PPB per chemical in DETECTED samples
+#+ 6.3: Merge the control and tumor PPM/PPB with the master table
+#- 6.3.1: Pare down control to differing by variant
+#- 6.3.2: Pare down tumor to differing by variant
+#- 6.3.3: Inner join these, use later below
+#+ 6.4: All Inner join (retain features in TUMORS that match controls)
+#- 6.4.1: Define the tumor variant columns for taking means
+#- 6.4.2: Fully join and gather metadata for detection and means
+#- 6.4.3: Create a pivoted version for subsequent analysis
+#- 6.4.4: Create version of ppm_full_table except no filtering
+#- 6.4.6: Join temp table with master table
+#- 6.4.7: Pull metadata for fragments to IDs
+#- 6.4.7: Create initial MT_final_i pending validation
+#+ 6.5: Pull IARC Group 1 Features
+#- 6.5.1: Get the CAS numbers for IARC 1
+#- 6.5.2: Pull the IARC1s in controls
+#- 6.5.3: Pull the IARC1s in tumors
+
+--------------------------------------------------------------------------------
+07_VALIDATION_PREP.R
+--------------------------------------------------------------------------------
+#* 7: Prep Manual Spectral Validation QC
+#+ 7.1: Pull variant comparison features that need validation
+#- 7.1.0: Pull the id_subid for all variant features from MT_final_i
+#- 7.1.1: Subset to relevant features (all in MT_final_i)
+#- 7.1.2: Determine order of figures
+#- 7.1.3: Build validation table using helper function
+#- 7.1.4: Add asterisk marking for significant fragments (using actual m/z values)
+#+ 7.2: Pull IARC Group 1 compounds from tumors for validation
+#- 7.2.0: Pull the id_subid for all IARC fragments (cas match)
+#- 7.2.1: Subset to IDs for IARC compounds
+#- 7.2.3: Prepare short_name join table
+#- 7.2.4: Build validation table using helper function (no asterisk marking needed)
+#+ 7.3: Pull IARC Group 1 compounds from cadavers for validation
+#- 7.3.1: Build cadaver validation table (reuse iarc_validate_ids and iarc_short_names from 7.2)
+#+ 7.4: Create expanded validation combined table
+#- 7.4.1: Merge all wides and remove duplicates
+#- 7.4.2: Get validation IDs
+#- 7.4.3: Read expanded library
+#- 7.4.4: Convert validation_combined mz columns to long format (add "expanded" flag)
+#- 7.4.5: Convert expanded library to long format
+#- 7.4.6: Merge: Keep original mz fragments, add unique emz fragments
+#- 7.4.6b: Calculate single expanded flag per chemical
+#- 7.4.7: Convert back to wide format with proper numbering
+#- 7.4.8: Reorganize fragments to ensure mz0 is always monoisotopic
+#- 7.4.9: Verification: Check that mz0 now matches monoisotopic within 20 ppm for all compounds
+#+ 7.5: Update validation tables with expanded fragments
+#- 7.5.1: Update variant validation table
+#- 7.5.2: Update IARC tumor validation table
+#- 7.5.3: Update IARC cadaver validation table
+#+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9) with tag-ordered files
+#- 7.6.0: Get list of top frags 
+#- 7.6.1: Get list of validated IARC1 chemicals
+#- 7.6.1: Build IARC tumor validation table with tag ordering (reuse iarc_short_names from 7.2.3)
+#- 7.6.2: Build IARC cadaver validation table with tag ordering (reuse iarc_short_names from 7.2.3, peakwalk/rt data from 7.3)
+#- 7.6.3: Update with expanded fragments (reuse expanded_validation from 7.4.8)
+
+--------------------------------------------------------------------------------
+08_VALIDATION_RUN.R
+--------------------------------------------------------------------------------
+#* 8: Manual Spectral Validation
+#+ 8.1: Convert raw files to mzML
+#+ 8.2: Manual Validation Plots Creation
+#- 8.2.1: IARC Tumor
+#- 8.2.2: IARC Cadaver
+#- 8.2.3: Variant Differences Chemicals (Part 1)
+#- 8.2.4: Variant Differences Chemicals (Part 2)
+#- 8.2.5: Variant Differences Chemicals (Part 3)
+#+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
+#- 8.4.1: IARC Tumor
+#- 8.4.2: IARC Cadaver
+#+ 8.4: Skip entire section if YAML specifies
+
+--------------------------------------------------------------------------------
+09_VALIDATION_PLOTS_CREATE.R
+--------------------------------------------------------------------------------
+#* 9: Validation Plots Adjustment and Manual Review
+#+ 9.0: Notes
+#+ 9.1: Blank plot for a placeholder
+#+ 9.2: Plots that failed after review
+#- 9.2.1: Methylparaben (CP2252)
+#- 9.2.2: Cyfluthrin (CP3153)
+#- 9.2.3: Napropamide (CP3135)
+#- 9.2.4: THPI (CP2075)
+#- 9.2.7: Bupirimate (CP2107)
+#- 9.2.8: Resmethrin (CP3174)
+#- 9.2.9: Vernolate (CP2487)
+#- 9.2.10: o-Anisidine (CP3021)
+#- 9.2.11: 2-Nitroanilline (CP2212)
+#- 9.2.12: Chrysene (CP2225)
+#- 9.2.13: Naphthalene (CP3068)
+#- 9.2.14: Benzo[a]pyrene (CP3028)
+#- 9.2.15: o-Tolidine (CP2475)
+#+ 9.3: SF 2.1 (Variant Differences, Level 1)
+#- 9.3.1: o-Toluidine (CP3017)
+#- 9.3.2: Benz(a)anthracene (CP2220)
+#- 9.3.3: Methoxychlor (CP1090)
+#- 9.3.4: N-MeFOSAA (CP3193)
+#- 9.3.5: 5-NOT (CP3003)
+#- 9.3.6: Anthracene (CP3025)
+#- 9.3.7: Fluoranthene (CP2227)
+#- 9.3.8: Pyrene (CP3078)
+#- 9.3.9: 2,4'-Methoxychlor (CP2049)
+#- 9.3.10: 3-Hydroxycarbofuran (CP2506)
+#- 9.3.11: Acetophenone (CP2516)
+#- 9.3.12: Ethylan (CP2043)
+#- 9.3.13: Hexanoic acid (CP3180)
+#- 9.3.14: Metalaxyl (CP2145)
+#- 9.4.16: OD-PABA (CP2331)
+#- 9.3.16: o-Cresol (CP3066)
+#- 9.3.17: TTBNP (CP2302)
+#- 9.3.18: DNOP (CP2187)
+#- 9.3.19: 2,4-Dimethylphenol (CP2237)
+#- 9.3.20: MEHP (CP2382)
+#- 9.3.21: Ethyl butyrate (CP2490)
+#- 9.3.22: Terbuthylazine (CP2133)
+#- 9.3.23: TEEP (CP3182)
+#- 9.3.24: Prosulfuron (CP2365)
+#- 9.3.25: DEET (CP2370)
+#- 9.3.26: Flucythrinate (CP3166)
+#+ 9.4: SF 2.2 (Variant Differences, Level 2)
+#- 9.4.1: MDA (CP3007)
+#- 9.4.2: o-aminoazotoluene (CP3001)
+#- 9.4.3: Dibutyl phthalate (CP3047)
+#- 9.4.5: Menthone (CP3148)
+#+ 9.5: SF 3.1 (IARC, Level 1)
+#- 9.5.1: o-Toluidine (CP3017)
+#- 9.5.2: Pentachlorophenol (CP1016)
+#- 9.5.3: γ-BHC (CP1074)
+#- 9.5.4: Phenacetin (CP2545)
+#+ 9.6: SF 3.2 (IARC, Level 2)
+#- 9.6.1: 2-Naphthylamine (CP2535)
+#- 9.6.2: 4-ABP (CP3002)
+#- 9.6.3: MOCA (CP3013)
+#- 9.6.4: 2-ABP (CP3020)
+#+ 9.7: SF 3.1 (IARC, Level 1; Cadaver)
+#- 9.7.1: o-Toluidine (CP3017)
+#- 9.7.2: Pentachlorophenol (CP1016)
+#- 9.7.3: γ-BHC (CP1074)
+#- 9.7.4: Phenacetin (CP2545)
+#- 9.7.5: 2-Naphthylamine (CP2535)
+#- 9.8.6: 2-ABP (CP3020)
+#+ 9.8: SF 3.2 (IARC, Level 2; Cadaver)
+#- 9.8.1: 4-ABP (CP3002)
+#- 9.8.2: MOCA (CP3013)
+#+ 9.9: IARC 1 Top Fragments
+#+ 9.9: Skip entire section if YAML specifies
+
+--------------------------------------------------------------------------------
+10_POST_VALIDATION_CLEAN.R
+--------------------------------------------------------------------------------
+#* 10: Post Validation Cleaning
+#+ 10.1: Subset to validated compounds
+#- 10.1.1: Validated compounds
+#- 10.1.2: Validated Variant Differences list
+#- 10.1.2: Validated iarc
+#- 10.1.2: Validated variant joiner tibble
+#+ 10.2: Modify MT_final per validation results
+#- 10.2.1: Subset MT_final to validated variant differences
+#- 10.2.2: Pull name_sub_lib_id list
+#- 10.2.2: Pull cas list
+#+ 10.3: Modify cadaver/tumor comparisons by validation results
+#- 10.3.1: Subset controls to validated IARCs
+#- 10.3.2: Subset tumors to validated IARCs
+#- 10.3.4: Do a full join of the detection percentages of both
+#- 10.3.5: Create list of those remaining IARCs
+#- 10.3.2: Use these to complete full joiner (ppm ppb estimates)
+#+ 10.4: Modify the posthoc and quant sig to only validated compounds
+#- 10.4.1: Subset quant sig to validated compounds
+#- 10.4.2: Subset posthoc table to validated compounds
+#- 10.4.4: Subset fisher results to validated
+
+--------------------------------------------------------------------------------
+11_VARIANT_VIS.R
+--------------------------------------------------------------------------------
+#* 11: Visualization of Variant Differences Post-Validation
+#+ 11.1: Top 5 Quant Graph
+#- 11.1.1: Pull fragments for top 5 in order
+#- 11.1.2: Subset data to those with correct column order
+#- 11.1.3: Create plot
+#+ 11.2: Qualitative Features Heatmap
+#+ 11.3: Balloon Plot
+#- 11.3.1: Organize data
+#- 11.3.2: Get summary
+#- 11.3.3: Determine the correct order for usage_class
+#- 11.3.4: Apply the correct order for y-axis
+#- 11.3.5: Make Balloon Plot
+#+ 11.4: Qualitative Features Heatmap
+#- 11.4.1: Get qualitative features data
+#- 11.4.2: Prepare data for heatmap (convert % to numeric)
+#- 11.4.3: Order compounds from least to greatest by Papillary, then FV-PTC, then Follicular
+#- 11.4.4: Apply order
+#- 11.4.5: Create heatmap
+
+--------------------------------------------------------------------------------
+12_IARC_VIS.R
+--------------------------------------------------------------------------------
+#* 12: Tumor v Control IARC Plots
+#+ 12.1: IARC Stats (ttest on log transformed)
+#+ 12.2: Graph tumor v cadaver IARC1
+#- 12.2.4: o-Toluidine_0_BP3.GC2_CP3017
+#- 12.2.2: 4-aminobiphenyl_0_BP3.GC2_CP3002
+#+ 12.3: Advanced Carcinogen Classificaiton
+#- 12.3.1: Advanced carcinogen classification run for variants
+#- 12.3.2: Create carcinogen classification stacked bar plot
+#- 13.3.3: Summary of updated carcinogen classification
+#+ 12.5: IARC detection heatmap
+
+--------------------------------------------------------------------------------
+13_RENDER_FIGURES.R
+--------------------------------------------------------------------------------
+#* 13: Render Figures
+#+ 13.1: Figure 1
+#+ 13.2: Figure 2
+#+ 13.3: Figure 3
+#+ 13.4: Print All Main Figures
+#+ 13.5: Save All Main Figures as PDF from PNGs
+
+--------------------------------------------------------------------------------
+14_RENDER_SUPPLEMENTARY_FIGURES.R
+--------------------------------------------------------------------------------
+#* 13: Render Supplementary Figures
+#+ 13.1: Supplementary Figure 1
+#- 13.1.1: Align plots
+#- 13.1.2: Create Supplementary Figure 1
+#+ 13.2: Print Supplementary Figures (PNG and PDF)
+#- 13.2.1: Supplementary Figure 1
+#- 13.2.2: Supplementary Figure 2.1
+#- 13.2.2: Supplementary Figure 2.2
+#- 13.2.2: Supplementary Figure 3.1
+#- 13.2.2: Supplementary Figure 3.2
+#- 13.2.2: Supplementary Figure 4.1
+#- 13.2.2: Supplementary Figure 4.2
+
+--------------------------------------------------------------------------------
+15_TABLES.R
+--------------------------------------------------------------------------------
+#* 15: Tables
+#+ 15.1: Build Table 1 (with function); export
+#+ 15.2: Build Table 2 (with function); export
+#+ 15.3: Build Table 3 (with function); export
+#- 15.3.1: Create table columns and format
+#- 15.3.2: Build Table 3 with function
+
+--------------------------------------------------------------------------------
+16_SUPPLEMENTARY_TABLES.R
+--------------------------------------------------------------------------------
+#* 11: Supplementary Tables
+#+ 11.1: ST1: Chemical library (pivoted subid)
+#- 11.1.0: Get list of Y/N expanded fragments
+#- 11.1.1: Prepare ST1 tibble
+#- 11.1.2: Build and format ST1 gt table
+#- 11.1.3: Save ST1 as LaTeX
+#+ 11.2: ST2
+#+ Abbreviations Table
+#- Build abbreviations table
+
+--------------------------------------------------------------------------------
+17_CONSTRUCT_SUPPLEMENTARY.R
+--------------------------------------------------------------------------------
+#* 14: Construct Supplementary Material PDF
+#+ 14.1: Configuration
+#- 14.1.1: Set line numbering (TRUE to enable, FALSE to disable)
+#+ 14.2: Read Component Files
+#- 14.2.1: Define paths to all component files
+#- 14.2.2: Check that all components exist
+#+ 14.3: Combine Components
+#- 14.3.1: Read each component
+#- 14.3.2: Fix paths for correct references when rendered from Components directory
+#- 14.3.3: Add line numbers if enabled
+#- 14.3.4: Combine all content
+#+ 14.4: Generate Final PDF
+#- 14.4.1: Write combined markdown file
+#- 14.4.2: Render to PDF in Supplementary directory
+#- 14.4.3: Open the PDF
+#- 14.4.4: Keep the combined markdown file for review (do not delete)
+
+================================================================================
+Total scripts processed: 22
+================================================================================

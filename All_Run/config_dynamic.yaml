@@ -18,8 +18,8 @@ paths:
   # Raw data path templates - {user_home} and {onedrive_path} will be substituted
   base_data_path: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022"
   # Specific file paths (built from base)
-  clinical_metadata: "{base_data_path}/Manifest.xlsx"
-  primary_data: "{base_data_path}/primary_data.xlsx"
+  clinical_metadata: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/Manifest.xlsx"
+  primary_data: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/primary_data.xlsx"
   validation_plot_directory: "Outputs/Validation/temp_RDS"  # Local temp directory (fast I/O, run-specific)
   validation_plot_directory_onedrive: "{base_data_path}/validation_plots"  # OneDrive final location
 
@@ -31,13 +31,12 @@ paths:
   peakwalk_tumor_dir: "{base_data_path}/PeakWalk_12_5_24/Tumors"
   peakwalk_cadaver_dir: "{base_data_path}/PeakWalk_12_5_24/Cadaver"
 
-  # Local database paths (relative - same across computers)
-  chemical_metadata: "metadata_files/chemical_metadata.xlsx"
-  supplementary_tables_raw: "metadata_files/supplementary_tables_raw.xlsx"
-  manual_validation: "metadata_files/manual_validation.csv"
-  gc2_features: "metadata_files/GC2_features.csv"
-  gc2_expanded: metadata_files/expanded_GC2.csv
-  validation: "metadata_files/validation.xlsx"
+  # Metadata files (now in OneDrive)
+  chemical_metadata: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/chemical_metadata.xlsx"
+  brand_names: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/brand_names.xlsx"
+  gc2_features: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/GC2_features.csv"
+  gc2_expanded: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/expanded_GC2.csv"
+  validation: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/validation.xlsx"
   
   # Output paths (relative to project root)
   output: "./Outputs"

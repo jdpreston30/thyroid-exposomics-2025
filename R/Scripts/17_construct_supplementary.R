@@ -1,28 +1,28 @@
-#* 14: Construct Supplementary Material PDF
-#+ 14.1: Configuration
-#- 14.1.1: Set line numbering (TRUE to enable, FALSE to disable)
+#* 17: Construct Supplementary Material PDF
+#+ 17.1: Configuration
+#- 17.1.1: Set line numbering (TRUE to enable, FALSE to disable)
 add_line_numbers <- FALSE
-#+ 14.2: Read Component Files
-#- 14.2.1: Define paths to all component files
+#+ 17.2: Read Component Files
+#- 17.2.1: Define paths to all component files
 components_dir <- here::here("Supplementary", "Components")
 sections_dir <- file.path(components_dir, "Sections")
 cover_page_path <- file.path(sections_dir, "cover_page.Rmd")
 figures_path <- file.path(sections_dir, "figures.Rmd")
 methods_path <- file.path(sections_dir, "methods.tex")
 tables_path <- file.path(sections_dir, "tables.tex")
-#- 14.2.2: Check that all components exist
+#- 17.2.2: Check that all components exist
 required_files <- c(cover_page_path, figures_path, methods_path, tables_path)
 missing_files <- required_files[!file.exists(required_files)]
 if (length(missing_files) > 0) {
   stop("Missing component files: ", paste(missing_files, collapse = ", "))
 }
-#+ 14.3: Combine Components
-#- 14.3.1: Read each component
+#+ 17.3: Combine Components
+#- 17.3.1: Read each component
 cover_content <- readLines(cover_page_path, warn = FALSE)
 figures_content <- readLines(figures_path, warn = FALSE)
 methods_content <- readLines(methods_path, warn = FALSE)
 tables_content <- readLines(tables_path, warn = FALSE)
-#- 14.3.2: Fix paths for correct references when rendered from Components directory
+#- 17.3.2: Fix paths for correct references when rendered from Components directory
 # Update bibliography and csl paths to be relative from Components directory
 bib_path_rel <- file.path("References", "supplementary.bib")
 csl_path_rel <- file.path("References", "the-lancet.csl")
@@ -35,7 +35,7 @@ cover_content <- gsub('csl: "References/the-lancet.csl"',
                      cover_content, fixed = TRUE)
 # Fix figure paths to be relative from Components directory  
 figures_content <- gsub('../Figures/PDF/', 'Figures/PDF/', figures_content, fixed = TRUE)
-#- 14.3.3: Add line numbers if enabled
+#- 17.3.3: Add line numbers if enabled
 if (add_line_numbers) {
   # Find the header-includes section in cover_content and add linenumbers package
   yaml_end <- which(cover_content == "---")[2]
@@ -51,7 +51,7 @@ if (add_line_numbers) {
     )
   }
 }
-#- 14.3.4: Combine all content
+#- 17.3.4: Combine all content
 full_content <- c(
   cover_content,
   "",  # Empty line for separation
@@ -61,18 +61,18 @@ full_content <- c(
   "",  # Empty line for separation
   tables_content
 )
-#+ 14.4: Generate Final PDF
-#- 14.4.1: Write combined markdown file
+#+ 17.4: Generate Final PDF
+#- 17.4.1: Write combined markdown file
 output_rmd <- file.path(components_dir, "supplementary_material.Rmd")
 writeLines(full_content, output_rmd)
-#- 14.4.2: Render to PDF in Supplementary directory
+#- 17.4.2: Render to PDF in Supplementary directory
 output_dir <- here::here("Supplementary")
 rmarkdown::render(
   input = output_rmd,
   output_dir = output_dir,
   output_file = "Supplementary Material.pdf"
 )
-#- 14.4.3: Open the PDF
+#- 17.4.3: Open the PDF
 output_pdf <- file.path(output_dir, "Supplementary Material.pdf")
 system(paste("open", shQuote(output_pdf)))
-#- 14.4.4: Keep the combined markdown file for review (do not delete)
+#- 17.4.4: Keep the combined markdown file for review (do not delete)

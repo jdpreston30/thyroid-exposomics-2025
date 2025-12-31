@@ -1,14 +1,61 @@
-#* 11: Supplementary Tables
-#+ 11.4: ST1- Chemical library (pivoted subid)
-ST1_import
-      #! In excel, then pared down and formatted, but reimporting here to double check the molecular formulas
-
-      #! •	SUPPLEMENTARY TABLE 1. The full library of xenobiotic chemicals employed for chemical identification. The library of 710 confirmed xenobiotic chemicals employed for chemical identification. All chemicals were present in pooled reference plasma at a concentration of 0·5 ng/mL. There are 710 total unique chemicals (i.e., unique CAS numbers), but for some chemicals, there are multiple fragments from different standards used for identification, thus resulting in 892 total rows in the table. The individual mz columns indicate typical fragments observed for the given chemical.
-#+ 11.7: ST4- Full ppm/ppb table for tumor-cadaver inner join
-ST4 <- ppm_full_table |>
-  select(Name:mean_tumor, mean_FTC, mean_FVPTC, mean_PTC, -c(T001:F20, name_sub_lib_id)) |>
-  mutate(across(half_min:mean_FVPTC, ~ .x * 1000)) |>
-  mutate(across(
-    half_min:mean_PTC,
-    ~ sapply(.x, format_ppb_value)
-  ))
+#* 16: Supplementary Tables
+#+ 16.1: ST1: Chemical library (pivoted subid)
+#- 16.1.0: Get list of Y/N expanded fragments
+expanded_chemicals <- expanded_validation |>
+  select(id, expanded) |>
+  filter(expanded == "Y") |>
+  pull(id)
+#- 11.1.1: Prepare ST1 tibble
+ST1_tibble <- ST1_import |>
+  mutate(
+    base_num = as.numeric(str_extract(id, "\\d+(?=_|$)")),
+    suffix_num = as.numeric(str_extract(id, "(?<=_)\\d+"))
+  ) |>
+  mutate(suffix_num = replace_na(suffix_num, 0)) |>
+  group_by(cas) |>
+  arrange(base_num, suffix_num, .by_group = TRUE) |>
+  mutate(
+    is_first_cas = row_number() == 1,
+    cas_group_size = n()
+  ) |>
+  ungroup() |>
+  # Sort alphabetically by name for global order
+  arrange(name, base_num, suffix_num) |>
+  # Recalculate grouping after alphabetical sort
+  group_by(cas) |>
+  mutate(
+    is_first_cas = row_number() == 1,
+    cas_group_size = n()
+  ) |>
+  ungroup() |>
+  # Replace values with dashes for non-first occurrences of same CAS
+  mutate(
+    name = if_else(!is_first_cas, "-", name),
+    cas = if_else(!is_first_cas, "-", cas),
+    monoisotopic = if_else(!is_first_cas, "-", as.character(monoisotopic))
+  ) |>
+  # Add dagger superscript for expanded chemicals
+  mutate(
+    name = if_else(
+      id %in% expanded_chemicals & name != "-",
+      paste0(name, "$^\\dagger$"),
+      name
+    )
+  ) |>
+  # Final cleanup - no # column
+  select(id, name, cas, monoisotopic, trt, starts_with("mz")) |>
+  rename(
+    `Library ID` = id,
+    Name = name,
+    CAS = cas,
+    `Monoisotopic Mass` = monoisotopic,
+    `Target RT (min.)` = trt
+  )
+#- 11.1.2: Build and format ST1 gt table
+gt_ST1 <- build_ST1(ST1_tibble)
+#- 11.1.3: Save ST1 as LaTeX
+save_table_latex(gt_ST1, "Outputs/Tables/ST1.tex")
+#+ 11.2: ST2
+#+ Abbreviations Table
+#- Build abbreviations table
+abbrev_table <- ST1_abbrevs
