@@ -60,10 +60,10 @@ ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
   ) |>
   arrange(cas)
 #- 0d.1.12: ST1 Abbreviations
-ST1_abbrevs <- read_excel(config$paths$primary_data, sheet = "abbreviations") |>
+ST_abbrevs <- read_excel(config$paths$primary_data, sheet = "abbreviations") |>
   mutate(formatted = paste(Abbrev, "=", Name)) |>
   filter(Use == "Y") |>
-  arrange(Abbrev) |>
+  arrange(tolower(Abbrev)) |>
   select(formatted)
 #- 0d.1.13: Import File List
 file_list <- read_excel(config$paths$primary_data, sheet = "file_list") |>
@@ -74,12 +74,14 @@ file_list <- read_excel(config$paths$primary_data, sheet = "file_list") |>
 GC2_features <- read_csv(config$paths$gc2_features)
 #- 0d.1.14: Import expanded library
 expanded_lib <- read_csv(config$paths$gc2_expanded)
-#- 0d.1.15: Validation
-validation_check_files <- read_xlsx(config$paths$validation, sheet = "validation") |>
+#- 0d.1.15: Validation File (Unfiltered)
+validation_check_files_unfiltered <- read_xlsx(config$paths$validation, sheet = "validation")
+#- 0d.1.16: Validation File (Filtered)
+validation_check_files <- validation_check_files_unfiltered |>
   filter(!state %in% c("failed", "alternate")) |>
   mutate(rt_range = (rtu-rtl)/2) |>
   select(state, everything(), -c(modification, note, rtl, rtu))
-#- 0d.1.15: Validation Plot Metadata
+#- 0d.1.17: Validation Plot Metadata
 validation_plot_metadata_ordered <- read_xlsx(config$paths$validation, sheet = "figure_order") %>%
   arrange(order) %>%
   mutate(
@@ -88,6 +90,9 @@ validation_plot_metadata_ordered <- read_xlsx(config$paths$validation, sheet = "
     grob = map(full_path, readRDS)
   ) %>%
   select(order, id, short_name, figure, subfigure, sf_sub, panel, plot, full_path, grob)
+#- 0d.1.18: ST3 Literature Review
+literature_ST3 <- read_excel(config$paths$primary_data, sheet = "literature_comp_pared") |>
+  select(CAS, `Usage Class`, AT_manuscript, AT_ref, urine_manuscript, urine_ref, plasma_manuscript, plasma_ref)
 #+ 0d.2: Structure data
 #- 0d.2.1: Pull the tumor columns
 tumor_column <- tumor_raw |>

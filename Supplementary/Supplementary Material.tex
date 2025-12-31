@@ -1,0 +1,897 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=0.5in,headheight=14pt,headsep=0.15in,footskip=12pt]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{pdflscape}
+\usepackage[absolute]{textpos}
+\usepackage{ifthen}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage[table]{xcolor}
+\usepackage{makecell}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\setmainfont{Times New Roman}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\fontsize{10}{12}\selectfont\textit{Preston et al., Environmental Chemical Burden in Thyroid Tumors}}
+\fancyhead[R]{\fontsize{10}{12}\selectfont\textit{\rightmark}}
+\fancyfoot[C]{\fontsize{10}{12}\selectfont-\thepage-}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\sectionmark}[1]{\markright{\textit{#1}}}
+\singlespacing
+\AtBeginDocument{\fontsize{10}{12}\selectfont}
+\raggedright
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+\thispagestyle{plain}
+
+\begin{center}
+{\fontsize{14}{16.8}\selectfont\textbf{ENVIRONMENTAL CHEMICAL BURDEN IN DIFFERENTIATED\\[0.5em]THYROID CANCER: SUPPLEMENTARY MATERIAL}}
+\end{center}
+
+\vspace{0.5em}
+
+Joshua D. Preston\textsuperscript{1,2,3}, Yongliang
+Liang\textsuperscript{3}, Thomas Szabo Yamashita\textsuperscript{4},
+Sami N. Teeny\textsuperscript{3}, Jaclyn Weinberg\textsuperscript{3,5},
+William J. Crandall\textsuperscript{3,5}, Zachery R.
+Jarrell\textsuperscript{3}, Xin Hu\textsuperscript{3,6}, Susan A.
+Safley\textsuperscript{4}, Jennifer M. Robertson\textsuperscript{7},
+ViLinh Tran\textsuperscript{3}, Anee S. Jackson\textsuperscript{4},
+Snehal G. Patel\textsuperscript{4}, Logan D. Glosser\textsuperscript{4},
+Collin J. Weber\textsuperscript{4}, Jyotirmay Sharma\textsuperscript{4},
+Neil D. Saunders\textsuperscript{4}, Young-Mi Go\textsuperscript{3},
+Dean P. Jones\textsuperscript{3}, and M. Ryan Smith\textsuperscript{3,8}
+
+\vspace{0.5em}
+
+\begingroup
+
+\fontsize{8}{9.6}\selectfont
+1- Medical Scientist Training Program, Emory University School of
+Medicine, Atlanta, GA 30322
+
+2- Nutrition and Health Sciences, Laney Graduate School, Emory
+University, Atlanta, GA 30322
+
+3- Division of Pulmonary, Allergy, Critical Care and Sleep Medicine,
+Department of Medicine, Emory University School of Medicine, Atlanta,
+GA, USA 30322
+
+4- Division of General and GI Surgery, Department of Surgery, Emory
+University School of Medicine, Atlanta, GA 30322
+
+5- Molecular and Systems Pharmacology, Laney Graduate School, Emory
+University, Atlanta, GA 30322
+
+6- Gangarosa Department of Environmental Health, Rollins School of
+Public Health, Emory University, Atlanta, GA 30322
+
+7- Winship Cancer Institute, Emory University, Atlanta, GA 30322
+
+8- VA Healthcare System of Atlanta, Decatur, GA 30033 \endgroup
+
+\vspace{2em}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{TABLE OF CONTENTS}}
+
+\vspace{0.5em}
+
+\fontsize{10}{11}\selectfont
+
+\textbf{EXPANDED METHODS} \dotfill 2-6
+
+\quad \textit{High-Resolution Exposomics} \dotfill 2
+
+\quad \textit{Data Extraction, Feature Annotation, and Signal Identification}
+\dotfill 2
+
+\quad \textit{Preprocessing of Exposomics Data} \dotfill 3
+
+\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 3
+
+\quad \textit{Core Statistical Analysis and Data Visualization}
+\dotfill 3
+
+\quad \textit{Online Code and Data Repository} \dotfill 3
+
+\quad \textit{Manual Validation of Annotations for Select Chemicals}
+\dotfill 3-4
+
+\quad \textit{Exposome-Wide Association Study} \dotfill 4
+
+\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals}
+\dotfill 4
+
+\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues}
+\dotfill 4-5
+
+\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids}
+\dotfill 5-6
+
+\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals}
+\dotfill 6
+
+\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 7
+
+\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 8-32
+
+\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 8-29
+
+\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 30-32
+
+\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 33-37
+
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 33-35
+
+\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 36-37
+
+\textbf{SUPPLEMENTARY FIGURE 4} \dotfill 38-41
+
+\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 38-40
+
+\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 41
+
+\textbf{SUPPLEMENTARY TABLE 1} \dotfill 42
+
+\textbf{SUPPLEMENTARY TABLE 2} \dotfill 43
+
+\textbf{SUPPLEMENTARY TABLE 3} \dotfill 44
+
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 45-46
+
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 47
+
+\newpage
+
+\newpage
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{EXPANDED METHODS}}
+
+\markright{\textit{Expanded Methods}}
+
+\vspace{0.5em}
+
+\noindent\textbf{High-Resolution Exposomics}
+
+Prior to processing samples, several individual reference standards were
+prepared by spiking pure chemical standards into pooled reference plasma
+to achieve a common concentration of 0·47 ng/mL. A majority of all
+chemical standards were purchased from AccuStandard (New Haven, CT,
+USA), Restek (Bellefonte, PA, USA), MilliporeSigma (Burlington, MA,
+USA), Santa Cruz Biotechnology (Dallas, TX, USA), Wellington
+Laboratories (Guelph, ON, Canada), Cambridge Isotope Laboratories
+(Tewksbury, MA, USA). Plasma reference standards and tissue samples were
+processed using a modified version of the express liquid extraction
+(XLE) method.\textsuperscript{1} The XLE is optimized for biofluids;
+however, it was necessary to modify it to ensure analytical consistency
+across plasma standards and tumor tissue samples, as detailed below.
+
+First, approximately 50 mg of tumor or non-tumor cadaver thyroid tissue
+was cut and placed into a glass vial (13 \(\times\) 100 mm), and exact
+tissue weights were recorded (mean \(\pm\) SD = 52·7 \(\pm\) 11·3 mg for
+tumor tissue, 43·1 \(\pm\) 4·5 mg for non-cancer cadaver thyroid
+tissue). Next, 200 \(\mu\)L of each pooled reference plasma standard (an
+in-house standard referred to as QStd; see Go et al.\textsuperscript{2}
+for a full description of a previous iteration of this standard) was
+transferred to glass vials (13 \(\times\) 100 mm). For tissues, 500
+\(\mu\)L of an extraction buffer comprised of acetone and petroleum
+ether (1:1 v/v) (MilliporeSigma, Catalog \#184519) with 2\% internal
+standard mix, was added to the glass vials containing tissues. For
+plasma, 200 \(\mu\)L of extraction buffer containing 2\% internal
+standard mix was added to the glass vials containing the pooled
+reference plasma. 50 \(\mu\)L of formic acid (Emprove\textregistered{}
+Essential DAC, 98-100\% pure, MilliporeSigma, Catalog \#1002631000) was
+then added to tissue and plasma standard vials. To the tissue vials, 20
+mg of NaCl was added, and 45 \(\pm\) 5 mg of MgSO\(_4\) (\$\geq\$99·99\%
+trace metals basis, Sigma-Aldrich, Catalog \#203726) was added to tissue
+and plasma standard vials.
+
+Tissue samples were then homogenized in this solution using a
+tissue-tearor, followed by water bath sonication for 30 minutes at room
+temperature. Plasma samples were shaken vigorously on ice using a
+multitube vortexer (VWR VX-2500) for 60 min. Following this, both tissue
+and plasma homogenates were centrifuged at 3000 rpm \(\times\) 4
+\(^{\circ}\)C \(\times\) 10 min. Supernatants were then transferred to
+new glass vials (13 \(\times\) 100 mm) and dried using a vacuum
+centrifuge for 60 min at 35 \(^{\circ}\)C. Finally, dried samples were
+reconstituted in 50 \(\mu\)L of isooctane. Reconstituted samples were
+transferred to autosampler vials with 150 \(\mu\)L vial inserts for
+analysis. Samples were prepared in batches containing 20 samples along
+with standard reference material (SRM) samples (NIST 1957, 1958, and
+several in-house SRMs discussed above). In addition, pooled reference
+plasma samples, a retention-time batch comparison standard, a method
+solvent blank that underwent solvent extraction, and a solvent blank
+were prepared in tandem as part of quality control measures. It should
+be noted that tumor tissues and non-cancer cadaver thyroid tissues were
+analyzed at different timepoints and in separate batches, although the
+same method was used for each tissue. As a result, direct comparison of
+raw spectral intensities between non-cancer thyroids and tumors was
+limited; however, quantitative estimates of chemical concentrations in
+tissues (see the section `Quantitative Estimates of Chemical
+Concentrations in Tissues' below) did enable some degree of direct
+comparison, though these comparisons should be interpreted
+conservatively and cautiously given the high potential for batch
+effects.
+
+Following preparation, samples were analyzed in duplicate with a Q
+Exactive GC hybrid quadrupole Orbitrap mass spectrometer
+(ThermoScientific), allowing for 25 minutes of data collection on
+retention times and spectral intensities from m/z 85-850 collected at
+60k resolution. Samples were injected at 2 \(\mu\)L and subjected to a
+capillary DB-5MS column (15 m \(\times\) 0·25 mm \(\times\) 0·25
+\(\mu\)m film thickness) with a gradient as follows: 75 \(^{\circ}\)C
+for 1 min then 25 \(^{\circ}\)C/min to 180 \(^{\circ}\)C, 6
+\(^{\circ}\)C/min to 250 \(^{\circ}\)C, 20 \(^{\circ}\)C/min to 300
+\(^{\circ}\)C, with a final 5 min hold. Helium gas flow rate was 1
+mL/min. Positive electron ionization was set at 70 eV, the ion source
+was set at 250 \(^{\circ}\)C, and the transfer line was set at 280
+\(^{\circ}\)C.
+
+\vspace{1em}
+
+\noindent\textbf{Data Extraction, Feature Annotation, and Signal Identification}
+
+Raw data were extracted on a sample-by-sample basis using
+MZmine2.\textsuperscript{3} Data were interpreted and combined using an
+in-house algorithm for feature annotation and the identification and
+quantification of chemicals in GC-MS exposomics data. Briefly, the
+algorithm utilizes a large library of environmental chemicals (EC) with
+known concentrations in standards, each of which has been manually
+quantified to ascertain retention times within the context of the
+laboratory procedure. In total, 738 unique standards are in the library;
+however, 28 of these represent chemicals that can be considered largely
+endogenous and not ECs. The remaining standards can be considered
+entirely exogenous (700) or both endogenous and exogenous (10)
+chemicals, resulting in a total of 710 ECs in the library, which can be
+screened by parallel analysis of standards with samples. This library is
+compared against sample data to find the best matching signal for ECs if
+any appropriate candidates exist. Shifts in elution time due to column
+degradation and the presence of co-occurring isomers pose significant
+challenges for standard annotation procedures; however, the algorithm
+addresses this issue by employing time-warping techniques, along with
+corrective algorithms that mimic manual chemical identification
+procedures, to overcome these challenges. Chemical identification and
+accuracy are achieved by leveraging the co-elution and correlation of
+chemical fragments generated from the same chemical. Standards are run
+in tandem with samples, which allows not only for the identification and
+relative quantification of all chemicals in the library of standards but
+also for the absolute quantification of identified metabolites using the
+comparative intensity of peak areas. The algorithm specifically assigns
+``quality fractions'' based on the simultaneous detection of multiple
+fragments of the same chemical. Following the application of the
+algorithm for annotation, the quality fraction was used to label
+features as ``annotations'' (quality fraction of 0) while the remaining
+signals were labeled ``identifications.'' It is important to note that
+identification versus annotation status was determined solely in
+reference to tumor samples and not non-cancer cadaver thyroid samples.
+Thus, when annotations or identifications are denoted in any figures or
+tables, these refer to the determination made in the data from thyroid
+tumors rather than non-cancer cadaver samples. Information on annotation
+versus identification status in non-cancer cadaver samples can be found
+in the ``primary\_data.xlsx'' spreadsheet located in the GitHub
+repository (see below for further details). The algorithm will be
+published as a Python or R package in the coming 1-2 years. For further
+details on the algorithm, readers are welcome to contact the
+corresponding author.
+
+\vspace{1em}
+
+\noindent\textbf{Preprocessing of Exposomics Data}
+
+A targeted exposomics feature table (see the associated GitHub
+repository) was derived from the feature annotation and signal
+identification process described above. The proportion of missing values
+(PMV) was then calculated for each feature (total number of missing
+values/60 total samples). Next, features with PMV \(>\) 30\% missing
+values were separated for analysis in ``qualitative'' mode. The
+individual spectral intensity values for qualitative features were
+converted to ``1'', representing detection, whereas missing values were
+converted to ``0'', representing non-detection. Any qualitative features
+with 100\% ``0'' values (indicating detection in reference standards but
+complete non-detection in samples) were eliminated and not considered
+for further analysis. Alternatively, the remaining features with PMV
+\(\leq\) 30\% were separated for analysis in ``quantitative'' mode. The
+missing values for quantitative features were imputed using the half
+minimum method (study-wide).\textsuperscript{4} Following imputation,
+all spectral intensity values for quantitative features were
+log\(_2\)-transformed before further analysis. Finally, to determine the
+total number of unique chemicals annotated per sample, features were
+consolidated and grouped by their respective Chemical Abstracts Service
+registry numbers (CAS number), regardless of analytical mode
+(qualitative versus quantitative), such that the detection of at least
+one fragment for a given CAS number was considered as detection of that
+unique chemical. This list of chemicals was then compiled, and chemicals
+that were mainly endogenous (i.e., carnitines, cholesterol, arachidonic
+acid metabolites, bile acids, hormones, and hormone precursors) were
+removed and not considered for exposomics analysis (23 total). Chemicals
+that had both exogenous and endogenous dispositions (7 total) were
+retained for exposomics analysis. The number of unique chemicals
+annotated was then tallied for each sample. The median number of
+chemicals annotated per variant (prior to imputation) was compared using
+the Kruskal-Wallis test.
+
+\vspace{1em}
+
+\noindent\textbf{Metadata Annotation of Environmental Chemicals}
+
+The name, IUPAC name, CAS number, PubChem Compound Identification (CID),
+SMILES, InChIKey, InChI, Toxin and Toxin-Target
+Database\textsuperscript{5} ID (when applicable), monoisotopic mass, and
+formula were obtained for each chemical annotated in at least one
+sample. For the purposes of data visualization and simplified naming in
+the manuscript text, a short name or abbreviation was assigned to a
+large portion of chemicals. The Toxin-Toxin-Targeted
+Database\textsuperscript{5} (T3DB) ID and the International Agency for
+Research on Cancer (IARC) carcinogen group\textsuperscript{6} were
+assigned to chemicals when applicable and possible (when this
+information could not be ascertained, the T3DB ID was listed as ``NA''
+and the IARC Group was listed as ``Not Classified''). Classification as
+either a potential endocrine-disrupting chemical (EDC) or non-EDC was
+assigned to each chemical, per the PARCEDC list.\textsuperscript{7}
+Inclusion on the list resulted in chemicals being marked as potential
+EDCs; non-inclusion resulted in classification as a non-EDC. The single
+most common use or best-fit chemical class was identified for each
+chemical. To facilitate data visualization, broader categories were also
+assigned to each chemical. For example, if a chemical's common-use class
+was ``Insecticide/Pesticide (Pyrethroid)'', this was simplified to
+``Insecticide/Pesticide'' for data display. In the broader categories,
+metabolites or degradation products of certain chemicals were simply
+considered as members of the class to which their precursor belonged.
+For example, aldicarb sulfone, a breakdown product of the carbamate
+pesticide aldicarb, was classified as an insecticide/pesticide. However,
+the inclusion of breakdown products is indicated in figures and tables
+where applicable. ClassyFire\textsuperscript{8} was used to designate
+superclasses, classes, subclasses, direct parents, and molecular
+frameworks. All chemical metadata are available below in Supplementary
+Table 1.
+
+\vspace{1em}
+
+\noindent\textbf{Core Statistical Analysis and Data Visualization}
+
+All data were compiled and structured using Microsoft Excel (Mac v16·96,
+Microsoft Corporation, 2025). All code was written and executed using R
+(v4·3·1)\textsuperscript{9} in Visual Studio Code (v1·82·2, Microsoft
+Corporation, 2025). Source code can be found on the GitHub repository
+(source\_code.R; see below for details). Data visualization was
+performed using GraphPad Prism (Mac v10·4·0, GraphPad Software, 2024)
+and the R package, ggplot2.\textsuperscript{10} All figures were
+compiled and edited using BioRender.com (see `BioRender Publication
+Licenses' below).
+
+\vspace{1em}
+
+\noindent\textbf{Online Code and Data Repository}
+
+All source code is available in the accompanying GitHub repository,
+accessible at the following URL:
+\url{https://github.com/jdpreston30/thyroid-exposomics-2025}.
+
+\vspace{1em}
+
+\noindent\textbf{Manual Validation of Annotations for Select Chemicals}
+
+Following initial feature annotation, all putative chemical annotations
+underwent manual validation to ensure analytical quality. Combined
+validation plots displaying chromatographic traces for standards and
+samples were generated and inspected visually. Each chemical was
+assigned a identification quality score based on systematic criteria.
+Level 1 identification quality was defined as co-elution of two or more
+fragments in both standard and sample within a reasonable retention time
+window. Close co-elution that could be explained by matrix effects was
+accepted; however, fragments with extreme temporal dispersion were not
+considered level 1. In select cases where the quantitative fragment
+(i.e., the fragment which showed statistical differences beetween
+variants, designated with an asterisk) could not be detected in the
+standard but was present in the sample, and other fragments co-eluted
+between standard and sample, level 1 quality was still assigned. Single
+fragment identifications, even with apparent co-elution in standard and
+sample, were considered failures and were not considered as level 1 or
+level 2 identifications. Level 2 identification quality was assigned
+when co-elution of 2 or more fragments could be detected in the sample
+but not in the standard, or when standard fragments showed extreme
+retention time shifts relative to sample fragments. The quantitative
+fragment used for statistical analysis was evaluated with particular
+scrutiny: even if it represented a smaller peak among co-eluting
+fragments, it was required to follow the same general chromatographic
+trajectory as other fragments from the same chemical. If the
+quantitative fragment could reasonably be considered noise rather than
+signal, the identification was designated as a failure. Collectively,
+this validation process ensured that only high-confidence chemical
+identifications with appropriate analytical support were retained for
+downstream statistical analysis and biological interpretation. This
+process was repeated both for all 63 chemicals that showed statistical
+differences between variants and for an additional 11 chemicals which
+were classified as IARC group 1 (excluding polychlorinated biphenyls,
+which were difficult to evaluate due to the presence of multiple
+congeners). IARC group 1 validations were performed for both tumor and
+non-cancer cadaver thyroids.
+
+\vspace{1em}
+
+\noindent\textbf{Exposome-Wide Association Study}
+
+Electron ionization generates multiple fragments for each chemical prior
+to detection; thus, in many cases, multiple fragments were annotated for
+the same chemical. In keeping with our exploratory and descriptive
+approach and to maximize coverage, we treated each fragment as an
+individual observation during statistical analysis. For qualitative
+features, Fisher's exact test for count data was employed on the binary
+exposomics data to determine if any chemical was overrepresented in its
+detection within any specific variant. Corresponding detection fractions
+were calculated for each variant (sum of samples with detection of
+chemical/20 samples per variant). For quantitative features, one-way
+ANOVA was used to assess differences in mean spectral intensities across
+variants, with corresponding p-values calculated for each chemical.
+Post-hoc testing was performed using Tukey's HSD test, which included
+correction for multiple comparisons. Given the pilot design and
+exploratory nature of this study, no false discovery rate corrections
+were applied beyond those used in post-hoc testing. Mean spectral
+intensities were scaled by converting them to z-scores within each
+chemical. Chemicals with a p \(<\) 0·05 from either test were considered
+significant and were compiled, tabulated, and further classified as
+described below. Four chemicals had multiple fragments showing
+significant differences between variants. In these cases, the
+quantitative fragment was selected if available; otherwise, the fragment
+with the highest frequency of detection across all samples, irrespective
+of variant, was selected. Following initial statistical analysis, manual
+validation of these chemicals (63 total) was performed as described
+above. Only chemicals that passed manual validation were retained for
+further analysis (30 total). The top 5 validated quantitative features
+were visualized via box and whisker plots (of z-scored spectral
+intensities), and the validated qualitative features via a heatmap (of
+detection fraction/percent). A balloon plot was constructed based on
+these results, wherein significant ECs were grouped by usage classes and
+variants, being counted once each time it was highest, whether by
+qualitative or quantitative measures in a variant. In cases where the
+detection percentages were equally high in two variants, a count was
+assigned to each variant.
+
+\vspace{1em}
+
+\noindent\textbf{Advanced Carcinogenicity Classification of Select Chemicals}
+
+To identify any potential carcinogens that have not been evaluated by
+the IARC, additional research was performed on the chemicals that showed
+significant differences in presence or concentration between variants
+(63 in total). To accomplish this, the Global Harmonized System of
+Classification and Labelling of Chemicals (GHS) statements were screened
+for any listed H350 (``may cause cancer''), H350i (``may cause cancer by
+inhalation''), or H351 (``suspected of causing cancer'') status (and the
+corresponding consensus/confidence percentages of data sources as listed
+on PubChem in section 12·1.1, ``GHS Classification''). Systematic logic
+that considered both the IARC grouping and the GHS carcinogen statement
+was then applied to categorize chemicals into the groups ``Known
+Carcinogen'', ``Likely Carcinogen'', ``Possible Carcinogen'', or
+``Uncertain Risk'' (for the function accomplishing this, see the blocks
+of code under ``\#+ Carcinogen classification based on GHS and IARC
+(3E)'' in the source\_code.R file available in the GitHub repository).
+Chemicals with no IARC group and GHS statement were not classified.
+Briefly, the following rules were applied for classification:
+
+\begin{itemize}
+\item IARC group 1 chemicals were automatically assigned "Known Carcinogen", and group 2A "Likely Carcinogen". These conditions overrode any other considerations.
+\item If IARC grouping was 2B, 3, or not evaluated, but H350 or H350i 50\%, then the chemical was assigned "Likely Carcinogen".
+\item If IARC grouping was 2B, 3, or not evaluated, but H351 $>$ 0\% and/or 0\% $<$ H350/H350i $<$ 50\%, then the chemical was assigned "Possible Carcinogen".
+\item IARC group 3 chemicals with no supporting GHS H350, H350i, or H351 statement listed were assigned "Uncertain Risk".
+\item Chemicals with no IARC evaluation and no supporting GHS H350, H350i, or H351 statement listed were considered "Unclassified" as to their carcinogenicity.
+\end{itemize}
+
+These classifications, along with other relevant chemical metadata, can
+be found on the GitHub repository (chemical\_metadata.xlsx).
+
+\vspace{1em}
+
+\noindent\textbf{Quantitative Estimates of Chemical Concentrations in Tissues}
+
+The SRM used for annotation and identification had a concentration of
+0·47 ng/mL for each individual EC. Thus, we used the spectral
+intensities associated with these known concentrations to establish
+estimates of chemical concentrations within tissues in parts per million
+(PPM) and parts per billion (PPB). It should be noted that the original
+data processing pipeline used a nominal concentration of 0·5 ng/mL for
+calibration calculations; therefore, a correction factor of 0·94
+(0·47/0·5) was applied to all concentration estimates prior to PPM and
+PPB calculations to account for the true SRM concentration. Importantly,
+we relied on the following experimental features and assumptions:
+
+\begin{itemize}
+\item Tissues are processed via solvent extraction and subsequent solvent evaporation, followed by reconstitution in 50 $\mu$L of isooctane. For the purposes of calculating concentrations in the original samples, we assume 100\% extraction efficiency from tissues and plasma, such that the entire amount of the EC present in the sample is recovered in the isooctane.
+\item A chemical concentration of 0 ng/mL results in an intensity of 0 (i.e., the origin of (0,0)). This is used in combination with the intensity from the known concentration in the SRM (0·47 ng/mL) to establish a two-point standard curve, which assumes linearity.
+\item While each chemical has a concentration in the SRM of 0·47 ng/mL, the concentration in 50 $\mu$L of isooctane is 1·88 ng/mL. This is because 200 $\mu$L of SRM plasma is used, and therefore, 0·094 ng of the total EC of interest is extracted. This is dried after extraction and reconstituted in 50 $\mu$L of isooctane, resulting in a concentration of 1·88 ng/mL in the injected solution.
+\end{itemize}
+
+Our calculations to estimate tissue concentrations were performed as
+follows for each individual chemical:
+
+\begin{enumerate}
+\item A linear model is fit based on the assumptions discussed above, such that:
+$$y = \beta x$$
+where $y$ is the known concentration of the EC in the SRM (0·47 ng/mL for all ECs analyzed), $x$ is the observed spectral intensity for the given EC, and $\beta$ is the slope of the calibration curve, defined by the line through the origin (0,0) and the point $(x,y)$.
+
+\item Once the slope ($\beta$) for the specific chemical is established, it is then used to estimate concentration (ng/mL) in the sample ($C_e$) using the following equation:
+$$C_e = \beta I$$
+where $I$ is the observed spectral intensity for the given EC in the sample. However, to determine the true concentration in the isooctane solvent ($C_{es}$), we must scale $C_e$ by a factor of 4 to account for the concentration that occurs during extraction. Specifically, the 200 $\mu$L of plasma standard extracted contains 0·094 ng total of the EC (0·47 ng/mL). Assuming 100\% extraction, this 0·094 ng was then resuspended in 50 $\mu$L isooctane (1·88 ng/mL), Therefore, we use a 4$\times$ scaling factor:
+$$C_{es} = 4C_e$$
+
+\item Next, the $C_{es}$ is converted from ng/mL to mg/L:
+$$C_{es} \text{ (mg/L)} = C_{es} \text{ (ng/mL)} \times \frac{10^3 \text{ mL}}{\text{L}} \times \frac{10^{-6} \text{ mg}}{\text{ng}}$$
+$$C_{es} \text{ (mg/L)} = C_{es} \text{ (ng/mL)} \times 10^{-3}$$
+
+\item Next, the total mass of the chemical of interest present in 50 $\mu$L of isooctane ($M_{EC}$) is determined:
+$$M_{EC} \text{ (mg)} = C_{es} \text{ (mg/L)} \times 50 \text{ }\mu\text{L solvent} \times \frac{10^{-6} \text{ L}}{\mu\text{L}}$$
+$$M_{EC} \text{ (mg)} = 5 \times 10^{-5} \text{ (L)} \times C_{es} \text{ (mg/L)}$$
+
+\item To derive the mass fraction of the EC in tissue, we divide $M_{EC}$ (mg) by $M_T$ (mg) and scale to PPM or PPB:
+$$\text{PPM} = \frac{M_{EC}}{M_T} \times 10^6$$
+$$\text{PPB} = \frac{M_{EC}}{M_T} \times 10^9$$
+
+Alternatively, when algorithm outputs are used directly without unit conversions, the following formula can be used, provided $C_e$ is in ng/mL and $M_T$ is in mg:
+$$\text{PPM} = \frac{C_e \times 10^2}{M_T}$$
+$$\text{PPB} = \frac{C_e \times 10^5}{M_T}$$
+\end{enumerate}
+
+\vspace{1em}
+
+\noindent\textbf{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids}
+
+Targeted quantitative feature tables, which were additionally filtered
+for detection in relevant standards, were generated for tumors and
+non-cancer cadaver thyroids, and conversion to PPM was performed as
+described above. Once spectral intensities were converted to PPM, direct
+comparisons of chemical concentrations were made only for fragments that
+were detected in both the tumor and non-cancer thyroid tissues. In cases
+where multiple fragments were annotated for the same chemical in both
+tumors and non-cancer thyroids, an ideal fragment was first selected
+based on the highest percentage of detection in tumors, then the highest
+percentage of detection in non-cancer thyroids, and finally the greatest
+mean intensity in tumors. For all matching fragments, the mean, maximum,
+and theoretical minimum (i.e., half the minimum detectable concentration
+in either the tumors or non-cancer thyroids) were calculated for tumors
+(all combined) and non-cancer thyroids. These data, along with
+percentage detection in tumors and non-cancer thyroids, are reported as
+PPB below in Supplementary Table 3. It is important to note that means
+were calculated using half-minimum imputed data, even if features were
+detected at `qualitative' analysis thresholds. Finally, these values
+were converted to PPM for a direct comparison of tumors to non-cancer
+thyroids of all detected IARC Group 1 carcinogens (Figure 3E, 3F);
+however, this comparison was only reported for the two features
+(4-aminobiphenyl and o-Toluidine) that A) passed manual validation and
+B) had annotation of the same fragment in both tumor and cadaver (which
+were run on different batches). Of note, o-Toluidine only had one
+directly comparable annotated fragment between tumor and thyroid;
+however, 4-aminobiphenyl had three. For 4-aminobiphenyl, the fragment
+with the highest annotation frequency across both tumor and cadaver
+samples was selected for analysis and visualization. T-tests were run on
+log\(_2\)-transformed data to compute p-values for comparing the means
+between tumors and non-cancer thyroids for these chemicals.
+
+\vspace{1em}
+
+\noindent\textbf{Comparing Observed Concentrations to Literature Values for Select Chemicals}
+
+To compare the quantification estimates generated as described above
+with estimated values in other tissues and matrices, we identified
+values for select chemicals in the published literature and tabulated
+our data alongside these reported concentrations (Supplementary Table
+2). We prioritized chemicals that were IARC Group 1 carcinogens and
+polycyclic aromatic hydrocarbon combustion byproducts. For quantitative
+estimates of 245 individual chemicals, see Supplementary Table 3.
+
+\newpage
+
+\markright{\textit{Supplementary Figure 1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Classification of annotated chemicals.} Chemical superclasses (A) and subclasses (B) of all annotated chemicals.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[width=0.90\textwidth]{Figures/PDF/S1.pdf}
+\end{center}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 2.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of select chemical identifications in thyroid tumor samples.} Sample spectra for all chemicals which showed differences in variants (quantity or presence), displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (2.1, pp. 7-28), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (2.2, pp. 29-31). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S2.1.pdf}
+\end{center}
+
+\includepdf[width=\textwidth,height=\textheight,pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S2.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 2.2}}
+
+\includepdf[width=\textwidth,height=\textheight,pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.2\ifthenelse{\value{page}>31}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 3.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of IARC Group 1 chemicals annotated in tumor samples.} Sample spectra for all IARC Group 1 carcinogens annotated in thyroid tumor tissue, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (3.1, pp. 32-34), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (3.2, pp. 35-36). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S3.1.pdf}
+\end{center}
+
+\includepdf[width=\textwidth,height=\textheight,pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S3.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 3.2}}
+
+\includepdf[width=\textwidth,height=\textheight,pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.2\ifthenelse{\value{page}>37}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 4.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of IARC Group 1 chemicals annotated in cadaver thyroid samples.} Sample spectra for all IARC Group 1 carcinogens annotated in non-cancer cadaver thyroid tissue, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (4.1, pp. 37-39), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (4.2, p. 40). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S4.1.pdf}
+\end{center}
+
+\includepdf[width=\textwidth,height=\textheight,pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S4.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 4.2}}
+
+\includepdf[width=\textwidth,height=\textheight,pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.2\ifthenelse{\value{page}>40}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S4.2.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Table 1}}
+
+\begin{landscape}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY TABLE 1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{The full library of xenobiotic chemicals employed for chemical annotation and identification.} The library of 710 confirmed xenobiotic chemicals employed for chemical identification. All chemicals besides those which were purchased as part of a mixture with variable concentrations were present in pooled reference plasma at a concentration of 0·47 ng/mL. There are 710 total unique chemicals (i.e., unique CAS numbers), but for some chemicals, there are multiple fragments and/or retention times from different standards used for annotation and identification, thus resulting in 892 total rows in the table. The column "Target RT (min.)" refers to the library retention time for the given chemical. The individual mz columns indicate typical fragments observed for the given chemical. \textit{*Both an endogenous and exogenous (xenobiotic) chemical; $^\dagger$Additional fragments used for validation besides those listed in mz0--mz3.}}
+
+\input{/Users/jdp2019/Desktop/thyroid-exposomics-2025/Supplementary/Components/Tables/ST1.tex}
+
+\end{landscape}
+
+\newpage
+
+\markright{\textit{Supplementary Table 2}}
+
+\begin{landscape}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY TABLE 2}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Metadata for all chemicals annotated in samples.} \textit{*Both an endogenous and exogenous (xenobiotic) chemical.}}
+
+\input{/Users/jdp2019/Desktop/thyroid-exposomics-2025/Supplementary/Components/Tables/ST2.tex}
+
+\end{landscape}
+
+\newpage
+
+\markright{\textit{Supplementary Table 3}}
+
+\begin{landscape}
+
+{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY TABLE 3}\par}
+
+{\fontsize{10}{12}\selectfont\textbf{Observed concentrations versus reported literature values.} All values originally published as ng/g, µg/L, ng/mL are listed as PPB. Values originally published as pg/mL were converted to ng/mL and then listed as PPB. All values are rounded to the nearest integer or are listed as < 1 PPB when applicable. The corresponding reference from which the comparison value is derived is cited next to the listed concentration. Annotations presented in this table represent estimated concentrations based on algorithmic chemical identification. While specific annotations that failed validation were excluded, many remaining identifications were not manually validated and should be considered preliminary. Annotations detected in fewer than 50% of tumors or non-cancer thyroids were excluded.\par}
+
+\noindent\textit{*The lower bound of the range is the 'theoretical minimum,' which is one half the lowest detected value. This value was used for imputing missing values to determine means; $^\dagger$PAH measurements were obtained from a study that analyzed multiple adipose tissue depots across two geographically distinct cohorts\textsuperscript{1}, while PCB measurements were derived from a separate study that also included two geographically distinct cohorts\textsuperscript{6}. Thus, multiple means were listed for various subgroups within these studies. However, for each compound, the highest mean value reported across any cohort or cohort-tissue depot combination is presented; $^\ddagger$Some urine or plasma values are derived from the CDC's Biomonitoring Data Tables for Environmental Chemicals\textsuperscript{4}, which is based on data from NHANES cohorts. In the cases where compounds had data listed from multiple cohorts, the maximum geometric mean across any given cohort is listed; $^\S$Measurements were listed for both smokers and non-smokers. All values listed are derived from smokers, which had the highest values for all these chemicals.}
+
+\input{/Users/jdp2019/Desktop/thyroid-exposomics-2025/Supplementary/Components/Tables/ST3.tex}
+
+\end{landscape}
+
+\newpage
+
+\markright{\textit{Table Abbreviation Dictionary}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{TABLE ABBREVIATION DICTIONARY}}
+
+\noindent{\fontsize{10}{12}\selectfont The supplementary tables have a substantial number of abbreviations, largely for chemical names. A full dictionary of abbreviations relevant to all supplementary tables can be found below:}
+
+\fontsize{10}{12}\selectfont
+\input{/Users/jdp2019/Desktop/thyroid-exposomics-2025/Supplementary/Components/Sections/abbreviations.tex}
+
+\newpage
+
+\section*{REFERENCES CITED IN SUPPLEMENTARY
+MATERIAL}\label{bibliography}
+\addcontentsline{toc}{section}{REFERENCES CITED IN SUPPLEMENTARY
+MATERIAL}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{0}{1}
+\bibitem[\citeproctext]{ref-hu2021}
+\CSLLeftMargin{1 }%
+\CSLRightInline{Hu X, Walker DI, Liang Y, \emph{et al.}
+\href{https://doi.org/10.1038/s41467-021-25840-9}{A scalable workflow to
+characterize the human exposome}. \emph{Nature Communications} 2021;
+\textbf{12}: 5575.}
+
+\bibitem[\citeproctext]{ref-go2015}
+\CSLLeftMargin{2 }%
+\CSLRightInline{Go Y-M, Walker DI, Liang Y, \emph{et al.}
+\href{https://doi.org/10.1093/toxsci/kfv198}{Reference {Standardization}
+for {Mass Spectrometry} and {High-resolution Metabolomics Applications}
+to {Exposome Research}}. \emph{Toxicological Sciences} 2015;
+\textbf{148}: 531--43.}
+
+\bibitem[\citeproctext]{ref-pluskal2010}
+\CSLLeftMargin{3 }%
+\CSLRightInline{Pluskal T, Castillo S, Villar-Briones A, Orešič M.
+\href{https://doi.org/10.1186/1471-2105-11-395}{{MZmine} 2: {Modular}
+framework for processing, visualizing, and analyzing mass
+spectrometry-based molecular profile data}. \emph{BMC Bioinformatics}
+2010; \textbf{11}: 395.}
+
+\bibitem[\citeproctext]{ref-wei2018}
+\CSLLeftMargin{4 }%
+\CSLRightInline{Wei R, Wang J, Su M, \emph{et al.}
+\href{https://doi.org/10.1038/s41598-017-19120-0}{Missing {Value
+Imputation Approach} for {Mass Spectrometry-based Metabolomics Data}}.
+\emph{Scientific Reports} 2018; \textbf{8}: 663.}
+
+\bibitem[\citeproctext]{ref-wishart2015}
+\CSLLeftMargin{5 }%
+\CSLRightInline{Wishart D, Arndt D, Pon A, \emph{et al.}
+\href{https://doi.org/10.1093/nar/gku1004}{{T3DB}: The toxic exposome
+database}. \emph{Nucleic Acids Research} 2015; \textbf{43}: D928--34.}
+
+\bibitem[\citeproctext]{ref-IARC2024}
+\CSLLeftMargin{6 }%
+\CSLRightInline{Agents {Classified} by the {IARC Monographs}, {Volumes}
+1--136.}
+
+\bibitem[\citeproctext]{ref-andres2024}
+\CSLLeftMargin{7 }%
+\CSLRightInline{Andres S, Dulio V. S109 \textbar{} {PARCEDC} \textbar{}
+{List} of 7074 potential endocrine disrupting compounds ({EDCs}) by
+{PARC T4}.2. 2024; published online April.
+DOI:\href{https://doi.org/10.5281/ZENODO.10944198}{10.5281/ZENODO.10944198}.}
+
+\bibitem[\citeproctext]{ref-djoumboufeunang2016}
+\CSLLeftMargin{8 }%
+\CSLRightInline{Djoumbou Feunang Y, Eisner R, Knox C, \emph{et al.}
+\href{https://doi.org/10.1186/s13321-016-0174-y}{{ClassyFire}: Automated
+chemical classification with a comprehensive, computable taxonomy}.
+\emph{Journal of Cheminformatics} 2016; \textbf{8}: 61.}
+
+\bibitem[\citeproctext]{ref-rcoreteam2023}
+\CSLLeftMargin{9 }%
+\CSLRightInline{(2023) RCT. R: {A Language} and {Environment} for
+{Statistical Computing}.}
+
+\bibitem[\citeproctext]{ref-wickham2016}
+\CSLLeftMargin{10 }%
+\CSLRightInline{Wickham H. Ggplot2: Elegant graphics for data analysis,
+Second edition. Switzerland: Springer, 2016.}
+
+\end{CSLReferences}
+
+\end{document}
