@@ -1,3 +1,8 @@
+*- Indicates an annotation (as opposed to an identification)
+†- Shorthand for ‘& derivatives’ when specifying superclass and class
+
+
+
 ST3 FOOTNOTES
 *- The lower bound of the range is the ‘theoretical minimum,’ which is one half the lowest detected value. This value was used for imputing missing values to determine means.
 †- PAH measurements were obtained from a study that analyzed multiple adipose tissue depots across two geographically distinct cohorts,11 while PCB measurements were derived from a separate study that also included two geographically distinct cohorts.16  Thus, multiple means were listed for various subgroups within these studies. However, for each compound, the highest mean value reported across any cohort or cohort-tissue depot combination is presented.
