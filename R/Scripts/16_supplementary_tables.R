@@ -214,7 +214,9 @@ latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} a
 latex_code <- paste(latex_lines, collapse = "\n")
 writeLines(latex_code, "Supplementary/Components/Tables/ST2.tex")
 #+ 11.3: ST3
-#- 12.2.4: o-Toluidine_0_BP3.GC2_CP3017
+
+
+
 # P-value
 toluidine_p <- IARC_ttests |> 
   filter(chemical == "o-Toluidine_0_BP3.GC2_CP3017") |> 
