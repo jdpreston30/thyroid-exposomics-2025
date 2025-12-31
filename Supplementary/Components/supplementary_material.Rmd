@@ -125,13 +125,15 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 41
 
-\textbf{SUPPLEMENTARY TABLE 1} \dotfill 42
+\textbf{SUPPLEMENTARY TABLE 1} \dotfill 42-59
 
-\textbf{SUPPLEMENTARY TABLE 2} \dotfill 43
+\textbf{SUPPLEMENTARY TABLE 2} \dotfill 60-70
 
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 44-45
+\textbf{SUPPLEMENTARY TABLE 3} \dotfill 71
 
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 46
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 72
+
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 73
 
 \newpage
 
@@ -438,9 +440,9 @@ To compare the quantification estimates generated as described above with estima
 
 {\fontsize{10}{12}\selectfont\textbf{Observed concentrations versus reported literature values.} All values originally published as ng/g, µg/L, ng/mL are listed as PPB. Values originally published as pg/mL were converted to ng/mL and then listed as PPB. All values are rounded to the nearest integer or are listed as < 1 PPB when applicable. The corresponding reference from which the comparison value is derived is cited next to the listed concentration. Annotations presented in this table represent estimated concentrations based on algorithmic chemical identification. While specific annotations that failed validation were excluded, many remaining identifications were not manually validated and should be considered preliminary. Annotations detected in fewer than 50\% of tumors or non-cancer thyroids were excluded. \textit{*The lower bound of the range is the 'theoretical minimum,' which is one half the lowest detected value. This value was used for imputing missing values to determine means; $^\dagger$PAH measurements were obtained from a study that analyzed multiple adipose tissue depots across two geographically distinct cohorts\textsuperscript{11}, while PCB measurements were derived from a separate study that also included two geographically distinct cohorts\textsuperscript{16}. Thus, multiple means were listed for various subgroups within these studies. However, for each compound, the highest mean value reported across any cohort or cohort-tissue depot combination is presented; $^\ddagger$Some urine or plasma values are derived from the CDC's Biomonitoring Data Tables for Environmental Chemicals\textsuperscript{14}, which is based on data from NHANES cohorts. In the cases where compounds had data listed from multiple cohorts, the maximum geometric mean across any given cohort is listed; $^\S$Measurements were listed for both smokers and non-smokers. All values listed are derived from smokers, which had the highest values for all these chemicals.}\par}
 
-\vspace{1cm}
+\vspace{0.5cm}
 
-\noindent\textit{[Placeholder for ST3 table - table generation in progress]}
+\input{Tables/ST3.tex}
 
 \end{landscape}
 

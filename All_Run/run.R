@@ -25,6 +25,3 @@ source("R/Scripts/15_tables.R")
 source("R/Scripts/16_supplementary_tables.R")
 source("R/Scripts/17_construct_supplementary.R")
 }
-u()
-source("R/Scripts/16_supplementary_tables.R")
-source("R/Scripts/17_construct_supplementary.R")

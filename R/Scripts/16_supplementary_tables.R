@@ -290,19 +290,44 @@ ST3_tibble_flat <- ST3_tibble_2 |>
     `Range (PPB)` = range,
     `Mean Non-Cancer Thyroid Concentration (PPB)` = mean_ctrl,
     `Mean Tumor Concentration (PPB)` = mean_tumor,
-    # Combine literature values with citation keys
+    # Combine literature values with superscripted reference numbers
+    # Reference mapping: mlyczynska2023=11, maier2022=12, riffelmann1995=13, cdc2024=14, wang2010=16
     `Adipose Tissue (PPB)†` = case_when(
-      !is.na(AT_manuscript) & !is.na(AT_ref) ~ paste0(AT_manuscript, "\\cite{", AT_ref, "}"),
+      !is.na(AT_manuscript) & !is.na(AT_ref) ~ paste0(AT_manuscript, "\\textsuperscript{", 
+        case_when(
+          AT_ref == "mlyczynska2023" ~ "11",
+          AT_ref == "maier2022" ~ "12",
+          AT_ref == "riffelmann1995" ~ "13",
+          AT_ref == "cdc2024" ~ "14",
+          AT_ref == "wang2010" ~ "16",
+          TRUE ~ AT_ref
+        ), "}"),
       !is.na(AT_manuscript) ~ AT_manuscript,
       TRUE ~ NA_character_
     ),
     `Urine (PPB)‡` = case_when(
-      !is.na(urine_manuscript) & !is.na(urine_ref) ~ paste0(urine_manuscript, "\\cite{", urine_ref, "}"),
+      !is.na(urine_manuscript) & !is.na(urine_ref) ~ paste0(urine_manuscript, "\\textsuperscript{", 
+        case_when(
+          urine_ref == "mlyczynska2023" ~ "11",
+          urine_ref == "maier2022" ~ "12",
+          urine_ref == "riffelmann1995" ~ "13",
+          urine_ref == "cdc2024" ~ "14",
+          urine_ref == "wang2010" ~ "16",
+          TRUE ~ urine_ref
+        ), "}"),
       !is.na(urine_manuscript) ~ urine_manuscript,
       TRUE ~ NA_character_
     ),
     `Serum/Plasma (PPB)‡` = case_when(
-      !is.na(plasma_manuscript) & !is.na(plasma_ref) ~ paste0(plasma_manuscript, "\\cite{", plasma_ref, "}"),
+      !is.na(plasma_manuscript) & !is.na(plasma_ref) ~ paste0(plasma_manuscript, "\\textsuperscript{", 
+        case_when(
+          plasma_ref == "mlyczynska2023" ~ "11",
+          plasma_ref == "maier2022" ~ "12",
+          plasma_ref == "riffelmann1995" ~ "13",
+          plasma_ref == "cdc2024" ~ "14",
+          plasma_ref == "wang2010" ~ "16",
+          TRUE ~ plasma_ref
+        ), "}"),
       !is.na(plasma_manuscript) ~ plasma_manuscript,
       TRUE ~ NA_character_
     )
@@ -372,16 +397,19 @@ ST3_tibble <- bind_rows(ST3_list) |>
       )
     )
   )
-#+ 11.4: ST4
-# Must have superscripting of § symbols 
-# Citation keys must interact with bib to just add superscripted rferences to the table values just like anywhere else int he text
-# ‡ and † symbols ont he column title must ecome superscripted
-# The three listed usage classes headins must become bold. the chemical names remain plain text
-# all column headers must be bold . We need to line break the longer names (and even pretty much anything more than one word) within the header row like in ST1 and ST2.
-# row height for header must be identical to ST1 and 2. 
-# border shading type / thickness muist be identical to other tables... double on bottom too like above
+#- 16.3.10: Build and format ST3 gt table
+gt_ST3 <- build_ST3(ST3_tibble)
+#- 16.3.11: Save ST3 as LaTeX (without table wrapper) to Supplementary/Components/Tables
+latex_code <- gt::as_latex(gt_ST3) |> as.character()
+latex_code <- fix_ST3_latex(latex_code)
+# Remove table wrapper for direct inclusion in supplementary
+latex_lines <- strsplit(latex_code, "\n")[[1]]
+latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} and \end{table}
+latex_code <- paste(latex_lines, collapse = "\n")
+writeLines(latex_code, "Supplementary/Components/Tables/ST3.tex")
+#+ 16.4: ST4
 #! Pending
-#+ 11.5 Abbreviations Dictionary
+#+ 16.5 Abbreviations Dictionary
 #- 11.5.1: Build abbreviations list
 abbrev_list <- ST_abbrevs |>
   arrange(formatted)
