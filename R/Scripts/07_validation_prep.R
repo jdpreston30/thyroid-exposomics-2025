@@ -104,15 +104,18 @@ val_ids <- validation_combined |>
 expanded_lib_features <- expanded_lib |>
   select(id = ID, emz1:emz8) |>
   filter(id %in% val_ids)
-#- 7.4.4: Convert validation_combined mz columns to long format
+#- 7.4.4: Convert validation_combined mz columns to long format (add "expanded" flag)
+#! expanded="N" for original mz0-mz3 fragments, "Y" for expanded library fragments
 mz_long <- validation_combined |>
   select(id, mz0:mz3) |>
   pivot_longer(cols = mz0:mz3, names_to = "fragment", values_to = "mz") |>
-  filter(!is.na(mz))
+  filter(!is.na(mz)) |>
+  mutate(expanded = "N")  # Mark original fragments
 #- 7.4.5: Convert expanded library to long format
 emz_long <- expanded_lib_features |>
   pivot_longer(cols = emz1:emz8, names_to = "fragment", values_to = "mz") |>
-  filter(!is.na(mz))
+  filter(!is.na(mz)) |>
+  mutate(expanded = "Y")  # Mark expanded fragments
 #- 7.4.6: Merge: Keep original mz fragments, add unique emz fragments
 cat("⏳ Merging fragments and checking for duplicates (ppm distance matrix)...\n")
 merged_fragments <- bind_rows(
@@ -139,6 +142,10 @@ merged_fragments <- bind_rows(
   ungroup() |>
   # Filter out emz fragments when potential_duplicate is "Y", keep original mz fragments
   filter(!(potential_duplicate == "Y" & grepl("^emz", fragment)))
+#- 7.4.6b: Calculate single expanded flag per chemical
+expanded_flag <- merged_fragments |>
+  group_by(id) |>
+  summarize(expanded = if_else(any(expanded == "Y"), "Y", "N"), .groups = "drop")
 cat("✓ Fragment merging complete\n")
 #- 7.4.7: Convert back to wide format with proper numbering
 expanded_validation_i <- merged_fragments |>
@@ -163,8 +170,10 @@ expanded_validation_i <- merged_fragments |>
   pivot_wider(names_from = fragment_num, values_from = mz) |>
   # Add metadata back
   left_join(validation_combined |> select(id, short_name, monoisotopic), by = "id") |>
-  # Reorder columns: id, short_name, monoisotopic, then all mz columns
-  select(id, short_name, monoisotopic, starts_with("mz"))
+  # Add expanded flag
+  left_join(expanded_flag, by = "id") |>
+  # Reorder columns: id, short_name, monoisotopic, then all mz columns, then expanded
+  select(id, short_name, monoisotopic, starts_with("mz"), expanded)
 #- 7.4.8: Reorganize fragments to ensure mz0 is always monoisotopic
 cat("⏳ Reorganizing fragments (monoisotopic alignment and CP3017 filtering)...\n")
 expanded_validation <- expanded_validation_i |>
@@ -226,8 +235,8 @@ expanded_validation <- expanded_validation_i |>
     mz8 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 9, .x[9], NA_real_)),
     mz9 = map_dbl(reorganized_mz, ~if_else(length(.x) >= 10, .x[10], NA_real_))
   ) |>
-  # Clean up temporary columns, keeping id, short_name, monoisotopic
-  select(id, short_name, monoisotopic, mz0:mz9, -starts_with("original_"), -mz_values, -ppm_diffs, -min_ppm, -matches_fragment, -match_position, -reorganized_mz) |>
+  # Clean up temporary columns, keeping id, short_name, monoisotopic and all mz columns
+  select(id, short_name, monoisotopic, mz0:mz9, expanded, -starts_with("original_"), -mz_values, -ppm_diffs, -min_ppm, -matches_fragment, -match_position, -reorganized_mz) |>
   # Special case: Remove 105.0699 from CP3017 and shift fragments down
   #! Removed CP3017 specific fragment due to adding too much noise
   rowwise() |>
@@ -258,8 +267,12 @@ expanded_validation <- expanded_validation_i |>
     mz9 = map_dbl(fragments_to_keep, ~if_else(length(.x) >= 10, .x[10], NA_real_))
   ) |>
   # Clean up temporary columns, keeping id, short_name, monoisotopic and all mz columns
-  select(id, short_name, monoisotopic, mz0:mz9, -fragments_to_keep)
+  select(id, short_name, monoisotopic, mz0:mz9, expanded, -fragments_to_keep)
 cat("✓ Fragment reorganization complete\n")
+#! expanded_validation now contains:
+#! - id, short_name, monoisotopic: metadata columns
+#! - mz0-mz9: fragment m/z values (mz0 always matches monoisotopic)
+#! - expanded: flag indicating if chemical has any expanded fragments ("Y"/"N")
 #- 7.4.9: Verification: Check that mz0 now matches monoisotopic within 20 ppm for all compounds
 monoisotopic_verification <- expanded_validation |>
   mutate(
@@ -273,7 +286,7 @@ cat("⏳ Converting asterisk markers from m/z values to column names...\n")
 vv_wide <- vv_wide_i |>
   select(-starts_with("mz"), -asterisk) |> # Remove old mz columns and asterisk
   left_join(
-    expanded_validation |> select(id, starts_with("mz")),
+    expanded_validation |> select(id, matches("^mz\\d+$")),
     by = "id"
   ) |>
   # Convert asterisk from m/z values back to column names
@@ -309,14 +322,14 @@ cat("✓ Asterisk conversion complete\n")
 iv_wide <- iv_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
   left_join(
-    expanded_validation |> select(id, starts_with("mz")),
+    expanded_validation |> select(id, matches("^mz\\d+$")),
     by = "id"
   )
 #- 7.5.3: Update IARC cadaver validation table
 ic_wide <- ic_wide_i |>
   select(-starts_with("mz")) |> # Remove old mz columns
   left_join(
-    expanded_validation |> select(id, starts_with("mz")),
+    expanded_validation |> select(id, matches("^mz\\d+$")),
     by = "id"
   )
 #+ 7.6: Create subsetted version based on validated IARC (post hoc in step 9) with tag-ordered files
@@ -354,7 +367,7 @@ ic_wide_iarc_validated_i <- build_validation_table(
 iv_wide_iarc_validated <- iv_wide_iarc_validated_i |>
   select(-starts_with("mz")) |>
   left_join(
-    expanded_validation |> select(id, starts_with("mz")),
+    expanded_validation |> select(id, matches("^mz\\d+$")),
     by = "id"
   ) |>
   left_join(top_frags_validated_iarc, by = "id") |>
@@ -363,7 +376,7 @@ iv_wide_iarc_validated <- iv_wide_iarc_validated_i |>
 ic_wide_iarc_validated <- ic_wide_iarc_validated_i |>
   select(-starts_with("mz")) |>
   left_join(
-    expanded_validation |> select(id, starts_with("mz")),
+    expanded_validation |> select(id, matches("^mz\\d+$")),
     by = "id"
   ) |>
   left_join(top_frags_validated_iarc, by = "id") |>

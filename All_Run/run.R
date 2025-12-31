@@ -25,3 +25,17 @@ source("R/Scripts/15_tables.R")
 source("R/Scripts/16_supplementary_tables.R")
 source("R/Scripts/17_construct_supplementary.R")
 }
+
+
+source("R/Scripts/16_supplementary_tables.R")
+# Read the ST1 LaTeX and insert it into tables.tex
+st1_latex <- readLines("Outputs/Tables/ST1.tex")
+tables_tex <- readLines("Supplementary/Components/Sections/tables.tex")
+# Replace the placeholder line with actual ST1 content
+tables_tex <- gsub("\\[INSERT ST1 HERE - TO BE GENERATED PROGRAMMATICALLY\\]", 
+                   paste(st1_latex, collapse = "\n"), 
+                   tables_tex)
+writeLines(tables_tex, "Supplementary/Components/Sections/tables.tex")
+
+# Now render the supplementary
+source("R/Scripts/17_construct_supplementary.R")

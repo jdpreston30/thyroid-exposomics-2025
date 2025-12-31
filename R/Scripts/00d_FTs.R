@@ -45,14 +45,26 @@ IARC_tumors_ii <- read_excel(config$paths$primary_data, sheet = "lib.subject.qsu
 ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
   filter(Disposition != "Endogenous") |>
   mutate(subid_col = paste0("mz", subid)) |>
-  select(id, name, short_display_name, trt, monoisotopic, cas, formula, Disposition, subid_col, tmz) |>
+  select(id, name = st1_name, trt, monoisotopic, cas, formula, Disposition, subid_col, tmz) |>
+  mutate(
+    name = if_else(
+      Disposition == "Exogenous and Endogenous" & !is.na(name),
+      paste0(name, "*"),
+      name
+    )
+  ) |>
   distinct() |>
   pivot_wider(
     names_from = subid_col,
     values_from = tmz
   ) |>
   arrange(cas)
-#- 0d.1.12: Import File List
+#- 0d.1.12: ST1 Abbreviations
+ST1_abbrevs <- read_excel(config$paths$primary_data, sheet = "abbreviations") |>
+  mutate(formatted = paste(Abbrev, "=", Name)) |>
+  filter(Use == "Y") |>
+  select(formatted)
+#- 0d.1.13: Import File List
 file_list <- read_excel(config$paths$primary_data, sheet = "file_list") |>
   select(file, ID, replicate, study, type) |>
   group_by(ID, study, type) |>

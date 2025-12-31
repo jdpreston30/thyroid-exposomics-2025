@@ -1,5 +1,4 @@
--validate top 5 quant, add spectra to supplementals
--validate IARC 1 tumor quant comaprisons, add spectra to supplementals
+
 -MIX LIST needs to be accounted for and revised for creation of ST3 and 4
 -Ensure mix list does not intersect with anyh IARC
 - update decimal formatting on tables 1 and 3 to be the middle one thing
