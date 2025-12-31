@@ -26,13 +26,13 @@
 \includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S2.1.pdf}
 \end{center}
 
-\includepdf[pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S2.1.pdf}
+\includepdf[width=\textwidth,height=\textheight,pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S2.1.pdf}
 
 \newpage
 
 \markright{\textit{Supplementary Figure 2.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.2\ifthenelse{\value{page}>31}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
+\includepdf[width=\textwidth,height=\textheight,pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.2\ifthenelse{\value{page}>31}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
 
 \newpage
 
@@ -48,13 +48,13 @@
 \includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S3.1.pdf}
 \end{center}
 
-\includepdf[pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S3.1.pdf}
+\includepdf[width=\textwidth,height=\textheight,pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S3.1.pdf}
 
 \newpage
 
 \markright{\textit{Supplementary Figure 3.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.2\ifthenelse{\value{page}>37}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
+\includepdf[width=\textwidth,height=\textheight,pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.2\ifthenelse{\value{page}>37}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
 
 \newpage
 
@@ -70,10 +70,10 @@
 \includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S4.1.pdf}
 \end{center}
 
-\includepdf[pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S4.1.pdf}
+\includepdf[width=\textwidth,height=\textheight,pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S4.1.pdf}
 
 \newpage
 
 \markright{\textit{Supplementary Figure 4.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.2\ifthenelse{\value{page}>40}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S4.2.pdf}
+\includepdf[width=\textwidth,height=\textheight,pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.2\ifthenelse{\value{page}>40}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S4.2.pdf}

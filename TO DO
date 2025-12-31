@@ -1,14 +1,21 @@
+- Pending ST4...
+  - Mix list for st4 exclusion
+  - Add sentence citation back in manuscript: There was no difference in the median number of annotated chemicals per variant (p=0·397). Many of the chemicals annotated in DTC samples were also annotated in non-cancer cadaver thyroids (Supplementary Table 4). 
+  - add sentence back: Quantitative estimates for 245 chemicals in thyroid tumors and non-cancer thyroids were also established (Supplementary Table 4). (following: . For comparisons of concentrations for select chemicals to rep...)
+  - add citation back here: While it is possible that some subjects experienced occupational exposures, agrochemicals were noted almost universally, including in non-cancer cadaver thyroids (Supplementary Table 4), arguing for potential contributions of diet and home pesticide use. 
 
--MIX LIST needs to be accounted for and revised for creation of ST3 and 4
-- abbreviations roundup
--Ensure mix list does not intersect with anyh IARC
--remove non quantittative chemicals from PPM (main figure 3) and PPM tables (3 and 4) in supplementary. Will will determine this, and these will be chemicals which were part of  a mix rather than being a single standard
-- specify this in the methods that we had to remove these chemicals in mixtures. In expanded methods
--modify figure 3 raw file based on new PPM calc
--wipe hx.txt from history
-- clean pdf tools from renv
+- Make sure ST3 doesnt interesect with a mix list, and double check
+- specify this in the expanded methods that we had to remove these chemicals in mixtures
+- confirm figure 3 ppm file eseimations are based on 0.47 and not 0.5 ng/mL
+- wipe hx.txt from history
+- wipe brand files from history
+- wipe to do history
 - Delete pvc rtx , pvc rtx multi, pvc mzx if not used
-- Specify we didnt do PCBs in IRAC1
+- Specify we didnt do PCBs in IARC1
+- Review formatting overall of ST3
+- Cite ggplot2 in text if they allow you to go over 30
+- Crawl ST1-ST4 and ensure you didnt miss any abbreviations in the dictionary
+
 
 
 
