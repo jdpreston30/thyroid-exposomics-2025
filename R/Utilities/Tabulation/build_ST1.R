@@ -47,7 +47,8 @@ build_ST1 <- function(data) {
   })
   
   # Create basic gt table
-  gt_table <- gt(data_formatted)
+  gt_table <- gt(data_formatted) |>
+    cols_align(align = "center", columns = CAS)
   
   return(gt_table)
 }

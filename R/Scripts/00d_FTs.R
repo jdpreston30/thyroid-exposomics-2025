@@ -63,6 +63,7 @@ ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
 ST1_abbrevs <- read_excel(config$paths$primary_data, sheet = "abbreviations") |>
   mutate(formatted = paste(Abbrev, "=", Name)) |>
   filter(Use == "Y") |>
+  arrange(Abbrev) |>
   select(formatted)
 #- 0d.1.13: Import File List
 file_list <- read_excel(config$paths$primary_data, sheet = "file_list") |>

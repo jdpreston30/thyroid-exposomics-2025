@@ -9,6 +9,7 @@ geometry:
   - footskip=12pt
 bibliography: "References/supplementary.bib"
 csl: "References/the-lancet.csl"
+reference-section-title: "REFERENCES CITED IN SUPPLEMENTARY MATERIAL"
 header-includes:
   - \usepackage{fontspec}
   - \usepackage{graphicx}
@@ -18,6 +19,10 @@ header-includes:
   - \usepackage{pdflscape}
   - \usepackage[absolute]{textpos}
   - \usepackage{ifthen}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage[table]{xcolor}
+  - \usepackage{makecell}
   - \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
   - \setmainfont{Times New Roman}
   - \hyphenpenalty=10000
