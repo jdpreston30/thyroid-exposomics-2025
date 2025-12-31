@@ -129,13 +129,9 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \textbf{SUPPLEMENTARY TABLE 2} \dotfill 43
 
-\textbf{SUPPLEMENTARY TABLE 3} \dotfill 44
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 44-45
 
-\textbf{SUPPLEMENTARY TABLE 4} \dotfill 45
-
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 46-47
-
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 48
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 46
 
 \newpage
 
@@ -414,7 +410,7 @@ To compare the quantification estimates generated as described above with estima
 
 \noindent{\fontsize{10}{12}\selectfont\textbf{The full library of xenobiotic chemicals employed for chemical annotation and identification.} The library of 710 confirmed xenobiotic chemicals employed for chemical identification. All chemicals besides those which were purchased as part of a mixture with variable concentrations were present in pooled reference plasma at a concentration of 0·47 ng/mL. There are 710 total unique chemicals (i.e., unique CAS numbers), but for some chemicals, there are multiple fragments and/or retention times from different standards used for annotation and identification, thus resulting in 892 total rows in the table. The column "Target RT (min.)" refers to the library retention time for the given chemical. The individual mz columns indicate typical fragments observed for the given chemical. \textit{*Both an endogenous and exogenous (xenobiotic) chemical; $^\dagger$Additional fragments used for validation besides those listed in mz0--mz3.}}
 
-\input{/Users/JoshsMacbook2015/Desktop/thyroid-exposomics-2025/Supplementary/Components/Tables/ST1.tex}
+\input{Tables/ST1.tex}
 
 \end{landscape}
 
@@ -428,7 +424,7 @@ To compare the quantification estimates generated as described above with estima
 
 \noindent{\fontsize{10}{12}\selectfont\textbf{Metadata for all chemicals annotated in samples.} \textit{*Both an endogenous and exogenous (xenobiotic) chemical.}}
 
-\input{/Users/JoshsMacbook2015/Desktop/thyroid-exposomics-2025/Supplementary/Components/Tables/ST2.tex}
+\input{Tables/ST2.tex}
 
 \end{landscape}
 
@@ -438,25 +434,13 @@ To compare the quantification estimates generated as described above with estima
 
 \begin{landscape}
 
-\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY TABLE 3}}
+{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY TABLE 3}\par}
 
-\noindent{\fontsize{10}{12}\selectfont\textbf{Comparison of quantitative values in literature.} The geometric mean or mean values for all chemicals from literature with quantitative values. The `type' column indicates which type of biological matrix the quantitative value was collected from. The 'type detail' column specifies if there were specific descriptors provided with the values, such as: 1) smokers/nonsmokers, 2) high-exposure status, 3) adipose tissue depot, or 4) cohort. In some cases, the same compound had multiple quantitative values listed from different studies. The values listed in the table are the maximum values across all studies and cohorts. The values listed in the range columns indicate the range of values in both the literature and in the present study. The high end of the range indicates the maximum value. When the low end of the range is below the detection limits, the range is listed with a less than sign. When the low end of the range is missing or not listed in the literature, the low end of the range is the theoretical minimum value (i.e., one half of the lowest value actually detected).}
+{\fontsize{10}{12}\selectfont\textbf{Observed concentrations versus reported literature values.} All values originally published as ng/g, µg/L, ng/mL are listed as PPB. Values originally published as pg/mL were converted to ng/mL and then listed as PPB. All values are rounded to the nearest integer or are listed as < 1 PPB when applicable. The corresponding reference from which the comparison value is derived is cited next to the listed concentration. Annotations presented in this table represent estimated concentrations based on algorithmic chemical identification. While specific annotations that failed validation were excluded, many remaining identifications were not manually validated and should be considered preliminary. Annotations detected in fewer than 50\% of tumors or non-cancer thyroids were excluded. \textit{*The lower bound of the range is the 'theoretical minimum,' which is one half the lowest detected value. This value was used for imputing missing values to determine means; $^\dagger$PAH measurements were obtained from a study that analyzed multiple adipose tissue depots across two geographically distinct cohorts\textsuperscript{11}, while PCB measurements were derived from a separate study that also included two geographically distinct cohorts\textsuperscript{16}. Thus, multiple means were listed for various subgroups within these studies. However, for each compound, the highest mean value reported across any cohort or cohort-tissue depot combination is presented; $^\ddagger$Some urine or plasma values are derived from the CDC's Biomonitoring Data Tables for Environmental Chemicals\textsuperscript{14}, which is based on data from NHANES cohorts. In the cases where compounds had data listed from multiple cohorts, the maximum geometric mean across any given cohort is listed; $^\S$Measurements were listed for both smokers and non-smokers. All values listed are derived from smokers, which had the highest values for all these chemicals.}\par}
 
-[INSERT ST3 HERE]
+\vspace{1cm}
 
-\end{landscape}
-
-\newpage
-
-\markright{\textit{Supplementary Table 4}}
-
-\begin{landscape}
-
-\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY TABLE 4}}
-
-\noindent{\fontsize{10}{12}\selectfont\textbf{Quantitative estimates for all chemicals detected in both tumor and non-neoplastic thyroid tissue.} This table lists the estimated PPB values for all chemicals annotated in both tumor samples and non-neoplastic thyroid tissue. The estimated PPB values are calculated by taking the mean area for each chemical and dividing it by the mean area from reference standards with known concentrations (0·47 ng/mL). Chemicals are sorted alphabetically.}
-
-[INSERT ST4 HERE]
+\noindent\textit{[Placeholder for ST3 table - table generation in progress]}
 
 \end{landscape}
 
@@ -469,6 +453,6 @@ To compare the quantification estimates generated as described above with estima
 \noindent{\fontsize{10}{12}\selectfont The supplementary tables have a substantial number of abbreviations, largely for chemical names. A full dictionary of abbreviations relevant to all supplementary tables can be found below:}
 
 \fontsize{10}{12}\selectfont
-\input{/Users/JoshsMacbook2015/Desktop/thyroid-exposomics-2025/Supplementary/Components/Sections/abbreviations.tex}
+\input{Sections/abbreviations.tex}
 
 \newpage

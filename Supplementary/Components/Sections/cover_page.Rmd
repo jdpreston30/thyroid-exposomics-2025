@@ -129,13 +129,9 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \textbf{SUPPLEMENTARY TABLE 2} \dotfill 43
 
-\textbf{SUPPLEMENTARY TABLE 3} \dotfill 44
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 44-45
 
-\textbf{SUPPLEMENTARY TABLE 4} \dotfill 45
-
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 46-47
-
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 48
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 46
 
 \newpage
 
