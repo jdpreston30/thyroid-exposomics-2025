@@ -43,10 +43,10 @@ build_table_3 <- function(data, export_path) {
       )
     )
   
-  # Convert decimal points to middle dots (Lancet style) for all columns
+  # Convert decimal points to middle dots (Lancet style) for all columns EXCEPT Chemical Name
   data_formatted <- data_formatted |>
     mutate(across(
-      everything(),
+      -`Chemical Name`,
       ~ str_replace_all(as.character(.x), "\\.", "·")
     ))
   
@@ -124,9 +124,9 @@ build_table_3 <- function(data, export_path) {
   
   # Add footnote text to merged cell
   footnote_text <- paste(
-    "*- Indicates level 2 identification",
-    "†- Possible, likely, or known carcinogen",
-    "‡- Potential endocrine disrupting chemical",
+    "ᵃ Possible, likely, or known carcinogen",
+    "ᵇ Potential endocrine disrupting chemical",
+    "ᶜ Indicates level 2 identification",
     "Abbreviations: 5-NOT = 5-Nitro-o-toluidine; DEET = N,N-Diethyl-meta-toluamide; DNOP = Di-n-octyl phthalate; MDA = 4,4'-Diaminodiphenylmethane; MEHP = Mono-2-ethylhexyl phthalate; N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = Octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; TEEP = Tetraethyl ethylenediphosphonate; TTBNP = Tris(tribromoneopentyl); UV = ultraviolet",
     sep = "\n"
   )

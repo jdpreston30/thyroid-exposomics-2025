@@ -62,7 +62,7 @@ qualitative_final_features <- MT_final |>
   filter(mode == "qualitative") |>
   select(short_name, FTC, FV_PTC, PTC)
 #- 11.4.2: Prepare data for heatmap (convert % to numeric)
-qualitative_heatmap_data <- qualitative_final_features |>
+qualitative_heatmap_data_i <- qualitative_final_features |>
   pivot_longer(cols = c(FTC, FV_PTC, PTC), 
                names_to = "variant", 
                values_to = "pct_detection") |>
@@ -78,7 +78,8 @@ compound_order <- qualitative_final_features |>
   arrange(PTC, FV_PTC, FTC) |>
   pull(short_name)
 #- 11.4.4: Apply order
-qualitative_heatmap_data <- qualitative_heatmap_data |>
-  mutate(short_name = factor(short_name, levels = compound_order))
+qualitative_heatmap_data <- qualitative_heatmap_data_i |>
+  mutate(short_name = str_replace_all(short_name, "\\*", "ᵃ")) |>
+  mutate(short_name = factor(short_name, levels = str_replace_all(compound_order, "\\*", "ᵃ")))
 #- 11.4.5: Create heatmap
 p3B <- plot_qualitative_heatmap(qualitative_heatmap_data)
