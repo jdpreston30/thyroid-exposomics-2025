@@ -80,8 +80,8 @@ build_table_1 <- function(data, export_path) {
   # Store the variable names BEFORE renaming columns (for styling logic)
   var_names_for_styling <- data_formatted[[var_col]]
   
-  # Update column names with asterisks
-  colnames(data_formatted) <- c("Variable: Subcategory", "Follicular*", "FV-PTC*", "Papillary*", "Total*")
+  # Update column names with asterisks and replace with superscript
+  colnames(data_formatted) <- c("Variable: Subcategory", "Follicularᵃ", "FV-PTCᵃ", "Papillaryᵃ", "Totalᵃ")
   
   # Create workbook
   wb <- createWorkbook()
@@ -162,7 +162,7 @@ build_table_1 <- function(data, export_path) {
   mergeCells(wb, sheet = 1, cols = 1:5, rows = merge_row_num)
   
   # Add footnote text to merged cell
-  footnote_text <- "*All values displayed as mean ± SD for ratio continuous variables or n (%) for dichotomous categorical variables. Percentages for the variant columns were calculated in respect to total patients within a variant (i.e., within column), and percentages for the total column was calculated in respect to the population total."
+  footnote_text <- "ᵃ All values displayed as mean ± SD for ratio continuous variables or n (%) for dichotomous categorical variables. Percentages for the variant columns were calculated in respect to total patients within a variant (i.e., within column), and percentages for the total column was calculated in respect to the population total."
   writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
   
   # Add style to merged cell with footnote (italic, size 8, left/middle aligned) and double borders

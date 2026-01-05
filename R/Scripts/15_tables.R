@@ -44,13 +44,16 @@ table_3_tibble <- MT_final |>
     )
   ) |>
   mutate(
+    has_asterisk = str_detect(short_name, "\\*"),
+    short_name = str_replace_all(short_name, "\\*", ""),
     short_name = paste0(
       short_name,
       if_else(
         Carcinogenicity %in% c("Likely Carcinogen", "Possible Carcinogen", "Known Carcinogen"),
-        "\u2020", ""
+        "ᵃ", ""
       ),
-      ifelse(Potential_EDC == "Y", "\u2021", "")
+      ifelse(Potential_EDC == "Y", "ᵇ", ""),
+      ifelse(has_asterisk, "ᶜ", "")
     ),
     FTC_let = coalesce(FTC_let, FTC),
     FV_PTC_let = coalesce(FV_PTC_let, FV_PTC),
@@ -58,6 +61,18 @@ table_3_tibble <- MT_final |>
     p_value = sprintf("%.3f", p_value)
   ) |>
   mutate(short_name = str_replace(short_name, "NA$", "")) |>
+  # Correct marker ordering (ensure abc order)
+  mutate(
+    short_name = case_when(
+      str_detect(short_name, "ᵇᵃ") ~ str_replace(short_name, "ᵇᵃ", "ᵃᵇ"),
+      str_detect(short_name, "ᶜᵃ") ~ str_replace(short_name, "ᶜᵃ", "ᵃᶜ"),
+      str_detect(short_name, "ᶜᵇᵃ") ~ str_replace(short_name, "ᶜᵇᵃ", "ᵃᵇᶜ"),
+      str_detect(short_name, "ᶜᵃᵇ") ~ str_replace(short_name, "ᶜᵃᵇ", "ᵃᵇᶜ"),
+      str_detect(short_name, "ᵇᶜ") ~ str_replace(short_name, "ᵇᶜ", "ᵇᶜ"),
+      str_detect(short_name, "ᵃᶜ") ~ str_replace(short_name, "ᵃᶜ", "ᵃᶜ"),
+      TRUE ~ short_name
+    )
+  ) |>
   arrange(p_value) |>
   select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC_let, `FV-PTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value)
 #- 15.3.2: Build Table 3 with function
