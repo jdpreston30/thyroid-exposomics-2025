@@ -1,0 +1,79 @@
+\newpage
+
+\markright{\textit{Supplementary Figure 1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Classification of annotated chemicals.} Chemical superclasses (A) and subclasses (B) of all annotated chemicals.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[width=0.90\textwidth]{Figures/PDF/S1.pdf}
+\end{center}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 2.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of select chemical identifications in thyroid tumor samples.} Sample spectra for all chemicals which showed differences in variants (quantity or presence), displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (2.1, pp. 7-28), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (2.2, pp. 29-31). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S2.1.pdf}
+\end{center}
+
+\includepdf[pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S2.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 2.2}}
+
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 2.2\ifthenelse{\value{page}>31}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 3.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of IARC Group 1 chemicals annotated in tumor samples.} Sample spectra for all IARC Group 1 carcinogens annotated in thyroid tumor tissue, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (3.1, pp. 32-34), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (3.2, pp. 35-36). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S3.1.pdf}
+\end{center}
+
+\includepdf[pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S3.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 3.2}}
+
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 3.2\ifthenelse{\value{page}>37}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 4.1}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.1}}
+
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of IARC Group 1 chemicals annotated in cadaver thyroid samples.} Sample spectra for all IARC Group 1 carcinogens annotated in non-cancer cadaver thyroid tissue, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (4.1, pp. 37-39), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (4.2, p. 40). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+
+\vspace{0.5em}
+
+\begin{center}
+\includegraphics[page=1,width=0.85\textwidth]{Figures/PDF/S4.1.pdf}
+\end{center}
+
+\includepdf[pages=2-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.1 (Continued)}}\vspace{1em}}]{Figures/PDF/S4.1.pdf}
+
+\newpage
+
+\markright{\textit{Supplementary Figure 4.2}}
+
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{SUPPLEMENTARY FIGURE 4.2\ifthenelse{\value{page}>40}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S4.2.pdf}

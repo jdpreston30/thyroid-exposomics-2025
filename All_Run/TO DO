@@ -1,0 +1,15 @@
+
+-MIX LIST needs to be accounted for and revised for creation of ST3 and 4
+- abbreviations roundup
+-Ensure mix list does not intersect with anyh IARC
+-remove non quantittative chemicals from PPM (main figure 3) and PPM tables (3 and 4) in supplementary. Will will determine this, and these will be chemicals which were part of  a mix rather than being a single standard
+- specify this in the methods that we had to remove these chemicals in mixtures. In expanded methods
+-modify figure 3 raw file based on new PPM calc
+-wipe hx.txt from history
+- clean pdf tools from renv
+- Delete pvc rtx , pvc rtx multi, pvc mzx if not used
+- Specify we didnt do PCBs in IRAC1
+- Check ST3 citaitions correctness
+
+
+

@@ -1,0 +1,140 @@
+---
+output:
+  pdf_document:
+    latex_engine: xelatex
+geometry:
+  - margin=0.5in
+  - headheight=14pt
+  - headsep=0.15in
+  - footskip=12pt
+bibliography: "References/supplementary.bib"
+csl: "References/the-lancet.csl"
+reference-section-title: "REFERENCES CITED IN SUPPLEMENTARY MATERIAL"
+header-includes:
+  - \usepackage{fontspec}
+  - \usepackage{graphicx}
+  - \usepackage{pdfpages}
+  - \usepackage{fancyhdr}
+  - \usepackage{setspace}
+  - \usepackage{pdflscape}
+  - \usepackage[absolute]{textpos}
+  - \usepackage{ifthen}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage[table]{xcolor}
+  - \usepackage{makecell}
+  - \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+  - \setmainfont{Times New Roman}
+  - \hyphenpenalty=10000
+  - \exhyphenpenalty=10000
+  - \pagestyle{fancy}
+  - \fancyhf{}
+  - \fancyhead[L]{\fontsize{10}{12}\selectfont\textit{Preston et al., Environmental Chemical Burden in Thyroid Tumors}}
+  - \fancyhead[R]{\fontsize{10}{12}\selectfont\textit{\rightmark}}
+  - \fancyfoot[C]{\fontsize{10}{12}\selectfont-\thepage-}
+  - \renewcommand{\headrulewidth}{0pt}
+  - \renewcommand{\footrulewidth}{0pt}
+  - \renewcommand{\sectionmark}[1]{\markright{\textit{#1}}}
+  - \singlespacing
+  - \AtBeginDocument{\fontsize{10}{12}\selectfont}
+  - \raggedright
+---
+
+\thispagestyle{plain}
+
+\begin{center}
+{\fontsize{14}{16.8}\selectfont\textbf{ENVIRONMENTAL CHEMICAL BURDEN IN DIFFERENTIATED\\[0.5em]THYROID CANCER: SUPPLEMENTARY MATERIAL}}
+\end{center}
+
+\vspace{0.5em}
+
+Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N. Teeny^3^, Jaclyn Weinberg^3,5^, William J. Crandall^3,5^, Zachery R. Jarrell^3^, Xin Hu^3,6^, Susan A. Safley^4^, Jennifer M. Robertson^7^, ViLinh Tran^3^, Anee S. Jackson^4^, Snehal G. Patel^4^, Logan D. Glosser^4^, Collin J. Weber^4^, Jyotirmay Sharma^4^, Neil D. Saunders^4^, Young-Mi Go^3^, Dean P. Jones^3^, and M. Ryan Smith^3,8^
+
+\vspace{0.5em}
+
+\begingroup
+\fontsize{8}{9.6}\selectfont
+1- Medical Scientist Training Program, Emory University School of Medicine, Atlanta, GA 30322
+
+2- Nutrition and Health Sciences, Laney Graduate School, Emory University, Atlanta, GA 30322
+
+3- Division of Pulmonary, Allergy, Critical Care and Sleep Medicine, Department of Medicine, Emory University School of Medicine, Atlanta, GA, USA 30322
+
+4- Division of General and GI Surgery, Department of Surgery, Emory University School of Medicine, Atlanta, GA 30322
+
+5- Molecular and Systems Pharmacology, Laney Graduate School, Emory University, Atlanta, GA 30322
+
+6- Gangarosa Department of Environmental Health, Rollins School of Public Health, Emory University, Atlanta, GA 30322
+
+7- Winship Cancer Institute, Emory University, Atlanta, GA 30322
+
+8- VA Healthcare System of Atlanta, Decatur, GA 30033
+\endgroup
+
+\vspace{2em}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{TABLE OF CONTENTS}}
+
+\vspace{0.5em}
+
+\fontsize{10}{11}\selectfont
+
+\textbf{EXPANDED METHODS} \dotfill 2-6
+
+\quad \textit{High-Resolution Exposomics} \dotfill 2
+
+\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 2
+
+\quad \textit{Preprocessing of Exposomics Data} \dotfill 3
+
+\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 3
+
+\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 3
+
+\quad \textit{Online Code and Data Repository} \dotfill 3
+
+\quad \textit{Manual Validation of Annotations for Select Chemicals} \dotfill 3-4
+
+\quad \textit{Exposome-Wide Association Study} \dotfill 4
+
+\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 4
+
+\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues} \dotfill 4-5
+
+\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 5-6
+
+\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 6
+
+\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 7
+
+\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 8-32
+
+\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 8-29
+
+\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 30-32
+
+\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 33-37
+
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 33-35
+
+\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 36-37
+
+\textbf{SUPPLEMENTARY FIGURE 4} \dotfill 38-41
+
+\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 38-40
+
+\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 41
+
+\textbf{SUPPLEMENTARY TABLE 1} \dotfill 42-59
+
+\textbf{SUPPLEMENTARY TABLE 2} \dotfill 60-70
+
+\textbf{SUPPLEMENTARY TABLE 3} \dotfill 71
+
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 72
+
+\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 73
+
+\newpage
+
+
