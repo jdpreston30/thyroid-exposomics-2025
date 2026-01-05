@@ -134,7 +134,7 @@ iarc_tumor_rtx_validated <- rtx(
   use_parallel = TRUE,
   n_cores = 6,
   run_standard = FALSE,
-  fragment_pare = TRUE,
+  fragment_pare = FALSE,
   force_plot = TRUE
 )
 # Generate compiled PDF
@@ -157,7 +157,7 @@ iarc_cadaver_rtx_validated <- rtx(
   rds_save_folder = "iarc_cadaver_rtx_validated_check",
   overwrite_rds = TRUE,
   use_parallel = FALSE,
-  run_standard = TRUE,
+  run_standard = FALSE,
   fragment_pare = FALSE, 
   force_plot = TRUE,
   debug = TRUE
