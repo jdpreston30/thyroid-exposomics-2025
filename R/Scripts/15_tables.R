@@ -60,7 +60,7 @@ table_3_tibble <- MT_final |>
     PTC_let = coalesce(PTC_let, PTC),
     p_value = sprintf("%.3f", p_value)
   ) |>
-  mutate(short_name = str_replace(short_name, "NA$", "")) |>
+  mutate(short_name = str_replace(short_name, "NA([ᵃᵇᶜ]*)$", "\\1")) |>
   # Correct marker ordering (ensure abc order)
   mutate(
     short_name = case_when(
@@ -74,7 +74,8 @@ table_3_tibble <- MT_final |>
     )
   ) |>
   arrange(p_value) |>
-  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC_let, `FV-PTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value)
+  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `FV-PTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value) |>
+  mutate(across(c(FTC, `FV-PTC`, PTC), ~ str_replace_all(.x, c("ᵃ" = "ᵈ", "ᵇ" = "ᵉ", "ᶜ" = "ᶠ"))))
 #- 15.3.2: Build Table 3 with function
 table_3 <- build_table_3(
   data = table_3_tibble,

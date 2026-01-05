@@ -43,12 +43,7 @@ build_table_3 <- function(data, export_path) {
       )
     )
   
-  # Convert decimal points to middle dots (Lancet style) for all columns EXCEPT Chemical Name
-  data_formatted <- data_formatted |>
-    mutate(across(
-      -`Chemical Name`,
-      ~ str_replace_all(as.character(.x), "\\.", "·")
-    ))
+  # Note: Periods kept as regular decimal points (not replaced with middle dots)
   
   # Create workbook
   wb <- createWorkbook()

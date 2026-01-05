@@ -159,8 +159,7 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
   # Combine all rows and apply formatting
   result <- bind_rows(table_rows) |>
     mutate(
-      # Convert decimal points to middle dots (Lancet style)
-      `n (%)` = str_replace_all(`n (%)`, "\\.", "·"),
+      # Periods kept as regular decimal points (not replaced with middle dots)
       # Add symbol to Wood Preservatives (class level)
       Category = if_else(
         str_detect(Category, "^\\s*Wood Preservatives$"),

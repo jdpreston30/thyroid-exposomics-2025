@@ -26,14 +26,14 @@ build_ST1 <- function(data) {
   # Format RT column
   data_formatted$`Target RT (min.)` <- sapply(data$`Target RT (min.)`, function(x) {
     if (is.na(x)) return("")
-    str_replace(sprintf("%.4f", x), "\\.", "·")
+    sprintf("%.4f", x)
   })
   
   # Format mz columns
   for (col in mz_cols) {
     data_formatted[[col]] <- sapply(data[[col]], function(x) {
       if (is.na(x)) return("")
-      str_replace(sprintf("%.4f", x), "\\.", "·")
+      sprintf("%.4f", x)
     })
   }
   
@@ -43,7 +43,7 @@ build_ST1 <- function(data) {
     if (x == "-") return("-")
     num_val <- suppressWarnings(as.numeric(x))
     if (is.na(num_val)) return("")
-    str_replace(sprintf("%.4f", num_val), "\\.", "·")
+    sprintf("%.4f", num_val)
   })
   
   # Create basic gt table

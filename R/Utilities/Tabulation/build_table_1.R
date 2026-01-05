@@ -70,12 +70,7 @@ build_table_1 <- function(data, export_path) {
     )
   }
   
-  # Convert decimal points to middle dots (Lancet style)
-  data_formatted <- data_formatted |>
-    mutate(across(
-      everything(),
-      ~ str_replace_all(as.character(.x), "\\.", "·")
-    ))
+  # Note: Periods kept as regular decimal points (not replaced with middle dots)
   
   # Store the variable names BEFORE renaming columns (for styling logic)
   var_names_for_styling <- data_formatted[[var_col]]
