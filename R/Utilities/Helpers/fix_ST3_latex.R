@@ -7,8 +7,7 @@
 #' - Vertical center headers
 #' - Set header row height to match ST1/ST2
 #' - Bold Usage Class header rows
-#' - Handle § superscript symbols
-#' - Superscript † and ‡ in column headers
+#' - Superscript letters (a, b, c, e) in column headers
 #' - Match border style from ST1/ST2
 #'
 #' @param latex_text Character string of LaTeX code
@@ -40,9 +39,7 @@ fix_ST3_latex <- function(latex_text) {
   latex_text <- gsub("& NA &", "& &", latex_text)
   latex_text <- gsub("& NA \\\\\\\\", "& \\\\\\\\", latex_text)
   
-  # Handle § symbol - convert to superscript
-  latex_text <- gsub("§", "$^{\\\\S}$", latex_text)
-  
+
   # Fix en-dash
   latex_text <- gsub("–", "--", latex_text)
   
@@ -114,10 +111,10 @@ fix_ST3_latex <- function(latex_text) {
       "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{IARC\\\\Group}}}",
       "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Mean Non-Cancer\\\\Thyroid Conc.\\\\(PPB)}}}",
       "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Mean Tumor\\\\Conc.\\\\(PPB)}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Range\\\\(PPB)*}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Adipose\\\\Tissue\\\\(PPB)$^{\\dagger}$}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Urine\\\\(PPB)$^{\\ddagger}$}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Serum/\\\\Plasma\\\\(PPB)$^{\\ddagger}$}}}"
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Range\\\\(PPB)$^{\\text{a}}$}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Adipose\\\\Tissue\\\\(PPB)$^{\\text{b}}$}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Urine\\\\(PPB)$^{\\text{c}}$}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Serum/\\\\Plasma\\\\(PPB)$^{\\text{c}}$}}}"
     )
     
     # Rebuild header line with 18pt height for 3-line headers (6pt per line)

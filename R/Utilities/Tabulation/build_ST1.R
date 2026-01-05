@@ -1,6 +1,6 @@
 #' Build Supplementary Table 1 (ST1)
 #'
-#' Formats the chemical library table with gt according to Lancet specifications:
+#' Formats the chemical library table with gt according to journal specifications:
 #' - Times New Roman font (applied at PDF compilation)
 #' - 7pt content, bold headers, italic mz columns
 #' - 0.5pt borders

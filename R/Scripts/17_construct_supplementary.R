@@ -26,12 +26,12 @@ tables_content <- readLines(tables_path, warn = FALSE)
 #- 17.4.2: Fix paths for correct references when rendered from Components directory
 # Update bibliography and csl paths to be relative from Components directory
 bib_path_rel <- file.path("References", "supplementary.bib")
-csl_path_rel <- file.path("References", "the-lancet.csl")
+csl_path_rel <- file.path("References", "thyroid.csl")
 # Replace the relative paths in cover content
 cover_content <- gsub('bibliography: "References/supplementary.bib"', 
                      paste0('bibliography: "', bib_path_rel, '"'), 
                      cover_content, fixed = TRUE)
-cover_content <- gsub('csl: "References/the-lancet.csl"', 
+cover_content <- gsub('csl: "References/thyroid.csl"', 
                      paste0('csl: "', csl_path_rel, '"'), 
                      cover_content, fixed = TRUE)
 # Fix figure paths to be relative from Components directory  

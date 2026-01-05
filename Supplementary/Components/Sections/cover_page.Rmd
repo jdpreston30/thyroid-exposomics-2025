@@ -8,7 +8,7 @@ geometry:
   - headsep=0.15in
   - footskip=12pt
 bibliography: "References/supplementary.bib"
-csl: "References/the-lancet.csl"
+csl: "References/thyroid.csl"
 reference-section-title: "REFERENCES CITED IN SUPPLEMENTARY MATERIAL"
 header-includes:
   - \usepackage{fontspec}

@@ -1,6 +1,6 @@
 #' Build Supplementary Table 2 (ST2)
 #'
-#' Formats the metadata table with gt according to Lancet specifications:
+#' Formats the metadata table with gt according to journal specifications:
 #' - Times New Roman font (applied at PDF compilation)
 #' - 8pt content, 10pt bold headers
 #' - 0.5pt borders

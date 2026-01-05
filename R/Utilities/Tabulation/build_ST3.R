@@ -37,10 +37,10 @@ build_ST3 <- function(data) {
       columns = c(
         `Mean Non-Cancer Thyroid Concentration (PPB)`,
         `Mean Tumor Concentration (PPB)`,
-        `Range (PPB)*`,
-        `Adipose Tissue (PPB)†`,
-        `Urine (PPB)‡`,
-        `Serum/Plasma (PPB)‡`
+        `Range (PPB)ᵃ`,
+        `Adipose Tissue (PPB)ᵇ`,
+        `Urine (PPB)ᶜ`,
+        `Serum/Plasma (PPB)ᶜ`
       )
     ) |>
     # Table styling for LaTeX output

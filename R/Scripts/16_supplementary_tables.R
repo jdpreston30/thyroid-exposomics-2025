@@ -34,11 +34,13 @@ ST1_tibble <- ST1_import |>
     cas = if_else(!is_first_cas, "-", cas),
     monoisotopic = if_else(!is_first_cas, "-", as.character(monoisotopic))
   ) |>
-  # Add dagger superscript for expanded chemicals
+  # Replace asterisks with superscript a for endogenous chemicals
+  mutate(name = gsub("\\*", "ᵃ", name)) |>
+  # Add superscript b for expanded chemicals
   mutate(
     name = if_else(
       id %in% expanded_chemicals & name != "-",
-      paste0(name, "$^\\dagger$"),
+      paste0(name, "ᵇ"),
       name
     )
   ) |>
@@ -69,7 +71,8 @@ ST2_base <- feature_metadata |>
   select(GROUP = Table_Header, Class = Table_Class, Subclass = Table_Subclass, CAS = cas, `Potential EDC` = Potential_EDC, `IARC Group` = IARC_Group, `Superclass: Class`) |>
   mutate(GROUP = toupper(GROUP)) |>
   left_join(ST1_tibble |> select(Name, CAS), by = "CAS") |>
-  mutate(Name = gsub("\\$\\^\\\\dagger\\$", "", Name)) |>
+  mutate(Name = gsub("ᵇ", "", Name)) |>
+  mutate(Name = gsub("\\*", "ᵃ", Name)) |>
   arrange(GROUP, Class, Subclass, Name)
 #- 16.2.2: Build hierarchical structure with proper nesting
 ST2_list <- list()
@@ -286,6 +289,8 @@ ST3_tibble_flat <- ST3_tibble_2 |>
   filter(!CAS %in% failed_ST3) |>
   left_join(literature_ST3 |> select(CAS, `Usage Class`, AT_manuscript, AT_ref, plasma_manuscript, plasma_ref, urine_manuscript, urine_ref), by = "CAS") |>
   mutate(
+    # Remove all superscripts from Name column
+    Name = gsub("[ᵃᵇᶜᵉ]", "", Name),
     Name = gsub("\\$\\^\\\\dagger\\$|\\*", "", Name),
     `Range (PPB)` = range,
     `Mean Non-Cancer Thyroid Concentration (PPB)` = mean_ctrl,
@@ -330,6 +335,11 @@ ST3_tibble_flat <- ST3_tibble_2 |>
         ), "}"),
       !is.na(plasma_manuscript) ~ plasma_manuscript,
       TRUE ~ NA_character_
+    ),
+    # Replace § with superscript e in all literature columns
+    across(
+      c(`Adipose Tissue (PPB)†`, `Urine (PPB)‡`, `Serum/Plasma (PPB)‡`),
+      ~ str_replace_all(.x, "§", "ᵉ")
     )
   ) |>
   select(
@@ -339,10 +349,10 @@ ST3_tibble_flat <- ST3_tibble_2 |>
     `IARC Group` = IARC_Group,
     `Mean Non-Cancer Thyroid Concentration (PPB)` = `Mean Non-Cancer Thyroid Concentration (PPB)`,
     `Mean Tumor Concentration (PPB)` = `Mean Tumor Concentration (PPB)`,
-    `Range (PPB)*` = `Range (PPB)`,
-    `Adipose Tissue (PPB)†` = `Adipose Tissue (PPB)†`,
-    `Urine (PPB)‡` = `Urine (PPB)‡`,
-    `Serum/Plasma (PPB)‡` = `Serum/Plasma (PPB)‡`
+    `Range (PPB)ᵃ` = `Range (PPB)`,
+    `Adipose Tissue (PPB)ᵇ` = `Adipose Tissue (PPB)†`,
+    `Urine (PPB)ᶜ` = `Urine (PPB)‡`,
+    `Serum/Plasma (PPB)ᶜ` = `Serum/Plasma (PPB)‡`
   ) |>
   arrange(`Usage Class`, Name)
 #- 16.3.8: Build hierarchical structure with Usage Class headers
@@ -359,10 +369,10 @@ for (usage_idx in seq_along(all_usage_classes)) {
     `IARC Group` = NA_character_,
     `Mean Non-Cancer Thyroid Concentration (PPB)` = NA_character_,
     `Mean Tumor Concentration (PPB)` = NA_character_,
-    `Range (PPB)*` = NA_character_,
-    `Adipose Tissue (PPB)†` = NA_character_,
-    `Urine (PPB)‡` = NA_character_,
-    `Serum/Plasma (PPB)‡` = NA_character_
+    `Range (PPB)ᵃ` = NA_character_,
+    `Adipose Tissue (PPB)ᵇ` = NA_character_,
+    `Urine (PPB)ᶜ` = NA_character_,
+    `Serum/Plasma (PPB)ᶜ` = NA_character_
   )
   # Add chemicals for this usage class with 2 spaces indent (already sorted by Name)
   usage_data <- ST3_tibble_flat |> 
@@ -378,10 +388,10 @@ for (usage_idx in seq_along(all_usage_classes)) {
       `IARC Group` = "",
       `Mean Non-Cancer Thyroid Concentration (PPB)` = "",
       `Mean Tumor Concentration (PPB)` = "",
-      `Range (PPB)*` = "",
-      `Adipose Tissue (PPB)†` = "",
-      `Urine (PPB)‡` = "",
-      `Serum/Plasma (PPB)‡` = ""
+      `Range (PPB)ᵃ` = "",
+      `Adipose Tissue (PPB)ᵇ` = "",
+      `Urine (PPB)ᶜ` = "",
+      `Serum/Plasma (PPB)ᶜ` = ""
     )
   }
 }
@@ -390,7 +400,7 @@ ST3_tibble <- bind_rows(ST3_list) |>
   mutate(
     # Add en-dash for missing literature values in chemical rows (not headers or spacers)
     across(
-      c(`Adipose Tissue (PPB)†`, `Urine (PPB)‡`, `Serum/Plasma (PPB)‡`),
+      c(`Adipose Tissue (PPB)ᵇ`, `Urine (PPB)ᶜ`, `Serum/Plasma (PPB)ᶜ`),
       ~ case_when(
         Name != "" & !is.na(CAS) & (is.na(.) | . == "") ~ "–",
         TRUE ~ .
