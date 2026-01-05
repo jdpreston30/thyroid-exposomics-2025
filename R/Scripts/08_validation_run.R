@@ -122,186 +122,190 @@ compile_validation_pdf(
 )
 #+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
 #- 8.4.1: IARC Tumor - Pentachlorophenol
-iarc_tumor_rtx_validated_pt1 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(1),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt1,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[1]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
+{
+  iarc_tumor_rtx_validated_pt1 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(1),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt1,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[1]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
 #- 8.4.2: IARC Tumor - γ-BHC
-iarc_tumor_rtx_validated_pt2 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(2),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt2,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[2]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
+{
+  iarc_tumor_rtx_validated_pt2 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(2),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt2,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[2]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
 #- 8.4.3: IARC Tumor - 2-Naphthylamine
-iarc_tumor_rtx_validated_pt3 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(3),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt3,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[3]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
+{
+  iarc_tumor_rtx_validated_pt3 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(3),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt3,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[3]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
 #- 8.4.4: IARC Tumor - Phenacetin
-iarc_tumor_rtx_validated_pt4 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(4),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt4,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[4]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
+{
+  iarc_tumor_rtx_validated_pt4 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(4),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt4,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[4]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
 #- 8.4.5: IARC Tumor - 4-ABP
-iarc_tumor_rtx_validated_pt5 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(5),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt5,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[5]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
+{
+  iarc_tumor_rtx_validated_pt5 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(5),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt5,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[5]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
 #- 8.4.6: IARC Tumor - MOCA
-iarc_tumor_rtx_validated_pt6 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(6),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt6,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[6]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
+{
+  iarc_tumor_rtx_validated_pt6 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(6),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt6,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[6]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
 #- 8.4.7: IARC Tumor - o-Toluidine
-iarc_tumor_rtx_validated_pt7 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(7),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt7,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[7]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
+{
+  iarc_tumor_rtx_validated_pt7 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(7),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt7,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[7]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
 #- 8.4.8: IARC Tumor - 2-ABP
-iarc_tumor_rtx_validated_pt8 <- rtx(
-  validation_list = iv_wide_iarc_validated |> slice(8),
-  iterate_through = 120,
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE,
-  force_plot = TRUE
-)
-compile_validation_pdf(
-  compound_plots = iarc_tumor_rtx_validated_pt8,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[8]), ".pdf"),
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated_check"
-)
-#- 8.4.9: Combine all IARC Tumor PDFs
-cat("\n📚 Combining all IARC Tumor PDFs into single document...\n")
-iarc_tumor_pdf_files <- list.files(
-  path = "Outputs/Validation/initial_compile/",
-  pattern = "^iarc_tumor_.*\\.pdf$",
-  full.names = TRUE
-)
-pdftools::pdf_combine(
-  input = iarc_tumor_pdf_files,
-  output = "Outputs/Validation/initial_compile/iarc_tumor_rtx_validated_COMBINED.pdf"
-)
-cat(sprintf("✓ Combined %d PDFs into iarc_tumor_rtx_validated_COMBINED.pdf\n", length(iarc_tumor_pdf_files)))
-#- 8.4.10: IARC Cadaver
+{
+  iarc_tumor_rtx_validated_pt8 <- rtx(
+    validation_list = iv_wide_iarc_validated |> slice(8),
+    iterate_through = 120,
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_tumor_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE,
+    force_plot = TRUE
+  )
+  compile_validation_pdf(
+    compound_plots = iarc_tumor_rtx_validated_pt8,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[8]), ".pdf"),
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_tumor_rtx_validated_check"
+  )
+}
+#- 8.4.9: IARC Cadaver
 iarc_cadaver_rtx_validated <- rtx(
   validation_list = ic_wide_iarc_validated,
   study = "cadaver",
