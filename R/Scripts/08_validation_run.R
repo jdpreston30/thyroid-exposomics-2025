@@ -129,7 +129,7 @@ iarc_tumor_rtx_validated <- rtx(
   rt_lookup = "window",
   window = 10/60,
   save_rds = TRUE,
-  rds_save_folder = "iarc_tumor_rtx_validated",
+  rds_save_folder = "iarc_tumor_rtx_validated_check",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
   n_cores = 6,
@@ -143,7 +143,7 @@ compile_validation_pdf(
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_tumor_rtx_validated.pdf",
   add_plot_tags = TRUE,
-  external_subfolder = "iarc_tumor_rtx_validated"
+  external_subfolder = "iarc_tumor_rtx_validated_check"
 )
 #- 8.4.2: IARC Cadaver
 # Run rtx (no standards)
@@ -154,12 +154,11 @@ iarc_cadaver_rtx_validated <- rtx(
   rt_lookup = "window",
   window = 10/60,
   save_rds = TRUE,
-  rds_save_folder = "iarc_cadaver_rtx_validated",
+  rds_save_folder = "iarc_cadaver_rtx_validated_check",
   overwrite_rds = TRUE,
-  use_parallel = TRUE,
-  n_cores = 9,
-  run_standard = FALSE,
-  fragment_pare = TRUE, 
+  use_parallel = FALSE,
+  run_standard = TRUE,
+  fragment_pare = FALSE, 
   force_plot = TRUE,
   debug = TRUE
 )
@@ -169,7 +168,7 @@ compile_validation_pdf(
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_cadaver_rtx_validated.pdf",
   add_plot_tags = TRUE,
-  external_subfolder = "iarc_cadaver_rtx_validated"
+  external_subfolder = "iarc_cadaver_rtx_validated_check"
 )
 #+ 8.4: Skip entire section if YAML specifies
 } else {
