@@ -1,0 +1,24 @@
+# System files
+.DS_Store
+.Rhistory
+.Renviron
+.Rprofile
+
+# R/RStudio files
+.Rproj.user/
+*.Rproj
+.Rdata
+.RData
+.Rdatastmp
+
+# Temporary RDS and validation files
+Outputs/Validation/temp_RDS/
+Outputs/Validation/initial_compile/
+Outputs/Validation/revised/
+
+# Large backup/cache files
+*.tmp
+*.cache
+
+# renv staging
+renv/staging/
