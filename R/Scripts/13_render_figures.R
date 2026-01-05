@@ -1,4 +1,8 @@
 #* 13: Render Figures
+#+ 13.0: Clean up any corrupted PDFs from previous runs
+if (file.exists("Outputs/Figures/Figs1-3.pdf")) {
+  file.remove("Outputs/Figures/Figs1-3.pdf")
+}
 #+ 13.1: Figure 1
 fig1 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   # 1A
@@ -78,18 +82,22 @@ print_to_png(fig1, "Fig1.png", output_dir = "Outputs/Figures")
 print_to_png(fig2, "Fig2.png", output_dir = "Outputs/Figures")
 print_to_png(fig3, "Fig3.png", output_dir = "Outputs/Figures")
 #+ 13.5: Save All Main Figures as PDF from PNGs
+# Close any open graphics devices
+while (!is.null(dev.list())) { 
+  dev.off() 
+}
 pdf("Outputs/Figures/Figs1-3.pdf", width = 8.5, height = 11)
 # Page 1: Fig1
 img1 <- readPNG("Outputs/Figures/Fig1.png")
-grid.newpage()
-grid.raster(img1, width = unit(8.5, "inches"), height = unit(11, "inches"))
+grid::grid.newpage()
+grid::grid.raster(img1, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 # Page 2: Fig2
 img2 <- readPNG("Outputs/Figures/Fig2.png")
-grid.newpage()
-grid.raster(img2, width = unit(8.5, "inches"), height = unit(11, "inches"))
+grid::grid.newpage()
+grid::grid.raster(img2, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 # Page 3: Fig3
 img3 <- readPNG("Outputs/Figures/Fig3.png")
-grid.newpage()
-grid.raster(img3, width = unit(8.5, "inches"), height = unit(11, "inches"))
+grid::grid.newpage()
+grid::grid.raster(img3, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 dev.off()
 cat("PDF compiled: Outputs/Figures/Figs1-3.pdf\n")

@@ -1,52 +1,197 @@
-# Thyroid Tumor Exposomics Analysis
-This repository contains code and data used for the analysis presented in the submitted manuscript 'Environmental Chemical Burden in Differentiated Thyroid Cancer' by Preston et al. 2025.
+# Environmental Chemical Burden in Differentiated Thyroid Cancer
 
-To clone this repository to your local machine:
-```bash
-git clone https://github.com/jdpreston30/thyroid-exposomics-2025
+## 📖 Citation
+
+This code is associated with the analysis presented in the following manuscript:
+> Preston et al. (2025). Environmental Chemical Burden in Differentiated Thyroid Cancer. *The Lancet* (submitted).
+
+## 🚀 Quick Start for Reproduction
+
+**⚠️ Data Availability Notice**: 
+- **No raw data files** (~77 GB of GC-MS .raw files) are included in this repository
+- **All instructions below assume you have obtained data files or are using your own data**
+- **To reproduce this analysis**: Contact the first author (Joshua D. Preston, joshua.preston@emory.edu) to obtain the data files—this is the easiest and recommended approach
+- **Public data access**: Raw GC-MS data will be made publicly available upon manuscript acceptance
+- **To run analyses with your own data or provided data files**: Update file paths in `All_Run/config_dynamic.yaml` to match your system
+
+### Option 1: Using Docker (Recommended for Exact Reproducibility)
+
+**Status**: In Progress
+
+### Option 2: Manual Installation (Without Docker)
+
+**Prerequisites**: 
+- R >= 4.5.1
+- Git (to clone repository)
+
+**Note**: This project uses `renv` for package management to ensure reproducibility. The `renv.lock` file contains exact versions of all packages used in the manuscript.
+
+```r
+# 1. Clone the repository
+# (from terminal)
+git clone https://github.com/jdpreston30/thyroid-exposomics-2025.git
 cd thyroid-exposomics-2025
+
+# 2. Start R in the project directory
+# (renv automatically activates via .Rprofile)
+
+# 3. Restore all packages at exact versions (first time only, ~10-20 minutes)
+renv::restore()
+
+# 4. Update configuration paths
+# Edit All_Run/config_dynamic.yaml to set paths for your system:
+#   - raw_data: Path to GC-MS raw data files
+#   - output_dirs: Path to output directories
+#   - metadata_files: Path to metadata files
+
+# 5. Run the complete analysis pipeline
+source("All_Run/run.R")
 ```
 
-Make sure you have [Git](https://git-scm.com/) installed.
+**What happens during `renv::restore()`**:
+- Installs ~30 R packages at exact versions from `renv.lock`
+- Installs CRAN packages (e.g., ggplot2, dplyr, broom, tidyr)
+- Installs Bioconductor packages (e.g., mzR for mass spectrometry data)
+- Creates isolated project library (doesn't affect your system R packages)
+- Only needed once per computer; subsequent runs use installed packages
+- Packages are automatically loaded from `DESCRIPTION` file during pipeline execution
 
+## 📁 Project Structure
 
-## Requirements
-- R version ≥ 4.5.1
-- Packages: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, webchem, writexl
+```
+├── DESCRIPTION                 # R package dependencies
+├── renv.lock                   # Exact package versions for reproducibility
+├── All_Run/                    # Pipeline execution
+│   ├── config_dynamic.yaml     # Analysis configuration (update paths for your system)
+│   ├── run.R                   # Main pipeline execution script
+│   └── TO DO                   # Development notes
+├── R/                          # Analysis code
+│   ├── Scripts/                # Analysis workflow scripts (00a-17)
+│   │   ├── 00a_environment_setup.R
+│   │   ├── 00b_setup.R
+│   │   ├── 00c_clinical_data.R
+│   │   ├── 00d_FTs.R
+│   │   ├── 00e_peakwalk_compile.R
+│   │   ├── 01_demographics.R
+│   │   ├── 02_detection.R
+│   │   ├── 03_classes.R
+│   │   ├── 04_variant_stats.R
+│   │   ├── 05_variant_vis_prep.R
+│   │   ├── 06_tumor_cadaver.R
+│   │   ├── 07_validation_prep.R
+│   │   ├── 08_validation_run.R
+│   │   ├── 09_validation_plots_create.R
+│   │   ├── 10_post_validation_clean.R
+│   │   ├── 11_variant_vis.R
+│   │   ├── 12_IARC_vis.R
+│   │   ├── 13_render_figures.R
+│   │   ├── 14_render_supplementary_figures.R
+│   │   ├── 15_tables.R
+│   │   ├── 16_supplementary_tables.R
+│   │   └── 17_construct_supplementary.R
+│   └── Utilities/              # Custom analysis functions
+│       ├── Analysis/           # Statistical and carcinogen classification
+│       ├── Helpers/            # Helper functions (config, validation, tables)
+│       ├── Tabulation/         # Table generation (demographics, supplementary)
+│       ├── Validation/         # Spectral validation and fragment processing
+│       └── Visualization/      # Plotting functions (balloons, heatmaps, donuts)
+├── Outputs/                    # Generated results
+│   ├── Figures/                # Publication figures (PNG, PDF)
+│   ├── Tables/                 # Manuscript tables
+│   └── Validation/             # Spectral validation plots and PDFs
+│       ├── failed/             # Compounds that failed validation
+│       ├── initial_compile/    # Initial validation compilation
+│       ├── revised/            # Revised validation plots
+│       └── top_fragments/      # Top fragment validations
+├── Supplementary/              # Supplementary materials
+│   ├── Components/             # R Markdown components
+│   ├── Build_Logs/             # LaTeX build logs
+│   └── ST4_ip.md               # Supplementary Table 4 working document
+├── metadata_files/             # Chemical metadata, libraries, tissue weights
+└── utilities_hold/             # Archived unused functions (for testing)
+```
 
+## 🔬 Analysis Workflow
 
-## Files
-All elements of the repository are listed below, along with a description and guide of each:
-- `source_code.R`: This file is the main analysis script for the project. All data required to run the code, excluding data required for the blocks under “#+ Demographics (Table 1)”, can be imported from the "Data and Metadata Files" folder or loaded into the global environment from the compiled R serialized object (all_objects.rds). The following packages are required for the source code: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, writexl. These can all be installed and loaded under the header “#* Dependencies.” A version of R ≥ 4.3.1 is recommended for running all analyses in the source code.
+The complete pipeline executes in sequence:
 
-- `all_objects.rds`: This is the R serialized object containing all objects and the full dataset, excluding demographic data.
-  
-- `Outputs`: This folder contains all output data files generated by running the source code.
+1. **00a-00e**: Environment setup, clinical metadata, feature tables, peakwalk compilation
+2. **01**: Demographics and clinical characteristics (Table 1)
+3. **02**: Detection frequency analysis
+4. **03**: Chemical class distribution
+5. **04**: Variant-specific statistical comparisons
+6. **05**: Variant visualization data preparation
+7. **06**: Tumor vs cadaver control comparisons
+8. **07-10**: Spectral validation workflow (preparation, execution, plotting, cleanup)
+9. **11-12**: Variant and IARC carcinogen visualizations
+10. **13-14**: Render main and supplementary figures
+11. **15-16**: Generate manuscript and supplementary tables
+12. **17**: Construct supplementary materials document
 
-- `Figures.Prism`: This is a GraphPad Prism file used to create all figures in the manuscript.
-  
-- `Data and Metadata Files`: This folder contains all primary data and metadata files. These data can be directly imported into the analysis script. A description of each file is as follows:
-  - `primary_data.xlsx`: This file contains the primary data for this project. A description of each tab in the file is as follows:
-    - `lib.subject.summary`: Feature table for all annotated features.
-    - `tumors_sequence`: Sequence file and associated sample metadata.
-    - `lib.subject.qusummary`: Quantitative feature table for tumors.
-    - `lib.subject.qsummary.cadaver`: Quantitative feature table for cadaver control thyroids.
-    - `library`: Information on the full library of standards used.
-    - `tissue_weights`: Weights of each tissue sample.
-  - `chemical_metadata.xlsx`: Metadata for all detected chemicals.
-    - `feature_metadata`: Detailed metadata for all unique identifications.
-    - `Endogenous Excluded Features`: Features excluded from analysis due to being primarily endogenous.
-  - `supplementary_tables_raw.xlsx`: Raw forms of the tables used in the supplementary material.
-    - `ST1_raw`: Raw form of Supplementary Table 1.
-    - `ST2_raw`: Raw form of Supplementary Table 2.
-    - `ST3_raw`: Raw form of Supplementary Table 3.
-    - `ST4_raw`: Raw form of Supplementary Table 4.
-    - `Abbreviations`: Abbreviation legend for the Supplementary Tables.
+## 💻 System Requirements
 
-- `Spectral Validation`: This is the directory for the spectral validation performed on select identifications
-  - `spectral_validation.xlsx`: Contains observed versus theoretical mz and rt values for validation
+### Computational Requirements
+- **R**: Version 4.5.1 or higher
+- **Platform**: Developed on macOS (M1/Apple Silicon) but cross-platform compatible
+- **Memory**: Minimum 8 GB RAM recommended for large GC-MS datasets
+- **Storage**: ~100 GB for raw data + processed outputs
 
-## Accessing Raw Data
-Raw data files (~77 GB) are stored securely via OneDrive.
-- Please request access by contacting me directly (joshua.preston@emory.edu)
-- OR contact the corresponding author for permission
+### System Dependencies
+- **TinyTeX/LaTeX**: PDF generation (automatically installed via tinytex package)
+- **Mono framework**: Required for ThermoRawFileParser (.raw file conversion to mzML)
+- **ThermoRawFileParser**: Converts Thermo .raw files to open mzML format
+  - Installation: `~/bin/ThermoRawFileParser/`
+  - Download: https://github.com/compomics/ThermoRawFileParser
+
+*Note: System dependencies will be automatically installed in the Docker container (In Progress). For manual installation, see above.*
+
+## 📦 Package Dependencies
+
+All R package dependencies are specified in `DESCRIPTION`. Key packages include:
+
+### CRAN Packages
+- **Data manipulation**: tidyverse (dplyr, tidyr, purrr, readr, stringr, tibble, forcats)
+- **Visualization**: ggplot2, ggtext, cowplot, gridExtra, magick
+- **Mass spectrometry**: mzR (Bioconductor)
+- **Chemical informatics**: webchem
+- **Statistical analysis**: broom, multcompView
+- **Parallel processing**: doParallel, foreach
+- **Document generation**: rmarkdown, tinytex, gt, openxlsx
+- **Configuration**: yaml, here, jsonlite
+
+### Bioconductor Packages
+- **mzR**: Mass spectrometry data import and processing
+
+*See `DESCRIPTION` file for complete list of all dependencies.*
+
+## 🔄 Reproducibility Features
+
+This project implements best practices for computational reproducibility:
+
+- ✅ **Version Control**: Complete analysis code on GitHub
+- ✅ **Package Management**: `renv` with `renv.lock` pinning all packages to exact versions
+- ✅ **Dependency Declaration**: All dependencies specified in `DESCRIPTION` with automatic loading
+- ✅ **Containerization**: In Progress
+- ✅ **Docker Hub Distribution**: In Progress
+- ✅ **Configuration-Driven**: All parameters in `config_dynamic.yaml` (computer-specific paths)
+- ✅ **Dynamic Path Resolution**: Automatic detection of computer/user for path configuration
+- ✅ **Documentation**: Comprehensive function documentation (roxygen2 style) and workflow comments
+- ✅ **Hierarchical Code Organization**: Clear comment structure (#*, #+, #-, #_) for workflow navigation
+- ✅ **Modular Design**: Utilities separated by function type (Analysis, Visualization, Validation, etc.)
+
+## 📧 Contact
+
+**First Author & Repository Maintainer**: Joshua D. Preston
+- **Email**: joshua.preston@emory.edu  
+- **ORCID**: [0000-0001-9834-3017](https://orcid.org/0000-0001-9834-3017)  
+- **Institution**: Department of Surgery, Emory University School of Medicine
+
+**Senior & Corresponding Author**: TBD
+- **Email**: TBD
+- **Institution**: Department of Surgery, Emory University School of Medicine
+
+---
+
+**Repository**: https://github.com/jdpreston30/thyroid-exposomics-2025  
+**Docker Hub**: In Progress  
+**Zenodo Archive**: In Progress
