@@ -7,11 +7,11 @@ git clone https://github.com/jdpreston30/thyroid-exposomics-2025
 cd thyroid-exposomics-2025
 ```
 
-Make sure you have [Git](https://git-scm.com/) installed. After cloning, you can open `source_code.R` in RStudio or your preferred IDE to begin the analysis.
+Make sure you have [Git](https://git-scm.com/) installed.
 
 
 ## Requirements
-- R version ≥ 4.3.1
+- R version ≥ 4.5.1
 - Packages: broom, dplyr, forcats, ggplot2, multcompView, purrr, readxl, stringr, tibble, tidyr, webchem, writexl
 
 
