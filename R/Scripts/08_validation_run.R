@@ -306,29 +306,31 @@ compile_validation_pdf(
   )
 }
 #- 8.4.9: IARC Cadaver
-iarc_cadaver_rtx_validated <- rtx(
-  validation_list = ic_wide_iarc_validated,
-  study = "cadaver",
-  iterate_through = 16,  # 16
-  rt_lookup = "window",
-  window = 10/60,
-  save_rds = TRUE,
-  rds_save_folder = "iarc_cadaver_rtx_validated_check",
-  overwrite_rds = TRUE,
-  use_parallel = FALSE,
-  run_standard = FALSE,
-  fragment_pare = FALSE, 
-  force_plot = TRUE,
-  debug = TRUE
-)
-# Generate compiled PDF
-compile_validation_pdf(
-  compound_plots = iarc_cadaver_rtx_validated,
-  output_dir = "Outputs/Validation/initial_compile/",
-  pdf_name = "iarc_cadaver_rtx_validated.pdf",
-  add_plot_tags = TRUE,
-  external_subfolder = "iarc_cadaver_rtx_validated_check"
-)
+{
+  iarc_cadaver_rtx_validated <- rtx(
+    validation_list = ic_wide_iarc_validated,
+    study = "cadaver",
+    iterate_through = 16,  # 16
+    rt_lookup = "window",
+    window = 10/60,
+    save_rds = TRUE,
+    rds_save_folder = "iarc_cadaver_rtx_validated_check",
+    overwrite_rds = TRUE,
+    use_parallel = FALSE,
+    run_standard = FALSE,
+    fragment_pare = FALSE, 
+    force_plot = TRUE,
+    debug = TRUE
+  )
+  # Generate compiled PDF
+  compile_validation_pdf(
+    compound_plots = iarc_cadaver_rtx_validated,
+    output_dir = "Outputs/Validation/initial_compile/",
+    pdf_name = "iarc_cadaver_rtx_validated.pdf",
+    add_plot_tags = TRUE,
+    external_subfolder = "iarc_cadaver_rtx_validated_check"
+  )
+}
 #+ 8.4: Skip entire section if YAML specifies
 } else {
   cat("⏭️  Skipping validation step (config$analysis$run_validation_step = FALSE)\n")

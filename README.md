@@ -8,7 +8,7 @@ This code is associated with the analysis presented in the following manuscript:
 ## 🚀 Quick Start for Reproduction
 
 **⚠️ Data Availability Notice**: 
-- **No raw data files** (~77 GB of GC-MS .raw files) are included in this repository
+- **No raw data files** are included in this repository
 - **All instructions below assume you have obtained data files or are using your own data**
 - **To reproduce this analysis**: Contact the first author (Joshua D. Preston, joshua.preston@emory.edu) or senior author (M. Ryan Smith, matthew.ryan.smith@emory.edu) to obtain the data files—this is the easiest and recommended approach
 - **Public data access**: Raw GC-MS data will be made publicly available upon manuscript acceptance
@@ -49,7 +49,7 @@ source("All_Run/run.R")
 ```
 
 **What happens during `renv::restore()`**:
-- Installs ~30 R packages at exact versions from `renv.lock`
+- Installs all R packages at exact versions from `renv.lock`
 - Installs CRAN packages (e.g., ggplot2, dplyr, broom, tidyr)
 - Installs Bioconductor packages (e.g., mzR for mass spectrometry data)
 - Creates isolated project library (doesn't affect your system R packages)
@@ -63,8 +63,7 @@ source("All_Run/run.R")
 ├── renv.lock                   # Exact package versions for reproducibility
 ├── All_Run/                    # Pipeline execution
 │   ├── config_dynamic.yaml     # Analysis configuration (update paths for your system)
-│   ├── run.R                   # Main pipeline execution script
-│   └── TO DO                   # Development notes
+│   └── run.R                   # Main pipeline execution script
 ├── R/                          # Analysis code
 │   ├── Scripts/                # Analysis workflow scripts (00a-17)
 │   │   ├── 00a_environment_setup.R
@@ -93,22 +92,21 @@ source("All_Run/run.R")
 │       ├── Analysis/           # Statistical and carcinogen classification
 │       ├── Helpers/            # Helper functions (config, validation, tables)
 │       ├── Tabulation/         # Table generation (demographics, supplementary)
+│       ├── Terminal/           # Terminal helper functions
 │       ├── Validation/         # Spectral validation and fragment processing
 │       └── Visualization/      # Plotting functions (balloons, heatmaps, donuts)
 ├── Outputs/                    # Generated results
 │   ├── Figures/                # Publication figures (PNG, PDF)
-│   ├── Tables/                 # Manuscript tables
+│   ├── Tables/                 # Manuscript tables (Excel format)
 │   └── Validation/             # Spectral validation plots and PDFs
 │       ├── failed/             # Compounds that failed validation
 │       ├── initial_compile/    # Initial validation compilation
 │       ├── revised/            # Revised validation plots
 │       └── top_fragments/      # Top fragment validations
-├── Supplementary/              # Supplementary materials
+├── Supplementary/              # Materials for compiled supplementary PDF
 │   ├── Components/             # R Markdown components
-│   ├── Build_Logs/             # LaTeX build logs
-│   └── ST4_ip.md               # Supplementary Table 4 working document
-├── metadata_files/             # Chemical metadata, libraries, tissue weights
-└── utilities_hold/             # Archived unused functions (for testing)
+│   └── Build_Logs/             # LaTeX build logs
+└── metadata_files/             # Chemical metadata, libraries, etc.
 ```
 
 ## 🔬 Analysis Workflow
@@ -149,18 +147,7 @@ The complete pipeline executes in sequence:
 
 All R package dependencies are specified in `DESCRIPTION`. Key packages include:
 
-### CRAN Packages
-- **Data manipulation**: tidyverse (dplyr, tidyr, purrr, readr, stringr, tibble, forcats)
-- **Visualization**: ggplot2, ggtext, cowplot, gridExtra, magick
-- **Mass spectrometry**: mzR (Bioconductor)
-- **Chemical informatics**: webchem
-- **Statistical analysis**: broom, multcompView
-- **Parallel processing**: doParallel, foreach
-- **Document generation**: rmarkdown, tinytex, gt, openxlsx
-- **Configuration**: yaml, here, jsonlite
-
-### Bioconductor Packages
-- **mzR**: Mass spectrometry data import and processing
+### CRAN and Bioconductor Packages
 
 *See `DESCRIPTION` file for complete list of all dependencies.*
 
@@ -184,11 +171,12 @@ This project implements best practices for computational reproducibility:
 **First Author & Repository Maintainer**: Joshua D. Preston
 - **Email**: joshua.preston@emory.edu  
 - **ORCID**: [0000-0001-9834-3017](https://orcid.org/0000-0001-9834-3017)  
-- **Institution**: Department of Surgery, Emory University School of Medicine
+- **Institution**: Emory University School of Medicine
 
-**Senior & Corresponding Author**: TBD
-- **Email**: TBD
-- **Institution**: Department of Surgery, Emory University School of Medicine
+**Senior & Corresponding Author**: M. Ryan Smith
+- **Email**: matthew.ryan.smith@emory.edu
+- **ORCID**: [0000-0002-8889-3477](https://orcid.org/0000-0002-8889-3477)  
+- **Institution**: Emory University School of Medicine
 
 ---
 
