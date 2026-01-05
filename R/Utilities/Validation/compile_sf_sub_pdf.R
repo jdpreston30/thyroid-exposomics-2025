@@ -66,9 +66,19 @@ compile_sf_sub_pdf <- function(metadata, sf_sub_value, output_dir = here::here("
   
   # Save to PDF
   output_path <- file.path(output_dir, paste0("S", sf_sub_value, ".pdf"))
+  
+  # Clean up any existing graphics devices before opening new PDF
+  while (!is.null(dev.list())) {
+    dev.off()
+  }
+  
   pdf(output_path, width = 8.5, height = 11)
   walk(pages, print)
-  dev.off()
+  
+  # Robust device cleanup
+  while (!is.null(dev.list())) {
+    dev.off()
+  }
   
   message("Created: ", output_path)
 }

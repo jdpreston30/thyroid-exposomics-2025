@@ -53,7 +53,7 @@ analysis:
   description: "Thyroid Exposomics Analysis"
   
   # Script execution flags
-  run_validation_step: true  # Set to true to run full validation workflow (script 08)
+  run_validation_step: false  # Set to true to run full validation workflow (scripts 08-09)
   
   # Environment preferences
   tibble_options:

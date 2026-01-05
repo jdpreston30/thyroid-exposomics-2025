@@ -1,4 +1,8 @@
 #* 13: Render Supplementary Figures
+# Remove any existing PDFs to prevent corruption from previous failed runs
+if (file.exists("Supplementary/Components/Figures/PDF/S1.pdf")) {
+  file.remove(list.files("Supplementary/Components/Figures/PDF", pattern = "^S[0-9]", full.names = TRUE))
+}
 #+ 13.1: Supplementary Figure 1
 #- 13.1.1: Align plots
 s1_aligned <- plot_grid(s1A, s1B, 

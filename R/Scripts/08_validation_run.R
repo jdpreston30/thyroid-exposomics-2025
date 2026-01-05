@@ -9,16 +9,14 @@ file_inventory <- convert_raw_to_mzml(
 #+ 8.2: Manual Validation Plots Creation
 #- 8.2.1: IARC Tumor
 # Run rtx
-iv_wide_test <- iv_wide |>
-  slice(1:2)
 iarc_tumor_rtx <- rtx(
-  validation_list = iv_wide_test,
+  validation_list = iv_wide,
   iterate_through = 6,
   rt_lookup = "sample",
   save_rds = TRUE,
   rds_save_folder = "iarc_tumor_rtx",
   overwrite_rds = TRUE,
-  use_parallel = FALSE,
+  use_parallel = TRUE,
   n_cores = 9
 )
 # Create compiled PDF

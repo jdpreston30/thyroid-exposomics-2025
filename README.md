@@ -3,14 +3,14 @@
 ## 📖 Citation
 
 This code is associated with the analysis presented in the following manuscript:
-> Preston et al. (2025). Environmental Chemical Burden in Differentiated Thyroid Cancer. *The Lancet* (submitted).
+> Preston et al. (2025). Environmental Chemical Burden in Differentiated Thyroid Cancer. (submitted).
 
 ## 🚀 Quick Start for Reproduction
 
 **⚠️ Data Availability Notice**: 
 - **No raw data files** (~77 GB of GC-MS .raw files) are included in this repository
 - **All instructions below assume you have obtained data files or are using your own data**
-- **To reproduce this analysis**: Contact the first author (Joshua D. Preston, joshua.preston@emory.edu) to obtain the data files—this is the easiest and recommended approach
+- **To reproduce this analysis**: Contact the first author (Joshua D. Preston, joshua.preston@emory.edu) or senior author (M. Ryan Smith, matthew.ryan.smith@emory.edu) to obtain the data files—this is the easiest and recommended approach
 - **Public data access**: Raw GC-MS data will be made publicly available upon manuscript acceptance
 - **To run analyses with your own data or provided data files**: Update file paths in `All_Run/config_dynamic.yaml` to match your system
 
@@ -40,9 +40,9 @@ renv::restore()
 
 # 4. Update configuration paths
 # Edit All_Run/config_dynamic.yaml to set paths for your system:
-#   - raw_data: Path to GC-MS raw data files
-#   - output_dirs: Path to output directories
-#   - metadata_files: Path to metadata files
+#   - computers: Define your computer's user_home and onedrive_path
+#   - paths.base_data_path: Path to GC-MS raw data parent directory
+#   - All other paths use dynamic templates that auto-populate from these base settings
 
 # 5. Run the complete analysis pipeline
 source("All_Run/run.R")
