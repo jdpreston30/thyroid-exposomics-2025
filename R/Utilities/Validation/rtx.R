@@ -263,7 +263,7 @@ rtx <- function(validation_list,
     ) %dopar% {
       row <- validation_list[row_idx, ]
       
-      # Process this compound (worker function defined below)
+      # Process this compound (worker function defined externally)
       process_single_compound(
         row = row,
         row_idx = row_idx,
