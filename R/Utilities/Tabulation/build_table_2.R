@@ -138,12 +138,12 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
           
           # Add symbols based on parent class context
           if (class_name == "Insecticides and Pesticides") {
-            if (subclass_name == "Organophosphate") subclass_name <- "Organophosphateᵃ"
-            if (subclass_name == "Pyrethroid") subclass_name <- "Pyrethroidᵇ"
-            if (subclass_name == "Carbamate") subclass_name <- "Carbamateᶜ"
+            if (subclass_name == "Organophosphate") subclass_name <- "Organophosphate†"
+            if (subclass_name == "Pyrethroid") subclass_name <- "Pyrethroid‡"
+            if (subclass_name == "Carbamate") subclass_name <- "Carbamate¶"
           }
           if (class_name == "Herbicides" && subclass_name == "Triazine") {
-            subclass_name <- "Triazineᵈ"
+            subclass_name <- "Triazine‖"
           }
           
           table_rows[[length(table_rows) + 1]] <- tibble(
@@ -163,7 +163,7 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
       # Add symbol to Wood Preservatives (class level)
       Category = if_else(
         str_detect(Category, "^\\s*Wood Preservatives$"),
-        str_replace(Category, "Wood Preservatives", "Wood Preservativesᵉ"),
+        str_replace(Category, "Wood Preservatives", "Wood Preservatives#"),
         Category
       )
     )
@@ -236,11 +236,11 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
     
     # Add footnote text to merged cell
     footnote_text <- paste(
-      "ᵃ Includes the organophosphate breakdown product, diethyl phosphate",
-      "ᵇ Includes the pyrethroid breakdown product, 3-phenoxybenzoic acid",
-      "ᶜ Includes the carbamate breakdown product, aldicarb sulfone",
-      "ᵈ Includes a triazinone (metribuzin)",
-      "ᵉ Includes the wood preservative breakdown product, pentachloroanisole",
+      "† Includes the organophosphate breakdown product, diethyl phosphate",
+      "‡ Includes the pyrethroid breakdown product, 3-phenoxybenzoic acid",
+      "¶ Includes the carbamate breakdown product, aldicarb sulfone",
+      "‖ Includes a triazinone (metribuzin)",
+      "# Includes the wood preservative breakdown product, pentachloroanisole",
       "",
       "Abbreviations: UV = Ultraviolet",
       sep = "\n"

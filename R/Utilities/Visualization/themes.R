@@ -1,11 +1,11 @@
 #* Visualization Themes and Color Palettes
 #' Defines consistent color schemes and themes for thyroid cancer variant analysis
-#' Colors are set for Follicular, FV-PTC, and Papillary variants
+#' Colors are set for Follicular, IEFVPTC, and Papillary variants
 
 #+ Variant Color Palette
 variant_colors <- c(
   "Follicular" = "#294B88",
-  "FV-PTC" = "#23744E",
+  "IEFVPTC" = "#23744E",
   "Papillary" = "#DF8D09"
 )
 

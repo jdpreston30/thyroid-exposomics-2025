@@ -50,34 +50,43 @@ table_3_tibble <- MT_final |>
       short_name,
       if_else(
         Carcinogenicity %in% c("Likely Carcinogen", "Possible Carcinogen", "Known Carcinogen"),
-        "ᵃ", ""
+        "\u2020", ""
       ),
-      ifelse(Potential_EDC == "Y", "ᵇ", ""),
-      ifelse(has_asterisk, "ᶜ", "")
+      ifelse(Potential_EDC == "Y", "\u2021", ""),
+      ifelse(has_asterisk, "\u00b6", "")
     ),
     FTC_let = coalesce(FTC_let, FTC),
     FV_PTC_let = coalesce(FV_PTC_let, FV_PTC),
     PTC_let = coalesce(PTC_let, PTC),
     p_value = sprintf("%.3f", p_value)
   ) |>
-  mutate(short_name = str_replace(short_name, "NA([ᵃᵇᶜ]*)$", "\\1")) |>
-  # Correct marker ordering (ensure abc order)
+  mutate(short_name = str_replace(short_name, "NA([\u2020\u2021\u00b6]*)$", "\\1")) |>
+  # Correct marker ordering (ensure † ‡ ¶ order)
   mutate(
     short_name = case_when(
-      str_detect(short_name, "ᵇᵃ") ~ str_replace(short_name, "ᵇᵃ", "ᵃᵇ"),
-      str_detect(short_name, "ᶜᵃ") ~ str_replace(short_name, "ᶜᵃ", "ᵃᶜ"),
-      str_detect(short_name, "ᶜᵇᵃ") ~ str_replace(short_name, "ᶜᵇᵃ", "ᵃᵇᶜ"),
-      str_detect(short_name, "ᶜᵃᵇ") ~ str_replace(short_name, "ᶜᵃᵇ", "ᵃᵇᶜ"),
-      str_detect(short_name, "ᵇᶜ") ~ str_replace(short_name, "ᵇᶜ", "ᵇᶜ"),
-      str_detect(short_name, "ᵃᶜ") ~ str_replace(short_name, "ᵃᶜ", "ᵃᶜ"),
+      str_detect(short_name, "\u2021\u2020") ~ str_replace(short_name, "\u2021\u2020", "\u2020\u2021"),
+      str_detect(short_name, "\u00b6\u2020") ~ str_replace(short_name, "\u00b6\u2020", "\u2020\u00b6"),
+      str_detect(short_name, "\u00b6\u2021\u2020") ~ str_replace(short_name, "\u00b6\u2021\u2020", "\u2020\u2021\u00b6"),
+      str_detect(short_name, "\u00b6\u2020\u2021") ~ str_replace(short_name, "\u00b6\u2020\u2021", "\u2020\u2021\u00b6"),
+      str_detect(short_name, "\u2021\u00b6") ~ str_replace(short_name, "\u2021\u00b6", "\u2021\u00b6"),
+      str_detect(short_name, "\u2020\u00b6") ~ str_replace(short_name, "\u2020\u00b6", "\u2020\u00b6"),
       TRUE ~ short_name
     )
   ) |>
   arrange(p_value) |>
-  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `FV-PTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value) |>
-  mutate(across(c(FTC, `FV-PTC`, PTC), ~ str_replace_all(.x, c("ᵃ" = "ᵈ", "ᵇ" = "ᵉ", "ᶜ" = "ᶠ"))))
+  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `IEFVPTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value)
 #- 15.3.2: Build Table 3 with function
 table_3 <- build_table_3(
   data = table_3_tibble,
   export_path = "Outputs/Tables/T3.xlsx"
 )
+#+ 15.4: Build Table 4 (with function); export
+table_4 <- build_table_4(
+  ppm_full_table = ppm_full_table,
+  ST1_tibble = ST1_tibble,
+  literature_ST3 = literature_ST3,
+  validation_check_files_unfiltered = validation_check_files_unfiltered,
+  export_path = "Outputs/Tables/T4.xlsx"
+)
+
+								

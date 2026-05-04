@@ -61,11 +61,11 @@ build_table_1 <- function(data, export_path) {
     data_formatted |> filter(str_detect(.data[[var_col]], "^    "))
   )
   
-  # Replace NAs with "-" only for data rows (not Sample Collection Timing)
+  # Replace NAs with "–" only for data rows (not Sample Collection Timing)
   for (col in names(data_formatted)[-1]) {  # Skip first column
     data_formatted[[col]] <- ifelse(
       is.na(data_formatted[[col]]) & data_formatted[[var_col]] != "Sample Collection Timing",
-      "-",
+      "–",
       data_formatted[[col]]
     )
   }
@@ -76,7 +76,7 @@ build_table_1 <- function(data, export_path) {
   var_names_for_styling <- data_formatted[[var_col]]
   
   # Update column names with asterisks and replace with superscript
-  colnames(data_formatted) <- c("Variable: Subcategory", "Follicularᵃ", "FV-PTCᵃ", "Papillaryᵃ", "Totalᵃ")
+  colnames(data_formatted) <- c("Variable: Subcategory", "Follicular†", "IEFVPTC†", "Papillary†", "Total†")
   
   # Create workbook
   wb <- createWorkbook()
@@ -157,7 +157,7 @@ build_table_1 <- function(data, export_path) {
   mergeCells(wb, sheet = 1, cols = 1:5, rows = merge_row_num)
   
   # Add footnote text to merged cell
-  footnote_text <- "ᵃ All values displayed as mean ± SD for ratio continuous variables or n (%) for dichotomous categorical variables. Percentages for the variant columns were calculated in respect to total patients within a variant (i.e., within column), and percentages for the total column was calculated in respect to the population total."
+  footnote_text <- "† All values displayed as mean ± SD for ratio continuous variables or n (%) for dichotomous categorical variables. Percentages for the variant columns were calculated in respect to total patients within a variant (i.e., within column), and percentages for the total column was calculated in respect to the population total."
   writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
   
   # Add style to merged cell with footnote (italic, size 8, left/middle aligned) and double borders

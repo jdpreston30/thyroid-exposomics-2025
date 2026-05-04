@@ -93,15 +93,15 @@ while (!is.null(dev.list())) {
 }
 pdf("Outputs/Figures/Figs1-3.pdf", width = 8.5, height = 11)
 # Page 1: Fig1
-img1 <- readPNG("Outputs/Figures/Fig1.png")
+img1 <- readPNG("Outputs/Figures/PNG/Fig1.png")
 grid::grid.newpage()
 grid::grid.raster(img1, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 # Page 2: Fig2
-img2 <- readPNG("Outputs/Figures/Fig2.png")
+img2 <- readPNG("Outputs/Figures/PNG/Fig2.png")
 grid::grid.newpage()
 grid::grid.raster(img2, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 # Page 3: Fig3
-img3 <- readPNG("Outputs/Figures/Fig3.png")
+img3 <- readPNG("Outputs/Figures/PNG/Fig3.png")
 grid::grid.newpage()
 grid::grid.raster(img3, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 dev.off()

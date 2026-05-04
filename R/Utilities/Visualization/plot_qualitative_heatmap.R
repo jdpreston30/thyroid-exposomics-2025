@@ -6,7 +6,7 @@
 #'
 #' @param data A data frame in long format with columns:
 #'   \describe{
-#'     \item{variant}{Factor with levels: Follicular, FV-PTC, Papillary}
+#'     \item{variant}{Factor with levels: Follicular, IEFVPTC, Papillary}
 #'     \item{short_name}{Factor, chemical compound names (ordered by clustering)}
 #'     \item{pct_detection}{Numeric, percent detection (0-100)}
 #'   }

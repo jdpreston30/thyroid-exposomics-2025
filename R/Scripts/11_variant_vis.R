@@ -27,7 +27,7 @@ balloon_data <- MT_final |>
   mutate(
     Variant = recode(highest,
       "FTC" = "Follicular",
-      "FV_PTC" = "FV-PTC",
+      "FV_PTC" = "IEFVPTC",
       "PTC" = "Papillary"
     )
   ) |>
@@ -46,12 +46,12 @@ balloon_data %>%
 #- 11.3.3: Determine the correct order for usage_class
 usage_class_order <- balloon_data |>
   pivot_wider(names_from = Variant, values_from = n, values_fill = 0) |>
-  arrange(Papillary, `FV-PTC`, Follicular) |>
+  arrange(Papillary, `IEFVPTC`, Follicular) |>
   pull(usage_class)
 #- 11.3.4: Apply the correct order for y-axis
 balloon_data_graph <- balloon_data |>
   mutate(
-    Variant = factor(Variant, levels = c("Follicular", "FV-PTC", "Papillary")),
+    Variant = factor(Variant, levels = c("Follicular", "IEFVPTC", "Papillary")),
     usage_class = factor(usage_class, levels = usage_class_order)
   )
 #- 11.3.5: Make Balloon Plot
@@ -70,9 +70,9 @@ qualitative_heatmap_data_i <- qualitative_final_features |>
     pct_detection = as.numeric(gsub("%", "", pct_detection)),
     variant = factor(variant, 
                     levels = c("FTC", "FV_PTC", "PTC"),
-                    labels = c("Follicular", "FV-PTC", "Papillary"))
+                    labels = c("Follicular", "IEFVPTC", "Papillary"))
   )
-#- 11.4.3: Order compounds from least to greatest by Papillary, then FV-PTC, then Follicular
+#- 11.4.3: Order compounds from least to greatest by Papillary, then IEFVPTC, then Follicular
 compound_order <- qualitative_final_features |>
   mutate(across(c(FTC, FV_PTC, PTC), ~as.numeric(gsub("%", "", .)))) |>
   arrange(PTC, FV_PTC, FTC) |>

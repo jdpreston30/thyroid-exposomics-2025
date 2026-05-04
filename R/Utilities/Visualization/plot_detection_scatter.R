@@ -6,7 +6,7 @@
 #'
 #' @param detection_data A data frame with the following columns:
 #'   \describe{
-#'     \item{variant}{Character indicating the cancer variant (Follicular, FV-PTC, Papillary)}
+#'     \item{variant}{Character indicating the cancer variant (Follicular, IEFVPTC, Papillary)}
 #'     \item{total_annotated}{Numeric count of total chemicals annotated per sample}
 #'   }
 #' @param p_value Optional numeric p-value from statistical test (e.g., Kruskal-Wallis).
@@ -42,7 +42,8 @@ plot_detection_scatter <- function(detection_data, p_value = NULL) {
   
   # Ensure variant order
   plot_data <- detection_data |>
-    mutate(variant = factor(variant, levels = c("Follicular", "FV-PTC", "Papillary")))
+    mutate(variant = if_else(variant == "FV-PTC", "IEFVPTC", variant)) |>
+    mutate(variant = factor(variant, levels = c("Follicular", "IEFVPTC", "Papillary")))
   
   # Calculate medians for each variant
   medians <- plot_data |>
@@ -61,7 +62,7 @@ plot_detection_scatter <- function(detection_data, p_value = NULL) {
     ) +
     scale_color_manual(
       values = variant_colors,
-      breaks = c("Follicular", "FV-PTC", "Papillary")
+      breaks = c("Follicular", "IEFVPTC", "Papillary")
     ) +
     scale_y_continuous(
       limits = c(260, 340),

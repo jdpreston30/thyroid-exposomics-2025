@@ -90,7 +90,7 @@ build_table_3 <- function(data, export_path) {
   # Apply header styles (row 1)
   # Columns 1-2 (Chemical Name, Usage Class) - left aligned
   addStyle(wb, sheet = 1, style = header_style_left, rows = 1, cols = 1:2, gridExpand = TRUE, stack = FALSE)
-  # Columns 3-6 (FTC_let, FV-PTC, PTC, p-value) - center aligned
+  # Columns 3-6 (FTC_let, IEFVPTC, PTC, p-value) - center aligned
   addStyle(wb, sheet = 1, style = header_style_center, rows = 1, cols = 3:6, gridExpand = TRUE, stack = FALSE)
   
   # Apply data styles (rows 2 onwards)
@@ -98,7 +98,7 @@ build_table_3 <- function(data, export_path) {
   
   # Columns 1-2 (Chemical Name, Usage Class) - left aligned
   addStyle(wb, sheet = 1, style = data_style_left, rows = data_rows, cols = 1:2, gridExpand = TRUE, stack = FALSE)
-  # Columns 3-6 (FTC_let, FV-PTC, PTC, p-value) - center aligned
+  # Columns 3-6 (FTC_let, IEFVPTC, PTC, p-value) - center aligned
   addStyle(wb, sheet = 1, style = data_style_center, rows = data_rows, cols = 3:6, gridExpand = TRUE, stack = FALSE)
   
   # Add blank row after data
@@ -119,9 +119,9 @@ build_table_3 <- function(data, export_path) {
   
   # Add footnote text to merged cell
   footnote_text <- paste(
-    "ᵃ Possible, likely, or known carcinogen",
-    "ᵇ Potential endocrine disrupting chemical",
-    "ᶜ Indicates level 2 identification",
+    "\u2020 Possible, likely, or known carcinogen",
+    "\u2021 Potential endocrine disrupting chemical",
+    "\u00b6 Indicates level 2 identification",
     "Abbreviations: 5-NOT = 5-Nitro-o-toluidine; DEET = N,N-Diethyl-meta-toluamide; DNOP = Di-n-octyl phthalate; MDA = 4,4'-Diaminodiphenylmethane; MEHP = Mono-2-ethylhexyl phthalate; N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = Octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; TEEP = Tetraethyl ethylenediphosphonate; TTBNP = Tris(tribromoneopentyl); UV = ultraviolet",
     sep = "\n"
   )
@@ -161,7 +161,7 @@ build_table_3 <- function(data, export_path) {
   # Set column widths
   setColWidths(wb, sheet = 1, cols = 1, widths = 25)  # Chemical Name
   setColWidths(wb, sheet = 1, cols = 2, widths = 30)  # Usage Class
-  setColWidths(wb, sheet = 1, cols = 3:5, widths = 12)  # FTC_let, FV-PTC, PTC
+  setColWidths(wb, sheet = 1, cols = 3:5, widths = 12)  # FTC_let, IEFVPTC, PTC
   setColWidths(wb, sheet = 1, cols = 6, widths = 12)  # p-value
   
   # Save

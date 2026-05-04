@@ -22,6 +22,8 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
     }
   }
   
+  # Remap raw "FV-PTC" to display label before any factoring
+  data <- data |> mutate(variant = if_else(variant == "FV-PTC", "IEFVPTC", variant))
   # Get column order from original data (preserves order)
   col_order <- colnames(data)[colnames(data) != "variant"]
   
@@ -54,14 +56,14 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       chemical = factor(chemical, levels = chemical_order),
       # Factor variant with correct order (reversed for y-axis top-to-bottom display)
       variant = factor(variant,
-                      levels = c("Papillary", "FV-PTC", "Follicular"),
-                      labels = c("Papillary", "FV-PTC", "Follicular"))
+                      levels = c("Papillary", "IEFVPTC", "Follicular"),
+                      labels = c("Papillary", "IEFVPTC", "Follicular"))
     )
   
   # Get variant colors from theme
   variant_colors <- c(
     "Follicular" = "#294B88",
-    "FV-PTC" = "#23744E",
+    "IEFVPTC" = "#23744E",
     "Papillary" = "#DF8D09"
   )
   
@@ -82,7 +84,7 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       mutate(
         variant = case_when(
           variant_col == "FTC_let" ~ "Follicular",
-          variant_col == "FV_PTC_let" ~ "FV-PTC",
+          variant_col == "FV_PTC_let" ~ "IEFVPTC",
           variant_col == "PTC_let" ~ "Papillary"
         ),
         # Remove superscripts and leading values from CLD
@@ -97,8 +99,8 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
         chemical = factor(chemical, levels = chemical_order),
         # Factor variant with same order as main plot
         variant = factor(variant,
-                        levels = c("Papillary", "FV-PTC", "Follicular"),
-                        labels = c("Papillary", "FV-PTC", "Follicular"))
+                        levels = c("Papillary", "IEFVPTC", "Follicular"),
+                        labels = c("Papillary", "IEFVPTC", "Follicular"))
       ) %>%
       filter(chemical %in% chemical_order)
   }
@@ -110,13 +112,13 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
     facet_wrap(~chemical, ncol = 1, scales = "fixed", strip.position = "left", drop = FALSE) +
     scale_fill_manual(
       values = variant_colors_fill,
-      breaks = c("Follicular", "FV-PTC", "Papillary"),
-      labels = c("Follicular ", "FV-PTC   ", "Papillary"),
+      breaks = c("Follicular", "IEFVPTC", "Papillary"),
+      labels = c("Follicular ", "IEFVPTC   ", "Papillary"),
       guide = guide_legend(nrow = 1, byrow = TRUE, label.hjust = 0)
     ) +
     scale_color_manual(
       values = variant_colors,
-      breaks = c("Follicular", "FV-PTC", "Papillary"),
+      breaks = c("Follicular", "IEFVPTC", "Papillary"),
       guide = "none"
     ) +
     scale_x_continuous(

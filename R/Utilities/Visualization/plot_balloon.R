@@ -41,7 +41,7 @@
 #' \dontrun{
 #' # Basic balloon plot with default settings
 #' balloon_data <- data.frame(
-#'   Variant = rep(c("Follicular", "FV-PTC", "Papillary"), each = 5),
+#'   Variant = rep(c("Follicular", "IEFVPTC", "Papillary"), each = 5),
 #'   usage_class = rep(c("Class A", "Class B", "Class C", "Class D", "Class E"), 3),
 #'   n = sample(1:10, 15, replace = TRUE)
 #' )
@@ -55,7 +55,7 @@
 #'
 #' # Custom y-axis category variable
 #' balloon_data2 <- data.frame(
-#'   Variant = rep(c("Follicular", "FV-PTC", "Papillary"), each = 3),
+#'   Variant = rep(c("Follicular", "IEFVPTC", "Papillary"), each = 3),
 #'   chemical_class = rep(c("Pesticide", "PAH", "Phthalate"), 3),
 #'   n = sample(1:8, 9, replace = TRUE)
 #' )

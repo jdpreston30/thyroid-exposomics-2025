@@ -5,7 +5,7 @@
 #'
 #' @param data A data frame with columns:
 #'   \describe{
-#'     \item{Variant}{Character indicating variant type (Follicular, FV-PTC, Papillary)}
+#'     \item{Variant}{Character indicating variant type (Follicular, IEFVPTC, Papillary)}
 #'     \item{Known Carcinogen}{Numeric count of known carcinogens}
 #'     \item{Likely Carcinogen}{Numeric count of likely carcinogens}
 #'     \item{Possible Carcinogen}{Numeric count of possible carcinogens}
@@ -18,7 +18,7 @@
 #' @details
 #' The plot includes:
 #' \itemize{
-#'   \item X-axis: Variants in order (Follicular, FV-PTC, Papillary), rotated 45 degrees
+#'   \item X-axis: Variants in order (Follicular, IEFVPTC, Papillary), rotated 45 degrees
 #'   \item Y-axis: Count of chemicals highest in variant
 #'   \item Stacked bars with carcinogen classification colors
 #'   \item Black borders on bars (0.4 linewidth)
@@ -56,7 +56,7 @@ plot_carcinogen_stacked <- function(data) {
       values_to = "count"
     ) |>
     mutate(
-      Variant = factor(Variant, levels = c("Follicular", "FV-PTC", "Papillary")),
+      Variant = factor(Variant, levels = c("Follicular", "IEFVPTC", "Papillary")),
       carcinogen_status = factor(carcinogen_status, 
                                  levels = c("Known Carcinogen", "Likely Carcinogen", 
                                            "Possible Carcinogen", "Uncertain Risk"))
@@ -78,7 +78,7 @@ plot_carcinogen_stacked <- function(data) {
       ncol = 1
     )) +
     scale_x_discrete(
-      labels = c("Follicular" = "Follicular\n", "FV-PTC" = "FV-PTC\n", "Papillary" = "Papillary\n")
+      labels = c("Follicular" = "Follicular\n", "IEFVPTC" = "IEFVPTC\n", "Papillary" = "Papillary\n")
     ) +
     scale_y_continuous(
       expand = expansion(mult = c(0, 0.05), add = 0)

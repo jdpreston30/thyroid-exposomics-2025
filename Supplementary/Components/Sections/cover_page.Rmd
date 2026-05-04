@@ -9,7 +9,7 @@ geometry:
   - footskip=12pt
 bibliography: "References/supplementary.bib"
 csl: "References/thyroid.csl"
-reference-section-title: "REFERENCES CITED IN SUPPLEMENTARY MATERIAL"
+reference-section-title: "REFERENCES"
 header-includes:
   - \usepackage{fontspec}
   - \usepackage{graphicx}
@@ -43,7 +43,7 @@ header-includes:
 \thispagestyle{plain}
 
 \begin{center}
-{\fontsize{14}{16.8}\selectfont\textbf{ENVIRONMENTAL CHEMICAL BURDEN IN DIFFERENTIATED\\[0.5em]THYROID CANCER: SUPPLEMENTARY MATERIAL}}
+{\fontsize{14}{16.8}\selectfont\textbf{ENVIRONMENTAL CHEMICAL BURDEN IN DIFFERENTIATED\\[0.5em]THYROID CANCER: SUPPLEMENTARY DATA}}
 \end{center}
 
 \vspace{0.5em}
@@ -105,35 +105,33 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 6
 
-\textbf{SUPPLEMENTARY FIGURE 1} \dotfill 7
+\textbf{FIGURE S1} \dotfill 7
 
-\textbf{SUPPLEMENTARY FIGURE 2} \dotfill 8-32
+\textbf{FIGURE S2} \dotfill 8-32
 
 \quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 8-29
 
 \quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 30-32
 
-\textbf{SUPPLEMENTARY FIGURE 3} \dotfill 33-37
+\textbf{FIGURE S3} \dotfill 33-37
 
 \quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 33-35
 
 \quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 36-37
 
-\textbf{SUPPLEMENTARY FIGURE 4} \dotfill 38-41
+\textbf{FIGURE S4} \dotfill 38-41
 
 \quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 38-40
 
 \quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 41
 
-\textbf{SUPPLEMENTARY TABLE 1} \dotfill 42-59
+\textbf{TABLE S1} \dotfill 42-59
 
-\textbf{SUPPLEMENTARY TABLE 2} \dotfill 60-70
+\textbf{TABLE S2} \dotfill 60-70
 
-\textbf{SUPPLEMENTARY TABLE 3} \dotfill 71
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 71
 
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 72
-
-\textbf{REFERENCES CITED IN SUPPLEMENTARY MATERIAL} \dotfill 73
+\textbf{REFERENCES} \dotfill 72
 
 \newpage
 

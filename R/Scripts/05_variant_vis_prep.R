@@ -20,7 +20,8 @@ column_renames <- tibble(name_sub_lib_id = top_quant) |>
 #- 5.1.3: Rename
 tumors_quant_sig_renamed <- tumors_quant_sig_i |>
   select(variant, all_of(top_quant)) |>
-  mutate(variant = factor(variant, levels = c("Follicular", "FV-PTC", "Papillary"))) |>
+  mutate(variant = if_else(variant == "FV-PTC", "IEFVPTC", variant)) |>
+  mutate(variant = factor(variant, levels = c("Follicular", "IEFVPTC", "Papillary"))) |>
   arrange(variant) |>
   rename_with(~ column_renames[.x], .cols = all_of(names(column_renames))) |>
   rename_with(~ str_replace_all(.x, "\u2020", "\u1d43"))
@@ -53,11 +54,12 @@ qual_i_reordered <- qual_i |>
 #+ 5.3: Post-Hoc testing on quant
 #- 5.3.1: Post-hoc on quants with CLD notation
 posthoc_quant <- tumors_quant_sig_i |>
+  mutate(variant = if_else(variant == "FV-PTC", "IEFVPTC", variant)) |>
   mutate(variant = as.factor(variant)) |>
   mutate(variant = recode(variant,
     "Papillary" = "PTC",
     "Follicular" = "FTC",
-    "FV-PTC" = "FV_PTC"
+    "IEFVPTC" = "FV_PTC"
   ))
 #- 5.3.2: Get the names for the quant data
 posthoc_compound_names <- posthoc_quant |>

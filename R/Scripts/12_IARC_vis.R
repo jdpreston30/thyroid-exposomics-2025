@@ -50,7 +50,7 @@ carc_by_variant <- MTi |>
   mutate(
     Variant = recode(highest,
       "FTC" = "Follicular",
-      "FV_PTC" = "FV-PTC",
+      "FV_PTC" = "IEFVPTC",
       "PTC" = "Papillary"
     )
   ) |>
@@ -88,7 +88,7 @@ carc_summary <- MTi |>
   mutate(
     Variant = recode(highest,
       "FTC" = "Follicular",
-      "FV_PTC" = "FV-PTC",
+      "FV_PTC" = "IEFVPTC",
       "PTC" = "Papillary"
     )
   ) |>

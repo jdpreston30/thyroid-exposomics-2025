@@ -8,12 +8,12 @@
 #'   \describe{
 #'     \item{Bin}{Factor indicating detection count bins (e.g., "[260,270)")}
 #'     \item{Follicular}{Integer count of Follicular variant samples}
-#'     \item{FV-PTC}{Integer count of FV-PTC variant samples}
+#'     \item{IEFVPTC}{Integer count of IEFVPTC variant samples}
 #'     \item{Papillary}{Integer count of Papillary variant samples}
 #'   }
 #'
 #' @return A ggplot object with stacked bars showing sample counts by detection
-#'   bin and variant type. Legend displays variants in order: Follicular, FV-PTC,
+#'   bin and variant type. Legend displays variants in order: Follicular, IEFVPTC,
 #'   Papillary. X-axis labels are rotated 45 degrees.
 #'
 #' @details
@@ -41,19 +41,20 @@ plot_detection_distribution <- function(freq_dist_data) {
   
   # Convert to long format for stacking
   plot_data <- freq_dist_data |>
+    rename(IEFVPTC = `FV-PTC`) |>
     pivot_longer(
-      cols = c(Follicular, `FV-PTC`, Papillary),
+      cols = c(Follicular, IEFVPTC, Papillary),
       names_to = "variant",
       values_to = "count"
     ) |>
-    mutate(variant = factor(variant, levels = c("Follicular", "FV-PTC", "Papillary")))
+    mutate(variant = factor(variant, levels = c("Follicular", "IEFVPTC", "Papillary")))
   
   # Create stacked bar plot
   p <- ggplot(plot_data, aes(x = Bin, y = count, fill = variant)) +
     geom_bar(stat = "identity", position = "stack", color = "black", linewidth = 0.4, width = 0.6) +
     scale_fill_manual(
       values = variant_colors,
-      breaks = c("Follicular", "FV-PTC", "Papillary")
+      breaks = c("Follicular", "IEFVPTC", "Papillary")
     ) +
     guides(fill = guide_legend(
       keywidth = unit(0.25, "cm"),
