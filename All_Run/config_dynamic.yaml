@@ -18,7 +18,6 @@ paths:
   # Raw data path templates - {user_home} and {onedrive_path} will be substituted
   base_data_path: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022"
   # Specific file paths (built from base)
-  clinical_metadata: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/manifest.xlsx"
   primary_data: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/primary_data.xlsx"
   validation_plot_directory: "Outputs/Validation/temp_RDS"  # Local temp directory (fast I/O, run-specific)
   validation_plot_directory_onedrive: "{base_data_path}/validation_plots"  # OneDrive final location
@@ -37,6 +36,7 @@ paths:
   gc2_features: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/GC2_features.csv"
   gc2_expanded: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/expanded_GC2.csv"
   validation: "{user_home}/{onedrive_path}/Research/MS_raw_data/GCMS/Thyroid_GCMS/DTC_2022/metadata_files/validation.xlsx"
+  tumor_pathology: "{user_home}/{onedrive_path}/Research/MS_raw_data/LCMS/Thyroid_LCMS/Clinical/tumor_pathology.xlsx"
   
   # Output paths (relative to project root)
   output: "./Outputs"

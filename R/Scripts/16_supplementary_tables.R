@@ -1,62 +1,8 @@
 #* 16: Supplementary Tables
 #+ 16.1: ST1: Chemical library (pivoted subid)
-#- 16.1.0: Get list of Y/N expanded fragments
-expanded_chemicals <- expanded_validation |>
-  select(id, expanded) |>
-  filter(expanded == "Y") |>
-  pull(id)
-#- 16.1.1: Prepare ST1 tibble
-ST1_tibble <- ST1_import |>
-  mutate(
-    base_num = as.numeric(str_extract(id, "\\d+(?=_|$)")),
-    suffix_num = as.numeric(str_extract(id, "(?<=_)\\d+"))
-  ) |>
-  mutate(suffix_num = replace_na(suffix_num, 0)) |>
-  group_by(cas) |>
-  arrange(base_num, suffix_num, .by_group = TRUE) |>
-  mutate(
-    is_first_cas = row_number() == 1,
-    cas_group_size = n()
-  ) |>
-  ungroup() |>
-  # Sort alphabetically by name for global order
-  arrange(name, base_num, suffix_num) |>
-  # Recalculate grouping after alphabetical sort
-  group_by(cas) |>
-  mutate(
-    is_first_cas = row_number() == 1,
-    cas_group_size = n()
-  ) |>
-  ungroup() |>
-  # Replace values with dashes for non-first occurrences of same CAS
-  mutate(
-    name = if_else(!is_first_cas, "-", name),
-    cas = if_else(!is_first_cas, "-", cas),
-    monoisotopic = if_else(!is_first_cas, "-", as.character(monoisotopic))
-  ) |>
-  # Replace asterisks with dagger for endogenous chemicals
-  mutate(name = gsub("\\*", "\u2020", name)) |>
-  # Add superscript b for expanded chemicals
-  mutate(
-    name = if_else(
-      id %in% expanded_chemicals & name != "-",
-      paste0(name, "\u2021"),
-      name
-    )
-  ) |>
-  # Final cleanup - add Index column
-  mutate(Index = row_number(), .before = 1) |>
-  select(Index, id, name, cas, monoisotopic, trt, starts_with("mz")) |>
-  rename(
-    `Library ID` = id,
-    Name = name,
-    CAS = cas,
-    `Monoisotopic Mass` = monoisotopic,
-    `Target RT (min.)` = trt
-  )
-#- 16.1.2: Build and format ST1 gt table
+#- 16.1.1: Build and format ST1 gt table
 gt_ST1 <- build_ST1(ST1_tibble)
-#- 16.1.3: Save ST1 as LaTeX (without table wrapper) to Supplementary/Components/Tables
+#- 16.1.2: Save ST1 as LaTeX (without table wrapper) to Supplementary/Components/Tables
 latex_code <- gt::as_latex(gt_ST1) |> as.character()
 latex_code <- fix_latex_header_fill(latex_code)
 # Remove table wrapper for direct inclusion in supplementary

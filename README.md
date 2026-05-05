@@ -68,10 +68,9 @@ source("All_Run/run.R")
 │   ├── Scripts/                # Analysis workflow scripts (00a-17)
 │   │   ├── 00a_environment_setup.R
 │   │   ├── 00b_setup.R
-│   │   ├── 00c_clinical_data.R
-│   │   ├── 00d_FTs.R
-│   │   ├── 00e_peakwalk_compile.R
-│   │   ├── 01_demographics.R
+│   │   ├── 00c_FTs.R
+│   │   ├── 00d_peakwalk_compile.R
+│   │   ├── 01_clinical_data.R
 │   │   ├── 02_detection.R
 │   │   ├── 03_classes.R
 │   │   ├── 04_variant_stats.R
@@ -113,8 +112,8 @@ source("All_Run/run.R")
 
 The complete pipeline executes in sequence:
 
-1. **00a-00e**: Environment setup, clinical metadata, feature tables, peakwalk compilation
-2. **01**: Demographics and clinical characteristics (Table 1)
+1. **00a-00d**: Environment setup, feature tables, peakwalk compilation
+2. **01**: Clinical data, demographics, and Table 1
 3. **02**: Detection frequency analysis
 4. **03**: Chemical class distribution
 5. **04**: Variant-specific statistical comparisons

@@ -4,10 +4,9 @@ source("R/Utilities/Helpers/load_dynamic_config.R")
 config <- load_dynamic_config(computer = "auto", config_path = "All_Run/config_dynamic.yaml")
 source("R/Scripts/00a_environment_setup.R")
 source("R/Scripts/00b_setup.R")
-source("R/Scripts/00c_clinical_data.R")
-source("R/Scripts/00d_FTs.R")
-source("R/Scripts/00e_peakwalk_compile.R")
-source("R/Scripts/01_demographics.R")
+source("R/Scripts/00c_FTs.R")
+source("R/Scripts/00d_peakwalk_compile.R")
+source("R/Scripts/01_clinical_data.R")
 source("R/Scripts/02_detection.R")
 source("R/Scripts/03_classes.R")
 source("R/Scripts/04_variant_stats.R")
@@ -25,13 +24,3 @@ source("R/Scripts/15_tables.R")
 source("R/Scripts/16_supplementary_tables.R")
 source("R/Scripts/17_construct_supplementary.R")
 }
-1. Check all abbreviations are defined
-2. Check you aren’t re-defining after being defined once
-3. Update all methods with the supplemental document
-4. Finalize supplementary
-5. m/z or mz
-6. Superscripted symbols in supplementary
-7. eg. i.e. italic
-8. p- value  to "P value"
-9. 0.05 vs .05
-10. Non-cancerous vs non cancer

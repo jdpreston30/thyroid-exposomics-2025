@@ -28,6 +28,7 @@ Imports:
     readxl,
     rmarkdown,
     stringr,
+    TernTables,
     tibble,
     tidyr,
     tinytex,

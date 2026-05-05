@@ -1,9 +1,75 @@
 #* 15: Tables
-#+ 15.1: Build Table 1 (with function); export
-table_1 <- build_table_1(
-  data = demographic_table,
-  export_path = "Outputs/Tables/T1.xlsx"
-)
+#+ 15.0: Pre-build ST1_tibble (needed by build_table_4)
+#- 15.0.1: Get list of Y/N expanded fragments
+expanded_chemicals <- expanded_validation |>
+  select(id, expanded) |>
+  filter(expanded == "Y") |>
+  pull(id)
+#- 15.0.2: Prepare ST1_tibble
+ST1_tibble <- ST1_import |>
+  mutate(
+    base_num = as.numeric(str_extract(id, "\\d+(?=_|$)")),
+    suffix_num = as.numeric(str_extract(id, "(?<=_)\\d+"))
+  ) |>
+  mutate(suffix_num = replace_na(suffix_num, 0)) |>
+  group_by(cas) |>
+  arrange(base_num, suffix_num, .by_group = TRUE) |>
+  mutate(
+    is_first_cas = row_number() == 1,
+    cas_group_size = n()
+  ) |>
+  ungroup() |>
+  # Sort alphabetically by name for global order
+  arrange(name, base_num, suffix_num) |>
+  # Recalculate grouping after alphabetical sort
+  group_by(cas) |>
+  mutate(
+    is_first_cas = row_number() == 1,
+    cas_group_size = n()
+  ) |>
+  ungroup() |>
+  # Replace values with dashes for non-first occurrences of same CAS
+  mutate(
+    name = if_else(!is_first_cas, "-", name),
+    cas = if_else(!is_first_cas, "-", cas),
+    monoisotopic = if_else(!is_first_cas, "-", as.character(monoisotopic))
+  ) |>
+  # Replace asterisks with dagger for endogenous chemicals
+  mutate(name = gsub("\\*", "\u2020", name)) |>
+  # Add superscript b for expanded chemicals
+  mutate(
+    name = if_else(
+      id %in% expanded_chemicals & name != "-",
+      paste0(name, "\u2021"),
+      name
+    )
+  ) |>
+  # Final cleanup - add Index column
+  mutate(Index = row_number(), .before = 1) |>
+  select(Index, id, name, cas, monoisotopic, trt, starts_with("mz")) |>
+  rename(
+    `Library ID` = id,
+    Name = name,
+    CAS = cas,
+    `Monoisotopic Mass` = monoisotopic,
+    `Target RT (min.)` = trt
+  )
+#+ 15.1: Build Table 1 (with TernTables); export
+table1 <- ternG(
+  clinical_data,
+  group_var = "Variant",
+  output_docx = "Outputs/Tables/T1.docx",
+  methods_doc = FALSE,
+  print_normality = FALSE,
+  show_test = FALSE,
+  show_p = FALSE,
+  citation = FALSE,
+  font_family = "Times New Roman",
+  table_font_size = 10.5,
+  category_start = c(
+    "Demographics" = "Sex",
+    "Staging" = "T Category"
+  ))
 #+ 15.2: Build Table 2 (with function); export
 table_2 <- build_table_2(
   data = feature_metadata,
