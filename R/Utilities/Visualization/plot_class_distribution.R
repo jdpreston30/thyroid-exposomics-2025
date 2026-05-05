@@ -55,7 +55,7 @@ plot_class_distribution <- function(class_data, x_max = 100, sup = FALSE) {
       expand = expansion(mult = c(0, 0.05), add = 0)
     ) +
     labs(
-      x = "Number of Chemicals Annotated",
+      x = "Chemicals Annotated",
       y = NULL
     ) +
     theme_classic(base_size = 12, base_family = "Arial") +

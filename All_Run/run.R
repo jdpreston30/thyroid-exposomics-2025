@@ -25,3 +25,9 @@ source("R/Scripts/15_tables.R")
 source("R/Scripts/16_supplementary_tables.R")
 source("R/Scripts/17_construct_supplementary.R")
 }
+1. Check all abbreviations are defined
+2. Check you aren’t re-defining after being defined once
+3. Update all methods with the supplemental document
+4. Finalize supplementary
+5. m/z or mz
+6. Superscripted symbols in supplementary

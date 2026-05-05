@@ -21,24 +21,36 @@ fig1 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
 fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   # 2A
   draw_plot(p2A,
-    x = 0.53, y = 3.699,
-    width = 4.6, height = 6.28
+    x = 0.53, y = 4.292333,
+    width = 4.6, height = 5.98
   ) +
   # 2B
   draw_plot(p2B,
-    x = 4.55, y = 7.016,
+    x = 4.55, y = 7.362667,
     width = 2.7945, height = 2.03
   ) +
   # 2C
   draw_plot(p2C,
-    x = 4.55, y = 5.016,
+    x = 4.55, y = 5.362667,
     width = 2.8, height = 2.03
+  ) +
+  # 2D
+  draw_plot(p2D,
+    x =  0.6733334, y = 0.3833333,
+    width = 3.325, height = 3.876667
+  ) +
+  # 2E
+  draw_plot(p2E,
+    x = 3.953333, y = 0.3833333,
+    width = 3.912499, height = 3.876667
   ) +
   # Labels
   figure_labels(list(
-    A = c(0.75, 10.00),
-    B = c(4.6, 8.97),
-    C = c(4.6, 6.97),
+    A = c(0.74, 10.1),
+    B = c(4.6, 9.316667),
+    C = c(4.6, 7.316667),
+    D = c(0.74, 4.09),
+    E = c(4.056667, 4.09),
     "Figure 2" = c(0.49, 10.43)
   ))
 #+ 13.3: Figure 3
