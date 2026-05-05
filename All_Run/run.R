@@ -31,3 +31,7 @@ source("R/Scripts/17_construct_supplementary.R")
 4. Finalize supplementary
 5. m/z or mz
 6. Superscripted symbols in supplementary
+7. eg. i.e. italic
+8. p- value  to "P value"
+9. 0.05 vs .05
+10. Non-cancerous vs non cancer
