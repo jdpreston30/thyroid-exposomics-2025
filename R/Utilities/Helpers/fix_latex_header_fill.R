@@ -32,6 +32,12 @@ fix_latex_header_fill <- function(latex_text, fill_color = NULL) {
                      "$^\\\\dagger$", 
                      latex_text)
   
+  # Convert Unicode symbol characters to LaTeX superscripts in table cell content
+  # (not in headers — these appear after chemical names as footnote markers)
+  # \smash suppresses height contribution so these don't push page breaks
+  latex_text <- gsub("†", "\\smash{\\textsuperscript{\\textdagger}}", latex_text, fixed = TRUE)
+  latex_text <- gsub("‡", "\\smash{\\textsuperscript{\\textdaggerdbl}}", latex_text, fixed = TRUE)
+  
   # Split into lines for easier processing
   lines <- strsplit(latex_text, "\n")[[1]]
   
@@ -64,6 +70,10 @@ fix_latex_header_fill <- function(latex_text, fill_color = NULL) {
           col <- "\\shortstack{Monoisotopic \\\\\\\\ Mass}"
         } else if (col == "Target RT (min.)") {
           col <- "\\shortstack{Target \\\\\\\\ RT (min.)}"
+        } else if (grepl("^mz[0-9]+$", col)) {
+          # m/z columns: italic m/z with subscript number per IUPAC convention
+          num <- sub("^mz", "", col)
+          col <- paste0("\\shortstack{\\textit{m}/\\textit{z}\\textsubscript{", num, "}}")
         } else {
           # Single-line headers also get shortstack
           col <- paste0("\\shortstack{", col, "}")

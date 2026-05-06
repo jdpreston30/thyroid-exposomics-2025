@@ -40,6 +40,11 @@ fix_ST2_latex <- function(latex_text) {
   # Fix dagger escaping
   latex_text <- gsub("\\$\\^\\\\dagger\\$", "$^\\\\dagger$", latex_text)
   
+  # Convert Unicode symbol characters to LaTeX superscripts in table cell content
+  # \\smash suppresses height contribution so these don't push page breaks
+  latex_text <- gsub("\u2020", "\\smash{\\textsuperscript{\\textdagger}}", latex_text, fixed = TRUE)
+  latex_text <- gsub("\u2021", "\\smash{\\textsuperscript{\\textdaggerdbl}}", latex_text, fixed = TRUE)
+  
   # Fix checkmark encoding
   latex_text <- gsub("✓", "$\\\\checkmark$", latex_text)
   

@@ -7,9 +7,6 @@ geometry:
   - headheight=14pt
   - headsep=0.15in
   - footskip=12pt
-bibliography: "References/supplementary.bib"
-csl: "References/thyroid.csl"
-reference-section-title: "REFERENCES"
 header-includes:
   - \usepackage{fontspec}
   - \usepackage{graphicx}
@@ -79,59 +76,29 @@ Joshua D. Preston^1,2,3^, Yongliang Liang^3^, Thomas Szabo Yamashita^4^, Sami N.
 
 \fontsize{10}{11}\selectfont
 
-\textbf{EXPANDED METHODS} \dotfill 2-6
+\textbf{FIGURE S1} \dotfill 2-26
 
-\quad \textit{High-Resolution Exposomics} \dotfill 2
+\quad \textit{1.1: Level 1 identifications (22 pages)} \dotfill 2-23
 
-\quad \textit{Data Extraction, Feature Annotation, and Signal Identification} \dotfill 2
+\quad \textit{1.2: Level 2 identifications (3 pages)} \dotfill 24-26
 
-\quad \textit{Preprocessing of Exposomics Data} \dotfill 3
+\textbf{FIGURE S2} \dotfill 27-31
 
-\quad \textit{Metadata Annotation of Environmental Chemicals} \dotfill 3
+\quad \textit{2.1: Level 1 identifications (3 pages)} \dotfill 27-29
 
-\quad \textit{Core Statistical Analysis and Data Visualization} \dotfill 3
+\quad \textit{2.2: Level 2 identifications (2 pages)} \dotfill 30-31
 
-\quad \textit{Online Code and Data Repository} \dotfill 3
+\textbf{FIGURE S3} \dotfill 32-35
 
-\quad \textit{Manual Validation of Annotations for Select Chemicals} \dotfill 3-4
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 32-34
 
-\quad \textit{Exposome-Wide Association Study} \dotfill 4
+\quad \textit{3.2: Level 2 identifications (1 page)} \dotfill 35
 
-\quad \textit{Advanced Carcinogenicity Classification of Select Chemicals} \dotfill 4
+\textbf{TABLE S1} \dotfill 36-53
 
-\quad \textit{Quantitative Estimates of Chemical Concentrations in Tissues} \dotfill 4-5
+\textbf{TABLE S2} \dotfill 54-64
 
-\quad \textit{Quantitative Comparisons of Tumors and Non-Cancer Cadaver Thyroids} \dotfill 5-6
-
-\quad \textit{Comparing Observed Concentrations to Literature Values for Select Chemicals} \dotfill 6
-
-\textbf{FIGURE S1} \dotfill 7
-
-\textbf{FIGURE S2} \dotfill 8-32
-
-\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 8-29
-
-\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 30-32
-
-\textbf{FIGURE S3} \dotfill 33-37
-
-\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 33-35
-
-\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 36-37
-
-\textbf{FIGURE S4} \dotfill 38-41
-
-\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 38-40
-
-\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 41
-
-\textbf{TABLE S1} \dotfill 42-59
-
-\textbf{TABLE S2} \dotfill 60-70
-
-\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 71
-
-\textbf{REFERENCES} \dotfill 72
+\textbf{TABLE ABBREVIATION DICTIONARY} \dotfill 65
 
 \newpage
 

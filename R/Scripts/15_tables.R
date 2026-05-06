@@ -63,9 +63,11 @@ table1 <- ternG(
   print_normality = FALSE,
   show_test = FALSE,
   show_p = FALSE,
+  open_doc = FALSE,
   citation = FALSE,
   font_family = "Times New Roman",
   table_font_size = 10.5,
+  abbreviation_footnote = "Abbreviations: FTC = follicular thyroid carcinoma; IEFVPTC = invasive encapsulated follicular variant of papillary thyroid carcinoma; M = metastasis; N = lymph node; PTC = papillary thyroid carcinoma; T = tumor",
   category_start = c(
     "Demographics" = "Sex",
     "Staging" = "T Category"

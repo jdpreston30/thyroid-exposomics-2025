@@ -9,10 +9,9 @@ components_dir <- here::here("Supplementary", "Components")
 sections_dir <- file.path(components_dir, "Sections")
 cover_page_path <- file.path(sections_dir, "cover_page.Rmd")
 figures_path <- file.path(sections_dir, "figures.Rmd")
-methods_path <- file.path(sections_dir, "methods.tex")
 tables_path <- file.path(sections_dir, "tables.tex")
 #- 17.3.2: Check that all components exist
-required_files <- c(cover_page_path, figures_path, methods_path, tables_path)
+required_files <- c(cover_page_path, figures_path, tables_path)
 missing_files <- required_files[!file.exists(required_files)]
 if (length(missing_files) > 0) {
   stop("Missing component files: ", paste(missing_files, collapse = ", "))
@@ -21,19 +20,8 @@ if (length(missing_files) > 0) {
 #- 17.4.1: Read each component
 cover_content <- readLines(cover_page_path, warn = FALSE)
 figures_content <- readLines(figures_path, warn = FALSE)
-methods_content <- readLines(methods_path, warn = FALSE)
 tables_content <- readLines(tables_path, warn = FALSE)
 #- 17.4.2: Fix paths for correct references when rendered from Components directory
-# Update bibliography and csl paths to be relative from Components directory
-bib_path_rel <- file.path("References", "supplementary.bib")
-csl_path_rel <- file.path("References", "thyroid.csl")
-# Replace the relative paths in cover content
-cover_content <- gsub('bibliography: "References/supplementary.bib"', 
-                     paste0('bibliography: "', bib_path_rel, '"'), 
-                     cover_content, fixed = TRUE)
-cover_content <- gsub('csl: "References/thyroid.csl"', 
-                     paste0('csl: "', csl_path_rel, '"'), 
-                     cover_content, fixed = TRUE)
 # Fix figure paths to be relative from Components directory  
 figures_content <- gsub('../Figures/PDF/', 'Figures/PDF/', figures_content, fixed = TRUE)
 #- 17.4.3: Add line numbers if enabled
@@ -56,8 +44,6 @@ if (add_line_numbers) {
 full_content <- c(
   cover_content,
   "",  # Empty line for separation
-  methods_content,
-  "",  # Empty line for separation
   figures_content,
   "",  # Empty line for separation
   tables_content
@@ -74,15 +60,15 @@ output_dir <- here::here("Supplementary")
 rmarkdown::render(
   input = output_rmd,
   output_dir = output_dir,
-  output_file = "Supplementary Material.pdf",
+  output_file = "Supplementary Data.pdf",
   intermediates_dir = intermediates_dir,
   clean = TRUE
 )
 #- 17.5.4: Move LaTeX build artifacts to Build_Logs
 latex_artifacts <- c(
-  file.path(output_dir, "Supplementary Material.aux"),
-  file.path(output_dir, "Supplementary Material.log"),
-  file.path(output_dir, "Supplementary Material.tex")
+  file.path(output_dir, "Supplementary Data.aux"),
+  file.path(output_dir, "Supplementary Data.log"),
+  file.path(output_dir, "Supplementary Data.tex")
 )
 for (artifact in latex_artifacts) {
   if (file.exists(artifact)) {
@@ -90,7 +76,7 @@ for (artifact in latex_artifacts) {
   }
 }
 #- 17.5.5: Open the PDF
-output_pdf <- file.path(output_dir, "Supplementary Material.pdf")
+output_pdf <- file.path(output_dir, "Supplementary Data.pdf")
 system(paste("open", shQuote(output_pdf)))
 #- 17.5.6: Clean up empty References folder in Build_Logs (pandoc artifact)
 refs_dir <- file.path(intermediates_dir, "References")
