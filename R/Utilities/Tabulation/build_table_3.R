@@ -90,8 +90,7 @@ build_table_3 <- function(data, export_path) {
   # Apply header styles (row 1)
   # Columns 1-2 (Chemical Name, Usage Class) - left aligned
   addStyle(wb, sheet = 1, style = header_style_left, rows = 1, cols = 1:2, gridExpand = TRUE, stack = FALSE)
-  # Columns 3-6 (FTC_let, IEFVPTC, PTC, p-value) - center aligned
-  addStyle(wb, sheet = 1, style = header_style_center, rows = 1, cols = 3:6, gridExpand = TRUE, stack = FALSE)
+  # Columns 3-6 (FTC_let, IEFVPTC, PTC, P value) - center aligned
   
   # Apply data styles (rows 2 onwards)
   data_rows <- 2:(nrow(data_formatted) + 1)
@@ -162,7 +161,7 @@ build_table_3 <- function(data, export_path) {
   setColWidths(wb, sheet = 1, cols = 1, widths = 25)  # Chemical Name
   setColWidths(wb, sheet = 1, cols = 2, widths = 30)  # Usage Class
   setColWidths(wb, sheet = 1, cols = 3:5, widths = 12)  # FTC_let, IEFVPTC, PTC
-  setColWidths(wb, sheet = 1, cols = 6, widths = 12)  # p-value
+  setColWidths(wb, sheet = 1, cols = 6, widths = 12)  # P value
   
   # Save
   saveWorkbook(wb, export_path, overwrite = TRUE)

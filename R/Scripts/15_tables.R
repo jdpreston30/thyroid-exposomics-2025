@@ -142,7 +142,7 @@ table_3_tibble <- MT_final |>
     )
   ) |>
   arrange(p_value) |>
-  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `IEFVPTC` = FV_PTC_let, PTC = PTC_let, `p-value` = p_value)
+  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `IEFVPTC` = FV_PTC_let, PTC = PTC_let, `P value` = p_value)
 #- 15.3.2: Build Table 3 with function
 table_3 <- build_table_3(
   data = table_3_tibble,

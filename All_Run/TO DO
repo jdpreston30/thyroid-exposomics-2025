@@ -1,22 +1,11 @@
-1. Check all abbreviations are defined
-2. Check you aren’t re-defining after being defined once
-3. Update all methods with the supplemental document
-4. Finalize supplementary
-5. m/z or mz
-6. Superscripted symbols in supplementary
-7. eg. i.e. italic
-8. p- value  to "P value"
-9. 0.05 vs .05
-10. Non-cancerous vs non cancer
-11. pathology deals consistent with other paper
-12. Confirm figure and table reference numbers ALL correct
-
-
-
 ## High Priority
+- Add "see Preston et al. for further details" on the first paragraph of the methods for further explanation on the path report discrepancies
 - Do a "capitalizaiton audit" to ensure full consistency accross all main tables, supplementary tables, figures, manuscript text when a chemical name is displayed. There are some inconsistencies here and there.
+- Complete and add this sentence to "Bio-Surveillance of Chemicals Annotated in DTC Samples" right after the p value listing sentence. "We then compared the annotated chemicals in thyroid cancers with those in non-cancer cadaver thyroids and found xx% overlap."
+- for figure 2 captions and figure, consider changing a/b/c to the dagggers and double daggers and pilcrow. For figure 3B captions and figure, consider changing a to dagger. You may have to manually place them with x y coordinates tbh.
 
 
+## Other
 -MIX LIST needs to be accounted for and revised for creation of ST3 and 4
 - abbreviations roundup
 -Ensure mix list does not intersect with anyh IARC

@@ -47,6 +47,18 @@ cat(
   "Unique classes:", n_distinct(feature_metadata$Class, na.rm = TRUE), "\n",
   "Unique subclasses:", n_distinct(feature_metadata$Subclass, na.rm = TRUE), "\n"
 )
+#- 3.3.4: Superclass percentages (confirms "Chief among the superclasses" claims)
+superclass_pct <- feature_metadata |>
+  count(Superclass) |>
+  mutate(pct = round(n / nrow(feature_metadata) * 100, 1)) |>
+  arrange(desc(n)) |>
+  print(n = Inf)
+#- 3.3.5: Class percentages (confirms class-level claims including xx values)
+class_pct <- feature_metadata |>
+  count(Class) |>
+  mutate(pct = round(n / nrow(feature_metadata) * 100, 1)) |>
+  arrange(desc(n)) |>
+  print(n = Inf)
 #+ 3.4: Create Figures
 #- 3.4.1: Use Class Distribution Plot
 p2A <- plot_class_distribution(all, x_max = 100)
