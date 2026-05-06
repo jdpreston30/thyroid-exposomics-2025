@@ -24,7 +24,7 @@ build_ST1 <- function(data) {
   data_formatted <- data
   
   # Format RT column
-  data_formatted$`Target RT (min.)` <- sapply(data$`Target RT (min.)`, function(x) {
+  data_formatted$`Target RT (min)` <- sapply(data$`Target RT (min)`, function(x) {
     if (is.na(x)) return("")
     sprintf("%.4f", x)
   })

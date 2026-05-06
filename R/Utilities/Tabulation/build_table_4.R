@@ -98,42 +98,42 @@ ST3_tibble_flat <- ST3_tibble_2 |>
   mutate(
     Name = gsub("[\u2020\u2021]", "", Name),
     Name = gsub("\\*", "", Name),
-    `Adipose Tissue (PPB)` = case_when(
+    `Adipose Tissue (ppb)` = case_when(
       !is.na(AT_manuscript) & !is.na(AT_ref) ~
         paste0(AT_manuscript, resolve_ref(AT_ref)),
       !is.na(AT_manuscript) ~ AT_manuscript,
       TRUE ~ NA_character_
     ),
-    `Urine (PPB)` = case_when(
+    `Urine (ppb)` = case_when(
       !is.na(urine_manuscript) & !is.na(urine_ref) ~
         paste0(urine_manuscript, resolve_ref(urine_ref)),
       !is.na(urine_manuscript) ~ urine_manuscript,
       TRUE ~ NA_character_
     ),
-    `Serum/Plasma (PPB)` = case_when(
+    `Serum/Plasma (ppb)` = case_when(
       !is.na(plasma_manuscript) & !is.na(plasma_ref) ~
         paste0(plasma_manuscript, resolve_ref(plasma_ref)),
       !is.na(plasma_manuscript) ~ plasma_manuscript,
       TRUE ~ NA_character_
     ),
     across(
-      c(`Adipose Tissue (PPB)`, `Serum/Plasma (PPB)`),
+      c(`Adipose Tissue (ppb)`, `Serum/Plasma (ppb)`),
       ~ str_replace_all(.x, "\u00a7", "\u2016")
     ),
     # Strip smoker flag from urine cells — ‖ moved to column header
-    `Urine (PPB)` = str_replace_all(`Urine (PPB)`, "\u00a7", "")
+    `Urine (ppb)` = str_replace_all(`Urine (ppb)`, "\u00a7", "")
   ) |>
   select(
     `Usage Class`,
     Name,
     CAS,
     `IARC Group` = IARC_Group,
-    `Mean Non-Cancer Thyroid Conc. (PPB)` = mean_ctrl,
-    `Mean Tumor Conc. (PPB)` = mean_tumor,
-    `Range (PPB)†` = range,
-    `Adipose Tissue (PPB)‡` = `Adipose Tissue (PPB)`,
-    `Urine (PPB)¶‖` = `Urine (PPB)`,
-    `Serum/Plasma (PPB)¶` = `Serum/Plasma (PPB)`
+    `Mean Non-Cancer Thyroid Conc. (ppb)` = mean_ctrl,
+    `Mean Tumor Conc. (ppb)` = mean_tumor,
+    `Range (ppb)†` = range,
+    `Adipose Tissue (ppb)‡` = `Adipose Tissue (ppb)`,
+    `Urine (ppb)¶‖` = `Urine (ppb)`,
+    `Serum/Plasma (ppb)¶` = `Serum/Plasma (ppb)`
   ) |>
   arrange(`Usage Class`, Name)
 #_ Build hierarchical structure with Usage Class headers
@@ -145,12 +145,12 @@ for (usage_idx in seq_along(all_usage_classes)) {
     Name = usage_class,
     CAS = NA_character_,
     `IARC Group` = NA_character_,
-    `Mean Non-Cancer Thyroid Conc. (PPB)` = NA_character_,
-    `Mean Tumor Conc. (PPB)` = NA_character_,
-    `Range (PPB)†` = NA_character_,
-    `Adipose Tissue (PPB)‡` = NA_character_,
-    `Urine (PPB)¶‖` = NA_character_,
-    `Serum/Plasma (PPB)¶` = NA_character_
+    `Mean Non-Cancer Thyroid Conc. (ppb)` = NA_character_,
+    `Mean Tumor Conc. (ppb)` = NA_character_,
+    `Range (ppb)†` = NA_character_,
+    `Adipose Tissue (ppb)‡` = NA_character_,
+    `Urine (ppb)¶‖` = NA_character_,
+    `Serum/Plasma (ppb)¶` = NA_character_
   )
   usage_data <- ST3_tibble_flat |>
     filter(`Usage Class` == usage_class) |>
@@ -160,9 +160,9 @@ for (usage_idx in seq_along(all_usage_classes)) {
   if (usage_idx < length(all_usage_classes)) {
     ST3_list[[length(ST3_list) + 1]] <- tibble(
       Name = "", CAS = "", `IARC Group` = "",
-      `Mean Non-Cancer Thyroid Conc. (PPB)` = "", `Mean Tumor Conc. (PPB)` = "",
-      `Range (PPB)†` = "", `Adipose Tissue (PPB)‡` = "",
-      `Urine (PPB)¶‖` = "", `Serum/Plasma (PPB)¶` = ""
+      `Mean Non-Cancer Thyroid Conc. (ppb)` = "", `Mean Tumor Conc. (ppb)` = "",
+      `Range (ppb)†` = "", `Adipose Tissue (ppb)‡` = "",
+      `Urine (ppb)¶‖` = "", `Serum/Plasma (ppb)¶` = ""
     )
   }
 }
@@ -170,7 +170,7 @@ for (usage_idx in seq_along(all_usage_classes)) {
 ST3_tibble <- bind_rows(ST3_list) |>
   mutate(
     across(
-      c(`Adipose Tissue (PPB)‡`, `Urine (PPB)¶‖`, `Serum/Plasma (PPB)¶`),
+      c(`Adipose Tissue (ppb)‡`, `Urine (ppb)¶‖`, `Serum/Plasma (ppb)¶`),
       ~ case_when(
         Name != "" & !is.na(CAS) & (is.na(.) | . == "") ~ "\u2013",
         TRUE ~ .

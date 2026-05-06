@@ -52,7 +52,7 @@ ST1_tibble <- ST1_import |>
     Name = name,
     CAS = cas,
     `Monoisotopic Mass` = monoisotopic,
-    `Target RT (min.)` = trt
+    `Target RT (min)` = trt
   )
 #+ 15.1: Build Table 1 (with TernTables); export
 table1 <- ternG(
