@@ -51,21 +51,21 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \begingroup
 \fontsize{8}{9.6}\selectfont
-a- Medical Scientist Training Program, Emory University School of Medicine, Atlanta, GA 30322
+^a^ Medical Scientist Training Program, Emory University School of Medicine, Atlanta, GA 30322
 
-b- Nutrition and Health Sciences, Laney Graduate School, Emory University, Atlanta, GA 30322
+^b^ Nutrition and Health Sciences, Laney Graduate School, Emory University, Atlanta, GA 30322
 
-c- Division of Pulmonary, Allergy, Critical Care and Sleep Medicine, Department of Medicine, Emory University School of Medicine, Atlanta, GA, USA 30322
+^c^ Division of Pulmonary, Allergy, Critical Care and Sleep Medicine, Department of Medicine, Emory University School of Medicine, Atlanta, GA, USA 30322
 
-d- Division of General and GI Surgery, Department of Surgery, Emory University School of Medicine, Atlanta, GA 30322
+^d^ Division of General and GI Surgery, Department of Surgery, Emory University School of Medicine, Atlanta, GA 30322
 
-e- Molecular and Systems Pharmacology, Laney Graduate School, Emory University, Atlanta, GA 30322
+^e^ Molecular and Systems Pharmacology, Laney Graduate School, Emory University, Atlanta, GA 30322
 
-f- Gangarosa Department of Environmental Health, Rollins School of Public Health, Emory University, Atlanta, GA 30322
+^f^ Gangarosa Department of Environmental Health, Rollins School of Public Health, Emory University, Atlanta, GA 30322
 
-g- Winship Cancer Institute, Emory University, Atlanta, GA 30322
+^g^ Winship Cancer Institute, Emory University, Atlanta, GA 30322
 
-h- VA Healthcare System of Atlanta, Decatur, GA 30033
+^h^ VA Healthcare System of Atlanta, Decatur, GA 30033
 \endgroup
 
 \vspace{2em}
