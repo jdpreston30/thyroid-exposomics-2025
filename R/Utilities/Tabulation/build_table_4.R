@@ -4,7 +4,7 @@
 #' thyroid concentrations to literature values for select IARC-classified chemicals.
 #' Encapsulates all data wrangling (steps 16.3.0-16.3.9) and Excel export.
 #'
-#' @param ppm_full_table PPM data table from the pipeline
+#' @param ppm_full_table ppm data table from the pipeline
 #' @param ST1_tibble ST1 tibble (used to join chemical names)
 #' @param literature_ST3 Literature comparison data (from primary_data.xlsx, sheet "literature_comp_pared")
 #' @param validation_check_files_unfiltered Unfiltered validation check files
@@ -227,7 +227,7 @@ footnote_text <- paste(
   "\u00b6 Some urine or plasma values are derived from the CDC\u2019s Biomonitoring Data Tables for Environmental Chemicals\u1d48, which is based on data from NHANES cohorts. In the cases where compounds had data listed from multiple cohorts, the maximum geometric mean across any given cohort is listed.",
   "\u2016 All reported urine values were derived from measurements listed separately for smokers and non-smokers; values from smokers are presented, as these were the highest reported.",
   "References: \u1d43 = (Ml\u0079czy\u0144ska et al., 2023); \u1d47 = (Wang et al., 2010); \u1d9c = (Riffelmann et al., 1995); \u1d48 = (CDC, 2024); \u1d49 = (Maier, 2022)",
-  "Abbreviations: CDC = Centers for Disease Control and Prevention; IARC = International Agency for Research on Cancer; NHANES = National Health and Nutrition Examination Survey; PAH = polycyclic aromatic hydrocarbon; PCB = polychlorinated biphenyl; PPB = parts per billion",
+  "Abbreviations: CDC = Centers for Disease Control and Prevention; IARC = International Agency for Research on Cancer; NHANES = National Health and Nutrition Examination Survey; PAH = polycyclic aromatic hydrocarbon; PCB = polychlorinated biphenyl; ppb = parts per billion",
   sep = "\n"
 )
 writeData(wb, 1, x = footnote_text, startRow = footnote_row, startCol = 1)

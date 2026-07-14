@@ -6,7 +6,7 @@
 #' @param data A data frame with the following columns:
 #'   \describe{
 #'     \item{tumor_vs_ctrl}{Character indicating sample type ("Thyroid Tumor Tissue" or "Non-Cancer Cadaver Thyroids")}
-#'     \item{concentration}{Numeric concentration value in PPM}
+#'     \item{concentration}{Numeric concentration value in ppm}
 #'   }
 #' @param chemical_name Character string for the chemical name to display on x-axis
 #' @param p_value Optional numeric p-value from statistical test (e.g., Wilcoxon).
@@ -18,7 +18,7 @@
 #' @details
 #' The plot includes:
 #' \itemize{
-#'   \item Y-axis: Logarithmic scale from 10^-4 to 10^3 PPM
+#'   \item Y-axis: Logarithmic scale from 10^-4 to 10^3 ppm
 #'   \item X-axis: Chemical name (no axis label)
 #'   \item Violin plots with 50% alpha fill
 #'   \item Overlaid jittered points
@@ -127,7 +127,7 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
     ) +
     labs(
       x = NULL,
-      y = "log(PPM)",
+      y = "log(ppm)",
       title = chemical_name,
       fill = NULL,
       color = NULL

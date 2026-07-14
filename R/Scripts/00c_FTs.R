@@ -2,6 +2,24 @@
 #+ 0d.1: Import data, clean, preprocess
 #- 0d.1.1: Import raw feature table data
 tumor_raw <- read_excel(config$paths$primary_data, sheet = "lib.subject.summary")
+#! ============================================================================
+#! TERMINOLOGY: "variant" (code) == "type" (manuscript / pathology consensus)
+#! ----------------------------------------------------------------------------
+#! Throughout this pipeline, the three differentiated thyroid cancer types
+#! analyzed -- papillary (PTC), follicular (FTC), and the invasive encapsulated
+#! follicular variant of papillary thyroid carcinoma (IEFVPTC) -- are named
+#! "variant" in column names, objects, functions, scripts, and file paths. This
+#! is an intentional, isolated departure from the manuscript's terminology.
+#! Per the 2022 WHO Classification of Thyroid Tumours (Jung et al., 2022; WHO
+#! Editorial Board, 2022), "variant" is reserved for genetic variants and
+#! IEFVPTC is now a distinct entity rather than a subtype of PTC; the manuscript
+#! therefore uses "type"/"tumor type" throughout. We deliberately retain
+#! "variant" as an internal identifier solely to preserve the integrity and
+#! reproducibility of a validated, working pipeline -- renaming risks
+#! introducing errors into otherwise verified analysis code. In every case,
+#! read "variant" in the code as "type" in the manuscript; the discrepancy is
+#! purely nominal and confined to code-level naming.
+#! ============================================================================
 #- 0d.1.2: Import tumor sequence/variant data
 tumor_seq <- read_excel(config$paths$primary_data, sheet = "tumors_sequence") |>
   select(ID, variant) |>

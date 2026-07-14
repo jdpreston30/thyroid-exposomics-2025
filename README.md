@@ -5,6 +5,12 @@
 This code is associated with the analysis presented in the following manuscript:
 > Preston et al. (2025). Environmental Chemical Burden in Differentiated Thyroid Cancer. (submitted).
 
+## 📝 Terminology Note (code vs. manuscript)
+
+Throughout this codebase, the three differentiated thyroid cancer **types** analyzed — papillary (PTC), follicular (FTC), and the invasive encapsulated follicular variant of papillary thyroid carcinoma (IEFVPTC) — are referred to internally as **"variant"** (in column names, object names, function names, script names, and file paths). This is an intentional, isolated inconsistency with the manuscript.
+
+Per the 2022 WHO Classification of Thyroid Tumours (Jung et al., 2022; WHO Classification of Tumours Editorial Board, 2022), the term "variant" is now reserved for genetic variants, and IEFVPTC is recognized as a distinct entity rather than a subtype of PTC. The manuscript accordingly uses **"type" / "tumor type"** throughout. We deliberately retain "variant" as an internal identifier to preserve the integrity and reproducibility of a validated, working pipeline — renaming would risk introducing errors into analysis code that is otherwise verified and stable. **In every case, "variant" in the code is equivalent to "type" in the manuscript and current pathology literature**; the discrepancy is purely nominal and confined to code-level naming.
+
 ## 🚀 Quick Start for Reproduction
 
 **⚠️ Data Availability Notice**: 

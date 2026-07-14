@@ -1,41 +1,98 @@
----
-output:
-  pdf_document:
-    latex_engine: xelatex
-geometry:
-  - margin=0.5in
-  - headheight=14pt
-  - headsep=0.15in
-  - footskip=12pt
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{graphicx}
-  - \usepackage{pdfpages}
-  - \usepackage{fancyhdr}
-  - \usepackage{setspace}
-  - \usepackage{pdflscape}
-  - \usepackage[absolute]{textpos}
-  - \usepackage{ifthen}
-  - \usepackage{booktabs}
-  - \usepackage{longtable}
-  - \usepackage[table]{xcolor}
-  - \usepackage{makecell}
-  - \usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
-  - \setmainfont{Times New Roman}
-  - \hyphenpenalty=10000
-  - \exhyphenpenalty=10000
-  - \pagestyle{fancy}
-  - \fancyhf{}
-  - \fancyhead[L]{\fontsize{10}{12}\selectfont\textit{Preston et al., Environmental Chemical Burden in Thyroid Tumors}}
-  - \fancyhead[R]{\fontsize{10}{12}\selectfont\textit{\rightmark}}
-  - \fancyfoot[C]{\fontsize{10}{12}\selectfont-\thepage-}
-  - \renewcommand{\headrulewidth}{0pt}
-  - \renewcommand{\footrulewidth}{0pt}
-  - \renewcommand{\sectionmark}[1]{\markright{\textit{#1}}}
-  - \singlespacing
-  - \AtBeginDocument{\fontsize{10}{12}\selectfont}
-  - \raggedright
----
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=0.5in,headheight=14pt,headsep=0.15in,footskip=12pt]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{fontspec}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{fancyhdr}
+\usepackage{setspace}
+\usepackage{pdflscape}
+\usepackage[absolute]{textpos}
+\usepackage{ifthen}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage[table]{xcolor}
+\usepackage{makecell}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\setmainfont{Times New Roman}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\fontsize{10}{12}\selectfont\textit{Preston et al., Environmental Chemical Burden in Thyroid Tumors}}
+\fancyhead[R]{\fontsize{10}{12}\selectfont\textit{\rightmark}}
+\fancyfoot[C]{\fontsize{10}{12}\selectfont-\thepage-}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\sectionmark}[1]{\markright{\textit{#1}}}
+\singlespacing
+\AtBeginDocument{\fontsize{10}{12}\selectfont}
+\raggedright
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
 
 \thispagestyle{plain}
 
@@ -45,27 +102,46 @@ header-includes:
 
 \vspace{0.5em}
 
-Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N. Teeny^c^, Jaclyn Weinberg^c,e^, William J. Crandall^c,e^, Zachery R. Jarrell^c^, Xin Hu^c,f^, Susan A. Safley^d^, Jennifer M. Robertson^g^, ViLinh Tran^c^, Anee S. Jackson^d^, Snehal G. Patel^d^, Logan D. Glosser^d^, Collin J. Weber^d^, Jyotirmay Sharma^d^, Neil D. Saunders^d^, Young-Mi Go^c^, Dean P. Jones^c^, and M. Ryan Smith^c,h^
+Joshua D. Preston\textsuperscript{a,b,c}, Yongliang
+Liang\textsuperscript{c}, Thomas Szabo Yamashita\textsuperscript{d},
+Sami N. Teeny\textsuperscript{c}, Jaclyn Weinberg\textsuperscript{c,e},
+William J. Crandall\textsuperscript{c,e}, Zachery R.
+Jarrell\textsuperscript{c}, Xin Hu\textsuperscript{c,f}, Susan A.
+Safley\textsuperscript{d}, Jennifer M. Robertson\textsuperscript{g},
+ViLinh Tran\textsuperscript{c}, Anee S. Jackson\textsuperscript{d},
+Snehal G. Patel\textsuperscript{d}, Logan D. Glosser\textsuperscript{d},
+Collin J. Weber\textsuperscript{d}, Jyotirmay Sharma\textsuperscript{d},
+Neil D. Saunders\textsuperscript{d}, Young-Mi Go\textsuperscript{c},
+Dean P. Jones\textsuperscript{c}, and M. Ryan Smith\textsuperscript{c,h}
 
 \vspace{0.5em}
 
 \begingroup
 \fontsize{8}{9.6}\selectfont
-^a^ Medical Scientist Training Program, Emory University School of Medicine, Atlanta, GA 30322
 
-^b^ Nutrition and Health Sciences, Laney Graduate School, Emory University, Atlanta, GA 30322
+\textsuperscript{a} Medical Scientist Training Program, Emory University
+School of Medicine, Atlanta, GA 30322
 
-^c^ Division of Pulmonary, Allergy, Critical Care and Sleep Medicine, Department of Medicine, Emory University School of Medicine, Atlanta, GA, USA 30322
+\textsuperscript{b} Nutrition and Health Sciences, Laney Graduate
+School, Emory University, Atlanta, GA 30322
 
-^d^ Division of General and GI Surgery, Department of Surgery, Emory University School of Medicine, Atlanta, GA 30322
+\textsuperscript{c} Division of Pulmonary, Allergy, Critical Care and
+Sleep Medicine, Department of Medicine, Emory University School of
+Medicine, Atlanta, GA, USA 30322
 
-^e^ Molecular and Systems Pharmacology, Laney Graduate School, Emory University, Atlanta, GA 30322
+\textsuperscript{d} Division of General and GI Surgery, Department of
+Surgery, Emory University School of Medicine, Atlanta, GA 30322
 
-^f^ Gangarosa Department of Environmental Health, Rollins School of Public Health, Emory University, Atlanta, GA 30322
+\textsuperscript{e} Molecular and Systems Pharmacology, Laney Graduate
+School, Emory University, Atlanta, GA 30322
 
-^g^ Winship Cancer Institute, Emory University, Atlanta, GA 30322
+\textsuperscript{f} Gangarosa Department of Environmental Health,
+Rollins School of Public Health, Emory University, Atlanta, GA 30322
 
-^h^ VA Healthcare System of Atlanta, Decatur, GA 30033
+\textsuperscript{g} Winship Cancer Institute, Emory University, Atlanta,
+GA 30322
+
+\textsuperscript{h} VA Healthcare System of Atlanta, Decatur, GA 30033
 \endgroup
 
 \vspace{2em}
@@ -106,8 +182,6 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \newpage
 
-
-
 \newpage
 
 \markright{\textit{Supplementary Note 1}}
@@ -120,7 +194,17 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \vspace{0.5em}
 
-\noindent The standard reference material (SRM) used for annotation and identification had a concentration of 0.47 ng/mL for each individual environmental chemical (EC). Thus, we used the spectral intensities associated with these known concentrations to estimate chemical concentrations in tissues in parts per million (ppm) and parts per billion (ppb). It should be noted that the original data processing pipeline used a nominal concentration of 0.5 ng/mL for calibration calculations; therefore, a correction factor of 0.94 (0.47/0.5) was applied to all concentration estimates prior to ppm and ppb calculations to account for the true SRM concentration. Importantly, we relied on the following experimental features and assumptions:
+\noindent The standard reference material (SRM) used for annotation and
+identification had a concentration of 0.47 ng/mL for each individual
+environmental chemical (EC). Thus, we used the spectral intensities
+associated with these known concentrations to estimate chemical
+concentrations in tissues in parts per million (ppm) and parts per
+billion (ppb). It should be noted that the original data processing
+pipeline used a nominal concentration of 0.5 ng/mL for calibration
+calculations; therefore, a correction factor of 0.94 (0.47/0.5) was
+applied to all concentration estimates prior to ppm and ppb calculations
+to account for the true SRM concentration. Importantly, we relied on the
+following experimental features and assumptions:
 
 \begin{itemize}
 \item Tissues are processed via solvent extraction and subsequent solvent evaporation, followed by reconstitution in 50 $\mu$L of isooctane. For the purposes of calculating concentrations in the original samples, we assume 100\% extraction efficiency from tissues and plasma, such that the entire amount of the EC present in the sample is recovered in the isooctane.
@@ -128,7 +212,8 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 \item While each chemical has a concentration in the SRM of 0.47 ng/mL, the concentration in 50 $\mu$L of isooctane is 1.88 ng/mL. This is because 200 $\mu$L of SRM plasma is used, and therefore, 0.094 ng of the total EC of interest is extracted. This is dried after extraction and reconstituted in 50 $\mu$L of isooctane, resulting in a concentration of 1.88 ng/mL in the injected solution.
 \end{itemize}
 
-\noindent Our calculations to estimate tissue concentrations were performed as follows for each individual chemical:
+\noindent Our calculations to estimate tissue concentrations were
+performed as follows for each individual chemical:
 
 \begin{enumerate}
 \item A linear model is fit based on the assumptions discussed above, such that:
@@ -280,3 +365,5 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 \input{Sections/abbreviations.tex}
 
 \newpage
+
+\end{document}

@@ -109,12 +109,12 @@ fix_ST3_latex <- function(latex_text) {
       "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Name}}}",
       "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{CAS}}}",
       "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{IARC\\\\Group}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Mean Non-Cancer\\\\Thyroid Conc.\\\\(PPB)}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Mean Tumor\\\\Conc.\\\\(PPB)}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Range\\\\(PPB)$^{\\text{a}}$}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Adipose\\\\Tissue\\\\(PPB)$^{\\text{b}}$}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Urine\\\\(PPB)$^{\\text{c}}$}}}",
-      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Serum/\\\\Plasma\\\\(PPB)$^{\\text{c}}$}}}"
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Mean Non-Cancer\\\\Thyroid Conc.\\\\(ppb)}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Mean Tumor\\\\Conc.\\\\(ppb)}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Range\\\\(ppb)$^{\\text{a}}$}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Adipose\\\\Tissue\\\\(ppb)$^{\\text{b}}$}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Urine\\\\(ppb)$^{\\text{c}}$}}}",
+      "\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{\\shortstack[c]{Serum/\\\\Plasma\\\\(ppb)$^{\\text{c}}$}}}"
     )
     
     # Rebuild header line with 18pt height for 3-line headers (6pt per line)
