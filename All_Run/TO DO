@@ -3,7 +3,6 @@
 - Do a "capitalizaiton audit" to ensure full consistency accross all main tables, supplementary tables, figures, manuscript text when a chemical name is displayed. There are some inconsistencies here and there.
 - Complete and add this sentence to "Bio-Surveillance of Chemicals Annotated in DTC Samples" right after the p value listing sentence. "We then compared the annotated chemicals in thyroid cancers with those in non-cancer cadaver thyroids and found xx% overlap."
 - for figure 2 captions and figure, consider changing a/b/c to the dagggers and double daggers and pilcrow. For figure 3B captions and figure, consider changing a to dagger. You may have to manually place them with x y coordinates tbh.
- 
 
 ## Other
 - Change font of supplementary to match manuscript?
@@ -13,7 +12,6 @@
 -remove non quantittative chemicals from PPM (main figure 3) and PPM tables (3 and 4) in supplementary. Will will determine this, and these will be chemicals which were part of  a mix rather than being a single standard
 - specify this in the methods that we had to remove these chemicals in mixtures. In expanded methods
 -modify figure 3 raw file based on new PPM calc
--wipe hx.txt from history
 - clean pdf tools from renv
 - Delete pvc rtx , pvc rtx multi, pvc mzx if not used
 - Specify we didnt do PCBs in IRAC1
