@@ -83,8 +83,7 @@ digraph carcinogenicity {
   q_h350   [label = "H350 or H350i\\n≥ 50%?"]
   q_iarc2b [label = "IARC =\\nGroup 2B?"]
   q_partial[label = "0% < H350/H350i\\n< 50%, or\\nH351 > 0%?"]
-  q_iarc3  [label = "IARC Group 3,\\nno GHS\\nstatement?"]
-  q_none   [label = "No IARC and\\nno GHS\\nstatement?"]
+  q_none   [label = "No IARC group and\\nno GHS\\nstatement?"]
 
   // --- terminal nodes (uniform boxes), colored by carcinogen_colors ---
   node [shape = box, style = "filled,rounded", penwidth = 0, fixedsize = true,
@@ -94,47 +93,45 @@ digraph carcinogenicity {
   likely2   [label = "Likely Carcinogen",   fillcolor = "__LIKELY__",   fontcolor = "white"]
   possible1 [label = "Possible Carcinogen", fillcolor = "__POSSIBLE__", fontcolor = "#333333"]
   possible2 [label = "Possible Carcinogen", fillcolor = "__POSSIBLE__", fontcolor = "#333333"]
-  uncertn1  [label = "Uncertain Risk",      fillcolor = "__UNCERTAIN__", fontcolor = "#333333"]
   uncertn2  [label = "Uncertain Risk",      fillcolor = "__UNCERTAIN__", fontcolor = "#333333"]
   unclass   [label = "Unclassified",        fillcolor = "__UNCLASS__",  fontcolor = "#333333",
              penwidth = 1, color = "#8DA0B8"]
 
-  // --- "Yes" label holders: labelloc=t floats the text above the arrow ---
-  node [shape = plaintext, style = "", fixedsize = true, width = 0.08,
+  // --- "Yes" label holders: labelloc=t floats the text above the arrow; width
+  //     ~0 so the two split-arrow segments meet with no visible white gap. ---
+  node [shape = plaintext, style = "", fixedsize = true, width = 0.001,
         height = 0.5, labelloc = "t", fontsize = 11, fontcolor = "#000000"]
   yl1 [label = "Yes"]
   yl2 [label = "Yes"]
   yl3 [label = "Yes"]
   yl4 [label = "Yes"]
   yl5 [label = "Yes"]
-  yl6 [label = "Yes"]
   yl7 [label = "Yes"]
 
   // --- spine: the "No" path straight down ---
   start    -> q_iarc1
-  q_iarc1  -> q_iarc2a  [label = "  No"]
-  q_iarc2a -> q_h350    [label = "  No"]
-  q_h350   -> q_iarc2b  [label = "  No"]
-  q_iarc2b -> q_partial [label = "  No"]
-  q_partial-> q_iarc3   [label = "  No"]
-  q_iarc3  -> q_none    [label = "  No"]
-  q_none   -> uncertn2  [label = "  No (catch-all)"]
+  q_iarc1  -> q_iarc2a  [label = "    No"]
+  q_iarc2a -> q_h350    [label = "    No"]
+  q_h350   -> q_iarc2b  [label = "    No"]
+  q_iarc2b -> q_partial [label = "    No"]
+  q_partial-> q_none    [label = "    No"]
+  q_none   -> uncertn2  [label = "    No"]
 
   // --- "Yes" branches out to the right ---
-  q_iarc1  -> yl1 [arrowhead = none]   yl1 -> known
-  q_iarc2a -> yl2 [arrowhead = none]   yl2 -> likely1
-  q_h350   -> yl3 [arrowhead = none]   yl3 -> likely2
-  q_iarc2b -> yl4 [arrowhead = none]   yl4 -> possible1
-  q_partial-> yl5 [arrowhead = none]   yl5 -> possible2
-  q_iarc3  -> yl6 [arrowhead = none]   yl6 -> uncertn1
-  q_none   -> yl7 [arrowhead = none]   yl7 -> unclass
+  // headclip/tailclip=false -> both segments run to the label node centre and
+  // meet there, so the split arrow is truly gapless (no white speck).
+  q_iarc1  -> yl1 [arrowhead = none, headclip = false]   yl1 -> known     [tailclip = false]
+  q_iarc2a -> yl2 [arrowhead = none, headclip = false]   yl2 -> likely1   [tailclip = false]
+  q_h350   -> yl3 [arrowhead = none, headclip = false]   yl3 -> likely2   [tailclip = false]
+  q_iarc2b -> yl4 [arrowhead = none, headclip = false]   yl4 -> possible1 [tailclip = false]
+  q_partial-> yl5 [arrowhead = none, headclip = false]   yl5 -> possible2 [tailclip = false]
+  q_none   -> yl7 [arrowhead = none, headclip = false]   yl7 -> unclass   [tailclip = false]
 
   { rank = same; q_iarc1;  yl1; known }
   { rank = same; q_iarc2a; yl2; likely1 }
   { rank = same; q_h350;   yl3; likely2 }
   { rank = same; q_iarc2b; yl4; possible1 }
   { rank = same; q_partial; yl5; possible2 }
-  { rank = same; q_iarc3;  yl6; uncertn1 }
   { rank = same; q_none;   yl7; unclass }
 }
 '

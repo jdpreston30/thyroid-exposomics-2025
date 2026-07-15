@@ -107,16 +107,6 @@ validation_plot_metadata_ordered <- read_xlsx(config$paths$validation, sheet = "
     full_path = here::here(plot),
     grob = map(full_path, readRDS)
   ) %>%
-  # Remap figure numbers: old S2→S1, S3→S2, S4→S3 (S1 removed; content moved to Fig 2)
-  mutate(
-    figure = case_when(
-      figure == 2 ~ 1L,
-      figure == 3 ~ 2L,
-      figure == 4 ~ 3L,
-      TRUE ~ figure
-    ),
-    sf_sub = paste(figure, subfigure, sep = ".")
-  ) %>%
   select(order, id, short_name, figure, subfigure, sf_sub, panel, plot, full_path, grob)
 #- 0c.1.19: ST3 literature review
 literature_ST3 <- read_excel(config$paths$primary_data, sheet = "literature_comp_pared") |>

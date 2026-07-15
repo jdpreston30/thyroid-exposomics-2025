@@ -76,33 +76,33 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \fontsize{10}{11}\selectfont
 
-\textbf{Figure S1} \dotfill 2
+\textbf{Supplementary Note 1} \dotfill 2-3
 
-\quad \textit{Carcinogenicity classification decision tree} \dotfill 2
+\textbf{Figure S1} \dotfill 4
 
-\textbf{Figure S2} \dotfill 3-27
+\textbf{Figure S2} \dotfill 5-29
 
-\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 3-24
+\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 5-26
 
-\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 25-27
+\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 27-29
 
-\textbf{Figure S3} \dotfill 28-32
+\textbf{Figure S3} \dotfill 30-34
 
-\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 28-30
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 30-32
 
-\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 31-32
+\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 33-34
 
-\textbf{Figure S4} \dotfill 33-36
+\textbf{Figure S4} \dotfill 35-38
 
-\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 33-35
+\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 35-37
 
-\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 36
+\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 38
 
-\textbf{Table S1} \dotfill 37-54
+\textbf{Table S1} \dotfill 39-56
 
-\textbf{Table S2} \dotfill 55-65
+\textbf{Table S2} \dotfill 57-67
 
-\textbf{Table Abbreviation Dictionary} \dotfill 66
+\textbf{Table Abbreviation Dictionary} \dotfill 68
 
 \newpage
 
@@ -114,13 +114,9 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \noindent{\fontsize{12}{14.4}\selectfont\textbf{Supplementary Note 1}}
 
-\vspace{0.25em}
-
-\noindent{\fontsize{12}{14.4}\selectfont\textbf{Quantitative Estimates of Chemical Concentrations in Tissues}}
-
 \vspace{0.5em}
 
-\noindent The standard reference material (SRM) used for annotation and identification had a concentration of 0.47 ng/mL for each individual environmental chemical (EC). Thus, we used the spectral intensities associated with these known concentrations to estimate chemical concentrations in tissues in parts per million (ppm) and parts per billion (ppb). It should be noted that the original data processing pipeline used a nominal concentration of 0.5 ng/mL for calibration calculations; therefore, a correction factor of 0.94 (0.47/0.5) was applied to all concentration estimates prior to ppm and ppb calculations to account for the true SRM concentration. Importantly, we relied on the following experimental features and assumptions:
+\noindent \textbf{Quantitative Estimates of Chemical Concentrations in Tissues:} The standard reference material (SRM) used for annotation and identification had a concentration of 0.47 ng/mL for each individual environmental chemical (EC). Thus, we used the spectral intensities associated with these known concentrations to estimate chemical concentrations in tissues in parts per million (ppm) and parts per billion (ppb). It should be noted that the original data processing pipeline used a nominal concentration of 0.5 ng/mL for calibration calculations; therefore, a correction factor of 0.94 (0.47/0.5) was applied to all concentration estimates prior to ppm and ppb calculations to account for the true SRM concentration. Importantly, we relied on the following experimental features and assumptions:
 
 \begin{itemize}
 \item Tissues are processed via solvent extraction and subsequent solvent evaporation, followed by reconstitution in 50 $\mu$L of isooctane. For the purposes of calculating concentrations in the original samples, we assume 100\% extraction efficiency from tissues and plasma, such that the entire amount of the EC present in the sample is recovered in the isooctane.
@@ -163,7 +159,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \noindent{\fontsize{12}{14.4}\selectfont\textbf{Figure S1}}
 
-\noindent{\fontsize{10}{12}\selectfont\textbf{Decision-tree logic for classifying carcinogenicity from IARC group and GHS hazard statements.} Chemicals with a statistically significant difference in detection or abundance between thyroid cancer variants were assigned a carcinogenicity category by integrating their International Agency for Research on Cancer (IARC) group with Globally Harmonized System (GHS) hazard statements: H350 (``may cause cancer''), H350i (``may cause cancer by inhalation''), and H351 (``suspected of causing cancer''). Percentages denote the GHS consensus/confidence for the indicated statement as reported on PubChem (section 12.1.1, ``GHS Classification''). Decisions are evaluated from top to bottom: a ``Yes'' assigns the adjacent category, while a ``No'' proceeds down the tree. IARC Group 1 and Group 2A assignments override GHS considerations. Any residual combination not otherwise resolved is assigned ``Uncertain Risk'' (catch-all), and chemicals with neither an IARC group nor a GHS carcinogen statement are considered unclassified.}
+\noindent{\fontsize{10}{12}\selectfont\textbf{Decision-tree logic for classifying carcinogenicity from IARC group and GHS hazard statements.} Chemicals with a statistically significant difference in detection or abundance between thyroid cancer types were assigned a carcinogenicity category by integrating their International Agency for Research on Cancer (IARC) group with Globally Harmonized System (GHS) hazard statements: H350 (``may cause cancer''), H350i (``may cause cancer by inhalation''), and H351 (``suspected of causing cancer''). Percentages denote the GHS consensus/confidence for the indicated statement as reported on PubChem (section 12.1.1, ``GHS Classification''). Decisions are evaluated from top to bottom: a ``Yes'' assigns the adjacent category, while a ``No'' proceeds down the tree. IARC Group 1 and Group 2A assignments override GHS considerations. Any residual combination not otherwise resolved is assigned ``Uncertain Risk'', and chemicals with neither an IARC group nor a GHS carcinogen statement are considered unclassified.}
 
 \vspace{0.5em}
 
@@ -177,7 +173,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \noindent{\fontsize{12}{14.4}\selectfont\textbf{Figure S2.1}}
 
-\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of confirmed chemical identifications with variant-associated differences in thyroid tumor samples.} Sample spectra for chemicals with statistically significant differences in detection or abundance across thyroid cancer variants that passed manual spectral quality review, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (S2.1, pp. 3-24), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (S2.2, pp. 25-27). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of confirmed chemical identifications with type-associated differences in thyroid tumor samples.} Sample spectra for chemicals with statistically significant differences in detection or abundance across thyroid cancer types that passed manual spectral quality review, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (S2.1, pp. 5-26), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (S2.2, pp. 27-29). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
 
 \vspace{0.5em}
 
@@ -191,7 +187,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \markright{\textit{Figure S2.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S2.2\ifthenelse{\value{page}>27}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S2.2\ifthenelse{\value{page}>29}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
 
 \newpage
 
@@ -199,7 +195,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \noindent{\fontsize{12}{14.4}\selectfont\textbf{Figure S3.1}}
 
-\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of confirmed IARC Group 1 chemical identifications in thyroid tumor samples.} Sample spectra for IARC Group 1 carcinogens identified in thyroid tumor tissue that passed manual spectral quality review, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (S3.1, pp. 28-30), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (S3.2, pp. 31-32). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of confirmed IARC Group 1 chemical identifications in thyroid tumor samples.} Sample spectra for IARC Group 1 carcinogens identified in thyroid tumor tissue that passed manual spectral quality review, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (S3.1, pp. 30-32), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (S3.2, pp. 33-34). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
 
 \vspace{0.5em}
 
@@ -213,7 +209,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \markright{\textit{Figure S3.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S3.2\ifthenelse{\value{page}>32}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S3.2\ifthenelse{\value{page}>34}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
 
 \newpage
 
@@ -221,7 +217,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \noindent{\fontsize{12}{14.4}\selectfont\textbf{Figure S4.1}}
 
-\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of confirmed IARC Group 1 chemical identifications in non-cancer cadaver thyroid samples.} Sample spectra for IARC Group 1 carcinogens identified in non-cancer cadaver thyroid tissue that passed manual spectral quality review, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (S4.1, pp. 33-35), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (S4.2, p. 36). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
+\noindent{\fontsize{10}{12}\selectfont\textbf{Spectral validation of confirmed IARC Group 1 chemical identifications in non-cancer cadaver thyroid samples.} Sample spectra for IARC Group 1 carcinogens identified in non-cancer cadaver thyroid tissue that passed manual spectral quality review, displayed either as mirrored plots with reference standard (sample intensity in positive y-axis, standard intensity in negative y-axis) or as non-mirrored plots without standard when reference co-elution was inadequate. Mirrored plots with co-elution of multiple fragments in both standard and sample are considered ``Level 1'' identifications (S4.1, pp. 35-37), while non-mirrored plots where multiple fragments co-elute in the sample but the standard does not show proper co-elution are considered ``Level 2'' identifications (S4.2, p. 38). Asterisks (*) indicate the fragment used for statistical comparison and displayed in Figure 3 and/or Table 3. For select compounds, additional plots display isolated fragments for enhanced visualization clarity.}
 
 \vspace{0.5em}
 
@@ -235,7 +231,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \markright{\textit{Figure S4.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S4.2\ifthenelse{\value{page}>36}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S4.2.pdf}
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S4.2\ifthenelse{\value{page}>38}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S4.2.pdf}
 
 \fancyhead[R]{\fontsize{10}{12}\selectfont\textit{Table S1}}
 \newpage

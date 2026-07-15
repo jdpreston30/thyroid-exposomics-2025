@@ -76,33 +76,33 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \fontsize{10}{11}\selectfont
 
-\textbf{Figure S1} \dotfill 2
+\textbf{Supplementary Note 1} \dotfill 2-3
 
-\quad \textit{Carcinogenicity classification decision tree} \dotfill 2
+\textbf{Figure S1} \dotfill 4
 
-\textbf{Figure S2} \dotfill 3-27
+\textbf{Figure S2} \dotfill 5-29
 
-\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 3-24
+\quad \textit{2.1: Level 1 identifications (22 pages)} \dotfill 5-26
 
-\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 25-27
+\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 27-29
 
-\textbf{Figure S3} \dotfill 28-32
+\textbf{Figure S3} \dotfill 30-34
 
-\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 28-30
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 30-32
 
-\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 31-32
+\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 33-34
 
-\textbf{Figure S4} \dotfill 33-36
+\textbf{Figure S4} \dotfill 35-38
 
-\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 33-35
+\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 35-37
 
-\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 36
+\quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 38
 
-\textbf{Table S1} \dotfill 37-54
+\textbf{Table S1} \dotfill 39-56
 
-\textbf{Table S2} \dotfill 55-65
+\textbf{Table S2} \dotfill 57-67
 
-\textbf{Table Abbreviation Dictionary} \dotfill 66
+\textbf{Table Abbreviation Dictionary} \dotfill 68
 
 \newpage
 
