@@ -59,6 +59,8 @@ renv/staging/
 *.tmp
 *.bak
 *.log
+Cadaver/
+handoff.md
 
 # Validation files (generated outputs, transferred to OneDrive)
 Outputs/Validation/temp_RDS/
