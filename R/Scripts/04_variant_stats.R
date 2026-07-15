@@ -11,7 +11,7 @@ anova_results_sig <- tumors_quant_wt |>
   arrange(p_value) |>
   arrange(name_sub_lib_id) |>
   pull(name_sub_lib_id) # Extract significant feature names
-#- 4.1.2: Filter tumors_quant to keep only significant compounds and apply z-score 
+#- 4.1.2: Filter tumors_quant to keep only significant compounds and apply z-score
 tumors_quant_sig_i <- tumors_quant_wt |>
   select(variant, all_of(anova_results_sig)) |>
   mutate(across(-variant, ~ scale(.)[, 1]))
@@ -65,7 +65,7 @@ fisher_results_i <- tumors_qual |>
   left_join(cas_key_2, by = "name_sub_lib_id") |>
   mutate(mode = "qualitative") |>
   select(Name, everything())
-#+ 4.3: Quality control
+#+ 4.3: Quality Control
 #- 4.3.1: Visually inspect for duplicates (with different fragments) between the ANOVA and Fisher's
 #_Bind names and modes to check for duplicates
 summary_table_i_dup <- summary_table_i |>
@@ -128,7 +128,7 @@ qual_single_frag <- fisher_results_i |>
   select(cas,name_sub_lib_id,mode,everything()) |>
   arrange(Name)
 print(qual_single_frag, n = Inf)
-#+ 4.4: Compile final results
+#+ 4.4: Compile Final Results
 #- 4.4.1: Pull short name from feature metadata
 short_name <- read_excel(config$paths$chemical_metadata, sheet = "feature_metadata") |>
   select(cas, name, Potential_EDC, IARC_Group, GHS_var_diff_only,Short_display_name, Graph_Class, Superclass, Table_Class, Annotation_or_Identification) |>

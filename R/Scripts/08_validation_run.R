@@ -1,13 +1,13 @@
 #* 8: Manual Spectral Validation
 if (config$analysis$run_validation_step) {
-#+ 8.1: Convert raw files to mzML
+#+ 8.1: Convert Raw Files to mzML
 file_inventory <- convert_raw_to_mzml(
   file_list = file_list,
   tumor_raw_dir = config$paths$tumor_raw_dir,
   cadaver_raw_dir = config$paths$cadaver_raw_dir
 )
 #+ 8.2: Manual Validation Plots Creation
-#- 8.2.1: IARC Tumor
+#- 8.2.1: IARC tumor
 # Run rtx
 iarc_tumor_rtx <- rtx(
   validation_list = iv_wide,
@@ -27,7 +27,7 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "iarc_tumor_rtx"
 )
-#- 8.2.2: IARC Cadaver
+#- 8.2.2: IARC cadaver
 # Run rtx
 iarc_cadaver_rtx <- rtx(
   validation_list = ic_wide,
@@ -48,7 +48,7 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "iarc_cadaver_rtx"
 )
-#- 8.2.3: Variant Differences Chemicals (Part 1)
+#- 8.2.3: Variant differences chemicals (Part 1)
 # Subset to part 1
 vv_wide_pt1 <- vv_wide |>
   slice(1:20)
@@ -72,7 +72,7 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "variant_rtx"
 )
-#- 8.2.4: Variant Differences Chemicals (Part 2)
+#- 8.2.4: Variant differences chemicals (Part 2)
 # Subset to part 2
 vv_wide_pt2 <- vv_wide |>
   slice(21:40)
@@ -96,7 +96,7 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "variant_rtx"
 )
-#- 8.2.5: Variant Differences Chemicals (Part 3)
+#- 8.2.5: Variant differences chemicals (Part 3)
 # Subset to part 3
 vv_wide_pt3 <- vv_wide |>
   slice(41:n())
@@ -120,8 +120,8 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "variant_rtx"
 )
-#+ 8.4: Iterate through all validated IARC1 (Post-hoc per step 9)
-#- 8.4.1: IARC Tumor - Pentachlorophenol
+#+ 8.3: Iterate Through All Validated IARC1 (Post-hoc per Step 9)
+#- 8.3.1: IARC tumor - Pentachlorophenol
 {
   iarc_tumor_rtx_validated_pt1 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(1),
@@ -144,7 +144,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.2: IARC Tumor - γ-BHC
+#- 8.3.2: IARC tumor - γ-BHC
 {
   iarc_tumor_rtx_validated_pt2 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(2),
@@ -167,7 +167,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.3: IARC Tumor - 2-Naphthylamine
+#- 8.3.3: IARC tumor - 2-Naphthylamine
 {
   iarc_tumor_rtx_validated_pt3 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(3),
@@ -190,7 +190,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.4: IARC Tumor - Phenacetin
+#- 8.3.4: IARC tumor - Phenacetin
 {
   iarc_tumor_rtx_validated_pt4 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(4),
@@ -213,7 +213,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.5: IARC Tumor - 4-ABP
+#- 8.3.5: IARC tumor - 4-ABP
 {
   iarc_tumor_rtx_validated_pt5 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(5),
@@ -236,7 +236,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.6: IARC Tumor - MOCA
+#- 8.3.6: IARC tumor - MOCA
 {
   iarc_tumor_rtx_validated_pt6 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(6),
@@ -259,7 +259,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.7: IARC Tumor - o-Toluidine
+#- 8.3.7: IARC tumor - o-Toluidine
 {
   iarc_tumor_rtx_validated_pt7 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(7),
@@ -282,7 +282,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.8: IARC Tumor - 2-ABP
+#- 8.3.8: IARC tumor - 2-ABP
 {
   iarc_tumor_rtx_validated_pt8 <- rtx(
     validation_list = iv_wide_iarc_validated |> slice(8),
@@ -305,7 +305,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_tumor_rtx_validated_check"
   )
 }
-#- 8.4.9: IARC Cadaver
+#- 8.3.9: IARC cadaver
 {
   iarc_cadaver_rtx_validated <- rtx(
     validation_list = ic_wide_iarc_validated,
@@ -331,7 +331,7 @@ compile_validation_pdf(
     external_subfolder = "iarc_cadaver_rtx_validated_check"
   )
 }
-#+ 8.4: Skip entire section if YAML specifies
+#+ 8.4: Skip Entire Section If YAML Specifies
 } else {
   cat("⏭️  Skipping validation step (config$analysis$run_validation_step = FALSE)\n")
 }

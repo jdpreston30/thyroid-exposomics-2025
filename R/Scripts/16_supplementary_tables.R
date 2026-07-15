@@ -1,5 +1,5 @@
 #* 16: Supplementary Tables
-#+ 16.1: ST1: Chemical library (pivoted subid)
+#+ 16.1: ST1: Chemical Library (pivoted subid)
 #- 16.1.1: Build and format ST1 gt table
 gt_ST1 <- build_ST1(ST1_tibble)
 #- 16.1.2: Save ST1 as LaTeX (without table wrapper) to Supplementary/Components/Tables
@@ -11,7 +11,7 @@ latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} a
 latex_code <- paste(latex_lines, collapse = "\n")
 writeLines(latex_code, "Supplementary/Components/Tables/ST1.tex")
 #+ 16.2: ST2
-#- 16.2.1: Prepare base ST2 data 
+#- 16.2.1: Prepare base ST2 data
 ST2_base <- feature_metadata |>
   mutate(`Superclass: Class` = if_else(is.na(Superclass), Class, paste(Superclass, Class, sep = ": "))) |>
   select(GROUP = Table_Header, Class = Table_Class, Subclass = Table_Subclass, CAS = cas, `Potential EDC` = Potential_EDC, `IARC Group` = IARC_Group, `Superclass: Class`) |>
@@ -162,11 +162,11 @@ latex_lines <- strsplit(latex_code, "\n")[[1]]
 latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} and \end{table}
 latex_code <- paste(latex_lines, collapse = "\n")
 writeLines(latex_code, "Supplementary/Components/Tables/ST2.tex")
-#+ 16.4 Abbreviations Dictionary
-#- 16.4.1: Build abbreviations list
+#+ 16.3: Abbreviations Dictionary
+#- 16.3.1: Build abbreviations list
 abbrev_list <- ST_abbrevs |>
   arrange(formatted)
-#- 16.4.2: Convert to LaTeX itemize list with reduced spacing
+#- 16.3.2: Convert to LaTeX itemize list with reduced spacing
 abbrev_latex <- c(
   "\\begin{itemize}",
   "\\setlength{\\itemsep}{2pt}",
@@ -175,5 +175,5 @@ abbrev_latex <- c(
   paste0("  \\item ", abbrev_list$formatted),
   "\\end{itemize}"
 )
-#- 16.4.3: Save abbreviations to Supplementary/Components/Sections
+#- 16.3.3: Save abbreviations to Supplementary/Components/Sections
 writeLines(abbrev_latex, "Supplementary/Components/Sections/abbreviations.tex")

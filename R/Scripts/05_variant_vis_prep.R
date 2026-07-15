@@ -1,5 +1,5 @@
 #* 5: Variant Visualization
-#+ 5.1: Prepare quantitative (top 5) for visualization
+#+ 5.1: Prepare Quantitative (top 5) for Visualization
 #- 5.1.1: Pull the top 5 quant for visualization
 top_quant <- summary_table |>
   arrange(p_value) |>
@@ -25,7 +25,7 @@ tumors_quant_sig_renamed <- tumors_quant_sig_i |>
   arrange(variant) |>
   rename_with(~ column_renames[.x], .cols = all_of(names(column_renames))) |>
   rename_with(~ str_replace_all(.x, "\u2020", "\u1d43"))
-#+ 5.2: Prepare qualitative data for visualization
+#+ 5.2: Prepare Qualitative Data for Visualization
 #- 5.2.1: Filter to only the qualitative
 qual_i <- quant_qual_results |>
   filter(mode == "qualitative") |>
@@ -51,7 +51,7 @@ qual_i_reordered <- qual_i |>
   arrange(desc(order)) |>
   select(-order) |>
   mutate(short_name = str_replace_all(short_name, "\u2020", "\u1d43"))
-#+ 5.3: Post-Hoc testing on quant
+#+ 5.3: Post-Hoc Testing on Quant
 #- 5.3.1: Post-hoc on quants with CLD notation
 posthoc_quant <- tumors_quant_sig_i |>
   mutate(variant = if_else(variant == "FV-PTC", "IEFVPTC", variant)) |>
@@ -228,8 +228,8 @@ posthoc_table_pvalues_i <- dplyr::bind_rows(
   left_join(cas_key_2, by = "name_sub_lib_id") |>
   select(-name_sub_lib_id) |>
   left_join(MTii |> select(cas,FTC_let:PTC_let), by = "cas")
-#+ 5.5: Carcinogen class per GHS+IARC
-#- 5.5.1: Apply classification function; add back subids
+#+ 5.4: Carcinogen Class per GHS+IARC
+#- 5.4.1: Apply classification function; add back subids
 MTi <- MTii |>
   mutate(
     Carcinogenicity = mapply(

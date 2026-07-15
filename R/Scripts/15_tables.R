@@ -1,11 +1,11 @@
 #* 15: Tables
-#+ 15.0: Pre-build ST1_tibble (needed by build_table_4)
-#- 15.0.1: Get list of Y/N expanded fragments
+#+ 15.1: Pre-build ST1_tibble (needed by build_table_4)
+#- 15.1.1: Get list of Y/N expanded fragments
 expanded_chemicals <- expanded_validation |>
   select(id, expanded) |>
   filter(expanded == "Y") |>
   pull(id)
-#- 15.0.2: Prepare ST1_tibble
+#- 15.1.2: Prepare ST1_tibble
 ST1_tibble <- ST1_import |>
   mutate(
     base_num = as.numeric(str_extract(id, "\\d+(?=_|$)")),
@@ -54,7 +54,7 @@ ST1_tibble <- ST1_import |>
     `Monoisotopic Mass` = monoisotopic,
     `Target RT (min)` = trt
   )
-#+ 15.1: Build Table 1 (with TernTables); export
+#+ 15.2: Build Table 1 (with TernTables); Export
 table1 <- ternG(
   clinical_data,
   group_var = "Variant",
@@ -72,7 +72,7 @@ table1 <- ternG(
     "Demographics" = "Sex",
     "Staging" = "T Category"
   ))
-#+ 15.2: Build Table 2 (with function); export
+#+ 15.3: Build Table 2 (with function); Export
 table_2 <- build_table_2(
   data = feature_metadata,
   header_col = "Table_Header",
@@ -80,8 +80,8 @@ table_2 <- build_table_2(
   subclass_col = "Table_Subclass",
   export_path = "Outputs/Tables/T2.xlsx"
 )
-#+ 15.3: Build Table 3 (with function); export
-#- 15.3.1: Create table columns and format
+#+ 15.4: Build Table 3 (with function); Export
+#- 15.4.1: Create table columns and format
 table_3_tibble <- MT_final |>
   mutate(
     Table_Class = case_when(
@@ -143,12 +143,12 @@ table_3_tibble <- MT_final |>
   ) |>
   arrange(p_value) |>
   select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `IEFVPTC` = FV_PTC_let, PTC = PTC_let, `P value` = p_value)
-#- 15.3.2: Build Table 3 with function
+#- 15.4.2: Build table 3 with function
 table_3 <- build_table_3(
   data = table_3_tibble,
   export_path = "Outputs/Tables/T3.xlsx"
 )
-#+ 15.4: Build Table 4 (with function); export
+#+ 15.5: Build Table 4 (with function); Export
 table_4 <- build_table_4(
   ppm_full_table = ppm_full_table,
   ST1_tibble = ST1_tibble,

@@ -1,9 +1,9 @@
 #* 13: Render Figures
-#+ 13.0: Clean up any corrupted PDFs from previous runs
+#+ 13.1: Clean Up Any Corrupted PDFs from Previous Runs
 if (file.exists("Outputs/Figures/Figs1-3.pdf")) {
   file.remove("Outputs/Figures/Figs1-3.pdf")
 }
-#+ 13.1: Figure 1
+#+ 13.2: Figure 1
 fig1 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   # 1A
   draw_plot(p1A, x = 1.18, y = 6.774, 
@@ -17,7 +17,7 @@ fig1 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     B = c(4.35, 10.00),
     "Figure 1" = c(0.49, 10.43)
   ))
-#+ 13.2: Figure 2
+#+ 13.3: Figure 2
 fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   # 2A
   draw_plot(p2A,
@@ -53,7 +53,7 @@ fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     E = c(4.056667, 4.09),
     "Figure 2" = c(0.49, 10.43)
   ))
-#+ 13.3: Figure 3
+#+ 13.4: Figure 3
 fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   draw_plot(p3A,
     x = 0.75, y = 6.838,
@@ -89,16 +89,16 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     F = c(5.709, 2.75),
     "Figure 3" = c(0.49, 10.43)
   ))
-#+ 13.4: Print All Main Figures
-#- 13.4.1: As PNGs
+#+ 13.5: Print All Main Figures
+#- 13.5.1: As PNGs
 print_to_png(fig1, "Fig1.png", output_dir = "Outputs/Figures/PNG")
 print_to_png(fig2, "Fig2.png", output_dir = "Outputs/Figures/PNG")
 print_to_png(fig3, "Fig3.png", output_dir = "Outputs/Figures/PNG")
-#- 13.4.2: As TIFFs
+#- 13.5.2: As TIFFs
 print_to_tiff(fig1, "Fig1.tiff", output_dir = "Outputs/Figures/TIFF")
 print_to_tiff(fig2, "Fig2.tiff", output_dir = "Outputs/Figures/TIFF")
 print_to_tiff(fig3, "Fig3.tiff", output_dir = "Outputs/Figures/TIFF")
-#+ 13.5: Save All Main Figures as PDF from PNGs
+#+ 13.6: Save All Main Figures as PDF from PNGs
 # Close any open graphics devices
 while (!is.null(dev.list())) { 
   dev.off() 

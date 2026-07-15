@@ -1,5 +1,5 @@
 #* 6: Tumor/Cadaver Comparison
-#+ 6.1: Estimate PPM/PPB for cadaver thyroid
+#+ 6.1: Estimate PPM/PPB for Cadaver Thyroid
 #- 6.1.1: Normalize by tissue weight, compute PPM/PPB
 cadaver_qraw <- cadaver_qraw_i |>
 left_join(cadaver_tissue_wts, by = "control_ID") |>
@@ -39,7 +39,7 @@ ppm_ppb_summary_detected_ctrl <- ppm_raw_ctrl |>
   ) |>
   left_join(cas_key_2, by = "name_sub_lib_id") |>
   select(cas, everything(), -c(Name))
-#+ 6.2: Estimate PPM/PPB for tumor samples (detected)
+#+ 6.2: Estimate PPM/PPB for Tumor Samples (detected)
 #- 6.2.1: Pull the differing features by variant
 {
   diff_by_var <- MTi |>
@@ -92,7 +92,7 @@ ppm_ppb_summary_detected <- ppm_raw |>
   ) |>
   left_join(cas_key_2, by = "name_sub_lib_id") |>
   select(cas, everything(), -c(Name))
-#+ 6.3: Merge the control and tumor PPM/PPB with the master table
+#+ 6.3: Merge the Control and Tumor PPM/PPB with the Master Table
 #- 6.3.1: Pare down control to differing by variant
 joiner_ctrl <- ppm_ppb_summary_detected_ctrl |>
   filter(name_sub_lib_id %in% diff_by_var) |>
@@ -105,7 +105,7 @@ joiner_tumor <- ppm_ppb_summary_detected |>
 joiner <- joiner_ctrl |>
   inner_join(joiner_tumor, by = "name_sub_lib_id") |>
   select(-name_sub_lib_id)
-#+ 6.4: All Inner join (retain features in TUMORS that match controls)
+#+ 6.4: All Inner Join (retain Features in TUMORS That Match controls)
 #- 6.4.1: Define the tumor variant columns for taking means
 {
 ptc_cols <- names(ppm_raw)[grepl("^P\\d+$", names(ppm_raw))]
@@ -198,11 +198,11 @@ ppm_ppb_inclusive <- ppm_raw_ctrl |>
   arrange(cas) |>
   select(name_sub_lib_id, pct_det_ctrl, pct_det_tumor, mean_ctrl_PPB:mean_FVPTC_PPB) |>
   mutate(across(mean_ctrl_PPB:mean_FVPTC_PPB, ~ .x * 1000)) # convert to ppb
-#- 6.4.6: Join temp table with master table
+#- 6.4.5: Join temp table with master table
 MT_final_ii <- MTi |>
   left_join(ppm_ppb_inclusive, by = "name_sub_lib_id") |>
   select(short_name, cas, name_sub_lib_id,subid, mode, annot_ident, p_value, highest, FTC:PTC, FTC_let:PTC_let, Carcinogenicity:GHS_var_diff_only, Potential_EDC, usage_class:Table_Class, pct_det_ctrl:mean_FVPTC_PPB)
-#- 6.4.7: Pull metadata for fragments to IDs
+#- 6.4.6: Pull metadata for fragments to IDs
 ID_to_frag_cadaver <- IARC_controls_ii |>
   select(id, name_sub_lib_id)
 ID_to_frag_tumor <- tumor_raw |>

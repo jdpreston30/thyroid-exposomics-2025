@@ -54,7 +54,7 @@ balloon_data_graph <- balloon_data |>
     Variant = factor(Variant, levels = c("Follicular", "IEFVPTC", "Papillary")),
     usage_class = factor(usage_class, levels = usage_class_order)
   )
-#- 11.3.5: Make Balloon Plot
+#- 11.3.5: Make balloon plot
 p3C <- plot_balloon(balloon_data_graph, show_x_labels = TRUE)
 #+ 11.4: Qualitative Features Heatmap
 #- 11.4.1: Get qualitative features data

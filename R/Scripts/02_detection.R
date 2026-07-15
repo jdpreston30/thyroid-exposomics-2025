@@ -1,5 +1,5 @@
 #* 2: Detection Analysis
-#+ 2.1: Group by CAS and get total unique which were detected
+#+ 2.1: Group by CAS and Get Total Unique Which Were Detected
 detection <- tumor_raw |>
   mutate(cas = as.character(cas)) |>
   mutate(across(where(is.numeric), ~ ifelse(is.na(.), 0, 1))) |>
@@ -11,7 +11,7 @@ detection <- tumor_raw |>
   left_join(tumor_seq, by = "ID") |>
   select(ID, variant, everything(), -ID) |>
   arrange(variant)
-#+ 2.2: Remove endogenous features from detection analysis
+#+ 2.2: Remove Endogenous Features from Detection Analysis
 #- 2.2.1: Import the list which is purely endogenous which was compiled externally from above
 endog_cas <- read_excel(config$paths$chemical_metadata, sheet = "endogenous_excluded_features") |>
   pull(cas)
@@ -28,7 +28,7 @@ freq_dist_bins <- detection_no_endog |>
   pivot_wider(names_from = variant, values_from = n, values_fill = 0) |>
   arrange(Bin) |>
   select(Bin, Follicular, everything())
-#+ 2.3: Statistical testing
+#+ 2.3: Statistical Testing
 #- 2.3.1: Kruskal-Wallis test comparing medians across variants
 kw_result <- kruskal.test(total_detected ~ variant, data = detection_no_endog)$p.value
 #+ 2.4: Create Figures

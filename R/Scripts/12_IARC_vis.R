@@ -1,5 +1,5 @@
 #* 12: Tumor v Control IARC Plots
-#+ 12.1: IARC Stats (ttest on log transformed)
+#+ 12.1: IARC Stats (ttest on Log transformed)
 IARC_ttests <- full_joiner |>
   mutate(across(where(is.numeric), ~ log2(.))) |>
   mutate(group = if_else(str_starts(sample_ID, "T00"), "Control", "Tumor")) |>
@@ -15,8 +15,8 @@ IARC_ttests <- full_joiner |>
     .groups = "drop"
   ) |>
   arrange(p_value)
-#+ 12.2: Graph tumor v cadaver IARC1
-#- 12.2.4: o-Toluidine_0_BP3.GC2_CP3017
+#+ 12.2: Graph Tumor v Cadaver IARC1
+#- 12.2.1: o-Toluidine_0_BP3.GC2_CP3017
 # P-value
 toluidine_p <- IARC_ttests |> 
   filter(chemical == "o-Toluidine_0_BP3.GC2_CP3017") |> 
@@ -73,7 +73,7 @@ carc_by_variant <- MTi |>
   filter(Variant != "Equal")
 #- 12.3.2: Create carcinogen classification stacked bar plot
 p3D <- plot_carcinogen_stacked(carc_by_variant)
-#- 13.3.3: Summary of updated carcinogen classification
+#- 12.3.3: Summary of updated carcinogen classification
 carc_summary <- MTi |>
   filter(cas %in% MT_final_cas_list) |>
   filter(Carcinogenicity != "Unclassified") |>
@@ -94,5 +94,5 @@ carc_summary <- MTi |>
   ) |>
   # Count occurrences for each Variant and Carcinogenicity
   count(Variant, Carcinogenicity)
-#+ 12.5: IARC detection heatmap
+#+ 12.4: IARC Detection Heatmap
 #! Leaving out for now but may revisit if individual check of top fragments proceeds

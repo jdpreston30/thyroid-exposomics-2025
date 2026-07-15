@@ -1,11 +1,11 @@
 #* 0a: Environment Setup
-#+ 0a.1: Verify renv is active
+#+ 0a.1: Verify Renv Is Active
 cat("📦 Package environment managed by renv\n")
 if (!("renv" %in% loadedNamespaces())) {
   warning("⚠️  renv is not active. Attempting to activate...")
   source("renv/activate.R")
 }
-#+ 0a.2: Check if packages need to be installed
+#+ 0a.2: Check If Packages Need to Be Installed
 # Read packages from DESCRIPTION file
 desc <- read.dcf(here::here("DESCRIPTION"))
 core_packages <- trimws(strsplit(desc[, "Imports"], ",\\s*")[[1]])
@@ -31,14 +31,14 @@ if (length(missing_core) > 0) {
 } else {
   cat("✅ renv environment verified. All core packages available.\n")
 }
-#+ 0a.3: Load all packages from DESCRIPTION
+#+ 0a.3: Load All Packages from DESCRIPTION
 cat("📚 Loading packages...\n")
 invisible(lapply(core_packages, function(pkg) {
   library(pkg, character.only = TRUE)
   cat("  ✓", pkg, "\n")
 }))
 cat("✅ All packages loaded successfully!\n")
-#+ 0a.4: Check TinyTeX installation for PDF rendering
+#+ 0a.4: Check TinyTeX Installation for PDF Rendering
 if (!tinytex::is_tinytex()) {
   cat("⚠️  TinyTeX not found. Installing...\n")
   tinytex::install_tinytex()

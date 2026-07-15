@@ -1,7 +1,7 @@
 #* 1: Load and Clean Clinical Data
-#+ 1.1: Import clinical data
+#+ 1.1: Import Clinical Data
 tumor_pathology_raw <- read_excel(config$paths$tumor_pathology, sheet = "Logan Update") 
-#+ 0c.1: Clean Clinical Data
+#+ 1.2: Clean Clinical Data
 clinical_data <- tumor_pathology_raw |>
   select(-T) |>
   assign_T_cat(ld_col = "LD", ete_col = "ETE", units = "cm", out_col = "T_stage_comp") |>
