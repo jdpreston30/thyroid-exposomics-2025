@@ -10,7 +10,7 @@
 #'   - "laptop": Use laptop-specific configuration (user: jdp2019)
 #'   - "desktop": Use desktop-specific configuration (user: JoshsMacbook2015)
 #' @param config_path Character string specifying the path to the YAML configuration file
-#'   (default: "config_dynamic.yaml")
+#'   (default: "All_Run/config_dynamic.yaml")
 #'
 #' @return Named list containing the resolved configuration with:
 #'   - All computer-specific variables substituted in path strings
@@ -44,7 +44,7 @@
 #' @importFrom here here
 #' @importFrom glue glue
 #' @export
-load_dynamic_config <- function(computer = "auto", config_path = "config_dynamic.yaml") {
+load_dynamic_config <- function(computer = "auto", config_path = "All_Run/config_dynamic.yaml") {
   # Load raw configuration
   raw_config <- yaml::read_yaml(here::here(config_path))
   

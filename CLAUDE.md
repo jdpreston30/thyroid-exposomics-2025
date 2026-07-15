@@ -33,9 +33,10 @@ config flags (skip logic); separate concerns (e.g. plot generation vs PDF compil
 
 ## Architecture & pipeline
 
-- **Config:** `config_dynamic.yaml` (repo root) loaded via `load_dynamic_config(computer = "auto")`.
+- **Config:** `All_Run/config_dynamic.yaml` loaded via
+  `load_dynamic_config(computer = "auto", config_path = "All_Run/config_dynamic.yaml")`.
   `computer = "auto"` only picks the machine profile *inside* the yaml; it does not
-  locate the file (that's `config_path`).
+  locate the file (that's `config_path`, resolved via `here::here()` from the repo root).
 - **Run order:** `All_Run/run.R` sources numbered scripts sequentially (`00a`, `00b`,
   `00c`, `01` … `17`).
 - **Utilities auto-load:** `R/Scripts/00b_setup.R` sources every `R/Utilities/**/*.R`
