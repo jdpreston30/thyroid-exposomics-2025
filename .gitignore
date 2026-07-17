@@ -73,3 +73,6 @@ Outputs/Validation/temp_RDS/
 
 # System files
 .fuse_hidden*
+# Clean markdown renders of the (unpublished) manuscript + reviewer response
+.diagnostic/rendered/
+.diagnostic/read_docs.sh
