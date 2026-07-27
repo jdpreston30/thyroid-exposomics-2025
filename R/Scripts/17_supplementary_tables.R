@@ -1,8 +1,8 @@
-#* 16: Supplementary Tables
-#+ 16.1: ST1: Chemical Library (pivoted subid)
-#- 16.1.1: Build and format ST1 gt table
+#* 17: Supplementary Tables
+#+ 17.1: ST1: Chemical Library (pivoted subid)
+#- 17.1.1: Build and format ST1 gt table
 gt_ST1 <- build_ST1(ST1_tibble)
-#- 16.1.2: Save ST1 as LaTeX (without table wrapper) to Supplementary/Components/Tables
+#- 17.1.2: Save ST1 as LaTeX (without table wrapper) to Supplementary/Components/Tables
 latex_code <- gt::as_latex(gt_ST1) |> as.character()
 latex_code <- fix_latex_header_fill(latex_code)
 # Remove table wrapper for direct inclusion in supplementary
@@ -10,8 +10,8 @@ latex_lines <- strsplit(latex_code, "\n")[[1]]
 latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} and \end{table}
 latex_code <- paste(latex_lines, collapse = "\n")
 writeLines(latex_code, "Supplementary/Components/Tables/ST1.tex")
-#+ 16.2: ST2
-#- 16.2.1: Prepare base ST2 data
+#+ 17.2: ST2
+#- 17.2.1: Prepare base ST2 data
 ST2_base <- feature_metadata |>
   mutate(`Superclass: Class` = if_else(is.na(Superclass), Class, paste(Superclass, Class, sep = ": "))) |>
   select(GROUP = Table_Header, Class = Table_Class, Subclass = Table_Subclass, CAS = cas, `Potential EDC` = Potential_EDC, `IARC Group` = IARC_Group, `Superclass: Class`) |>
@@ -20,7 +20,7 @@ ST2_base <- feature_metadata |>
   mutate(Name = gsub("\u2021", "", Name)) |>
   mutate(Name = gsub("\\*", "\u2020", Name)) |>
   arrange(GROUP, Class, Subclass, Name)
-#- 16.2.2: Build hierarchical structure with proper nesting
+#- 17.2.2: Build hierarchical structure with proper nesting
 ST2_list <- list()
 all_groups <- unique(ST2_base$GROUP)
 for (group_idx in seq_along(all_groups)) {
@@ -138,7 +138,7 @@ for (group_idx in seq_along(all_groups)) {
     )
   }
 }
-#- 16.2.3: Combine and format
+#- 17.2.3: Combine and format
 ST2_tibble <- bind_rows(ST2_list) |>
   mutate(
     `Potential EDC` = case_when(
@@ -152,9 +152,9 @@ ST2_tibble <- bind_rows(ST2_list) |>
     )
   ) |>
   select(-row_type)  # Remove helper column
-#- 16.2.4: Build and format ST2 gt table
+#- 17.2.4: Build and format ST2 gt table
 gt_ST2 <- build_ST2(ST2_tibble)
-#- 16.2.5: Save ST2 as LaTeX (without table wrapper) to Supplementary/Components/Tables
+#- 17.2.5: Save ST2 as LaTeX (without table wrapper) to Supplementary/Components/Tables
 latex_code <- gt::as_latex(gt_ST2) |> as.character()
 latex_code <- fix_ST2_latex(latex_code)
 # Remove table wrapper for direct inclusion in supplementary
@@ -162,11 +162,11 @@ latex_lines <- strsplit(latex_code, "\n")[[1]]
 latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} and \end{table}
 latex_code <- paste(latex_lines, collapse = "\n")
 writeLines(latex_code, "Supplementary/Components/Tables/ST2.tex")
-#+ 16.3: Abbreviations Dictionary
-#- 16.3.1: Build abbreviations list
+#+ 17.3: Abbreviations Dictionary
+#- 17.3.1: Build abbreviations list
 abbrev_list <- ST_abbrevs |>
   arrange(formatted)
-#- 16.3.2: Convert to LaTeX itemize list with reduced spacing
+#- 17.3.2: Convert to LaTeX itemize list with reduced spacing
 abbrev_latex <- c(
   "\\begin{itemize}",
   "\\setlength{\\itemsep}{2pt}",
@@ -175,10 +175,10 @@ abbrev_latex <- c(
   paste0("  \\item ", abbrev_list$formatted),
   "\\end{itemize}"
 )
-#- 16.3.3: Save abbreviations to Supplementary/Components/Sections
+#- 17.3.3: Save abbreviations to Supplementary/Components/Sections
 writeLines(abbrev_latex, "Supplementary/Components/Sections/abbreviations.tex")
-#+ 16.4: ST3: Cohort demographics (DTC tumors vs cadaver controls)
-#- 16.4.1: Assemble combined demographic frame (age, sex, sample collection timing)
+#+ 17.4: ST3: Cohort Demographics (DTC Tumors vs Cadaver controls)
+#- 17.4.1: Assemble combined demographic frame (age, sex, sample collection timing)
 #! Collection year is binned (same scheme as Table 1's Sample_Collection_Timing) so it
 #! is summarized categorically as n (%) per bin rather than as a spurious numeric median.
 .yr_breaks <- seq(2006, 2022, length.out = 5)
@@ -203,7 +203,7 @@ demo_S3_data <- bind_rows(demo_dtc, demo_cad) |>
     Cohort = factor(Cohort, levels = c("Thyroid Tumor", "Cadaver Thyroid")),  # column order: tumor (primary) first
     Sex = factor(Sex, levels = c("Female", "Male"))
   )
-#- 16.4.2: Summarize with TernTables (returns display tibble; also writes Word version)
+#- 17.4.2: Summarize with TernTables (returns display tibble; also writes word version)
 ST3_tern <- ternG(
   demo_S3_data,
   group_var = "Cohort",
@@ -217,6 +217,45 @@ ST3_tern <- ternG(
   table_font_size = 10.5,
   indent_info_column = TRUE
 )  
-#- 16.4.3: Build ST3 LaTeX (self-contained tabular) and save to Supplementary/Components/Tables
+#- 17.4.3: Build ST3 LaTeX (self-contained tabular) and save to Supplementary/Components/Tables
 st3_latex <- build_ST3(ST3_tern)
 writeLines(st3_latex, "Supplementary/Components/Tables/ST3.tex")
+#+ 17.5: ST4: Candidate Confounder Assessment (reviewer #2 — confounding)
+#! Two same-structured test blocks from script 13 (covariate vs. type; covariate vs.
+#! covariate) merged under underlined section headers. The collection-year distribution
+#! reconciliation is emitted to ST4_caption.tex so its numbers are wired from R (not
+#! hand-typed) — build_ST4() styles the tabular to match ST3 (see its roxygen).
+#- 17.5.1: Merge the balance + cross-association blocks under two section headers. P is
+#!          already formatted in script 13 (balance via TernTables' val_p_format, identical
+#!          to Table 1; cross-associations via the same formatter).
+ST4_data <- tibble(
+  Comparison = c(
+    "Covariate vs. tumor type", balance_by_type$covariate,
+    "Covariate vs. covariate", covariate_cross$pair
+  ),
+  Test = c("", balance_by_type$test, "", covariate_cross$test),
+  P = c("", balance_by_type$P, "", covariate_cross$P),
+  .section = c(TRUE, rep(FALSE, nrow(balance_by_type)), TRUE, rep(FALSE, nrow(covariate_cross)))
+)
+#- 17.5.2: Build ST4 LaTeX (self-contained tabular) and save
+writeLines(build_ST4(ST4_data), "Supplementary/Components/Tables/ST4.tex")
+#- 17.5.3: Wire the caption deterministically from year_by_type (medians/ranges from R)
+.type_order <- c("PTC", "FTC", "IEFVPTC")
+.yb <- year_by_type[match(.type_order, as.character(year_by_type$Variant)), ]
+.med_fmt <- ifelse(.yb$median == floor(.yb$median),
+  formatC(.yb$median, format = "d"), formatC(.yb$median, format = "f", digits = 1)
+)
+.med_phrase <- paste(sprintf("%s (%s)", .med_fmt, .yb$Variant), collapse = ", ")
+.range_lo <- min(year_by_type$min)
+.range_hi <- max(year_by_type$max)
+st4_caption <- paste0(
+  "\\textbf{Candidate confounder assessment for the tumor-type chemical comparisons.} ",
+  "Each candidate confounder (age, sex, and collection year) was tested against tumor type, and ",
+  "the confounders were tested against one another; the test used for each comparison is given in the ",
+  "table, and the basis for its selection is described in the Methods. No covariate differed across ",
+  "tumor type except collection timing in its binned form, which reflects the arbitrary display bins of ",
+  "Table 1: treated as the continuous variable it is, collection-year central tendency did not differ ",
+  "across types (medians ", .med_phrase, "; fully overlapping ranges, ", .range_lo, "--", .range_hi, "). ",
+  "The candidate confounders were also mutually independent."
+)
+writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")

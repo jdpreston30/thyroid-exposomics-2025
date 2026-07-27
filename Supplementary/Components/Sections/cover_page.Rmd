@@ -104,7 +104,9 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \textbf{Table S3} \dotfill 68
 
-\textbf{Table Abbreviation Dictionary} \dotfill 69
+\textbf{Table S4} \dotfill 69
+
+\textbf{Table Abbreviation Dictionary} \dotfill 70
 
 \newpage
 

@@ -38,7 +38,7 @@ config flags (skip logic); separate concerns (e.g. plot generation vs PDF compil
   `computer = "auto"` only picks the machine profile *inside* the yaml; it does not
   locate the file (that's `config_path`, resolved via `here::here()` from the repo root).
 - **Run order:** `All_Run/run.R` sources numbered scripts sequentially (`00a`, `00b`,
-  `00c`, `01` … `17`).
+  `00c`, `01` … `18`).
 - **Utilities auto-load:** `R/Scripts/00b_setup.R` sources every `R/Utilities/**/*.R`
   via `purrr::walk(list.files(...), source)`. A new utility function is available to
   later scripts only after `00b` runs (re-source it in a warm session).
@@ -50,7 +50,7 @@ config flags (skip logic); separate concerns (e.g. plot generation vs PDF compil
 
 ## Supplement build — SOURCE vs OUTPUT (do not edit generated files)
 
-`Supplementary/Components/` is assembled by `R/Scripts/17_construct_supplementary.R`,
+`Supplementary/Components/` is assembled by `R/Scripts/18_construct_supplementary.R`,
 which **reads the source sections, concatenates them into a generated file, then
 compiles the PDF**:
 
@@ -58,10 +58,10 @@ compiles the PDF**:
   `Sections/note1.tex` (Supplementary Note 1), `Sections/figures.Rmd`,
   `Sections/tables.tex`.
 - **GENERATED (never edit — overwritten each build):** `supplementary_material.Rmd`
-  (by script 17); `Tables/ST1.tex`, `Tables/ST2.tex`, `Sections/abbreviations.tex`
-  (by script 16 — fix the `build_ST*()` / build functions instead); the PDF; `Build_Logs/*`.
+  (by script 18); `Tables/ST1.tex`, `Tables/ST2.tex`, `Sections/abbreviations.tex`
+  (by script 17 — fix the `build_ST*()` / build functions instead); the PDF; `Build_Logs/*`.
 - **Supplementary figures:** validation figures are cached grobs compiled 2-per-page by
-  `compile_sf_sub_pdf()` in script 14; their numbering comes from the `figure_order`
+  `compile_sf_sub_pdf()` in script 15; their numbering comes from the `figure_order`
   sheet of `validation.xlsx` (OneDrive). Figure S1 is the carcinogenicity flowchart,
   rendered by `render_carcinogen_flowchart()`.
 - **Page numbers** in the TOC, figure-caption `pp. X-Y` ranges, and the

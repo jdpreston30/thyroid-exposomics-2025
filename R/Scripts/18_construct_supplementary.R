@@ -1,32 +1,32 @@
-#* 17: Construct Supplementary Material PDF
-#+ 17.1: Configuration
-#- 17.1.1: Set line numbering (TRUE to enable, FALSE to disable)
+#* 18: Construct Supplementary Material PDF
+#+ 18.1: Configuration
+#- 18.1.1: Set line numbering (TRUE to enable, FALSE to disable)
 add_line_numbers <- FALSE
-#+ 17.2: Prepare Component Files
-#+ 17.3: Read Component Files
-#- 17.3.1: Define paths to all component files
+#+ 18.2: Prepare Component Files
+#+ 18.3: Read Component Files
+#- 18.3.1: Define paths to all component files
 components_dir <- here::here("Supplementary", "Components")
 sections_dir <- file.path(components_dir, "Sections")
 cover_page_path <- file.path(sections_dir, "cover_page.Rmd")
 note1_path <- file.path(sections_dir, "note1.tex")
 figures_path <- file.path(sections_dir, "figures.Rmd")
 tables_path <- file.path(sections_dir, "tables.tex")
-#- 17.3.2: Check that all components exist
+#- 18.3.2: Check that all components exist
 required_files <- c(cover_page_path, note1_path, figures_path, tables_path)
 missing_files <- required_files[!file.exists(required_files)]
 if (length(missing_files) > 0) {
   stop("Missing component files: ", paste(missing_files, collapse = ", "))
 }
-#+ 17.4: Combine Components
-#- 17.4.1: Read each component
+#+ 18.4: Combine Components
+#- 18.4.1: Read each component
 cover_content <- readLines(cover_page_path, warn = FALSE)
 note1_content <- readLines(note1_path, warn = FALSE)
 figures_content <- readLines(figures_path, warn = FALSE)
 tables_content <- readLines(tables_path, warn = FALSE)
-#- 17.4.2: Fix paths for correct references when rendered from Components directory
+#- 18.4.2: Fix paths for correct references when rendered from Components directory
 # Fix figure paths to be relative from Components directory  
 figures_content <- gsub('../Figures/PDF/', 'Figures/PDF/', figures_content, fixed = TRUE)
-#- 17.4.3: Add line numbers if enabled
+#- 18.4.3: Add line numbers if enabled
 if (add_line_numbers) {
   # Find the header-includes section in cover_content and add linenumbers package
   yaml_end <- which(cover_content == "---")[2]
@@ -42,7 +42,7 @@ if (add_line_numbers) {
     )
   }
 }
-#- 17.4.4: Combine all content
+#- 18.4.4: Combine all content
 full_content <- c(
   cover_content,
   "",  # Empty line for separation
@@ -52,14 +52,14 @@ full_content <- c(
   "",  # Empty line for separation
   tables_content
 )
-#+ 17.5: Generate Final PDF
-#- 17.5.1: Write combined markdown file
+#+ 18.5: Generate Final PDF
+#- 18.5.1: Write combined markdown file
 output_rmd <- file.path(components_dir, "supplementary_material.Rmd")
 writeLines(full_content, output_rmd)
-#- 17.5.2: Create intermediates directory for aux/log files
+#- 18.5.2: Create intermediates directory for aux/log files
 intermediates_dir <- here::here("Supplementary", "Build_Logs")
 if (!dir.exists(intermediates_dir)) dir.create(intermediates_dir, recursive = TRUE)
-#- 17.5.3: Render to PDF in Supplementary directory with intermediates in Build_Logs
+#- 18.5.3: Render to PDF in Supplementary directory with intermediates in Build_Logs
 output_dir <- here::here("Supplementary")
 rmarkdown::render(
   input = output_rmd,
@@ -68,7 +68,7 @@ rmarkdown::render(
   intermediates_dir = intermediates_dir,
   clean = TRUE
 )
-#- 17.5.4: Move LaTeX build artifacts to Build_Logs
+#- 18.5.4: Move LaTeX build artifacts to Build_Logs
 latex_artifacts <- c(
   file.path(output_dir, "Supplementary Data.aux"),
   file.path(output_dir, "Supplementary Data.log"),
@@ -79,12 +79,12 @@ for (artifact in latex_artifacts) {
     file.rename(artifact, file.path(intermediates_dir, basename(artifact)))
   }
 }
-#- 17.5.5: Open the PDF
+#- 18.5.5: Open the PDF
 output_pdf <- file.path(output_dir, "Supplementary Data.pdf")
 system(paste("open", shQuote(output_pdf)))
-#- 17.5.6: Clean up empty References folder in Build_Logs (pandoc artifact)
+#- 18.5.6: Clean up empty References folder in Build_Logs (pandoc artifact)
 refs_dir <- file.path(intermediates_dir, "References")
 if (dir.exists(refs_dir) && length(list.files(refs_dir)) == 0) {
   unlink(refs_dir, recursive = TRUE)
 }
-#- 17.5.7: Keep the combined markdown file for review (do not delete)
+#- 18.5.7: Keep the combined markdown file for review (do not delete)

@@ -1,0 +1,15 @@
+\begin{tabular}{lcc}
+\toprule[0.5pt]
+\rule{0pt}{12pt}\raisebox{-0.5\height}{\fontsize{10pt}{12pt}\selectfont\textbf{Comparison}} & \raisebox{-0.5\height}{\fontsize{10pt}{12pt}\selectfont\textbf{Test}} & \raisebox{-0.5\height}{\fontsize{10pt}{12pt}\selectfont\textbf{\textit{P}}} \\
+\midrule[0.5pt]
+\underline{Covariate vs. tumor type} &  &  \\
+\hspace*{0.2cm}\textit{Age} & Kruskal-Wallis & 0.95 \\
+\hspace*{0.2cm}\textit{Sex} & Fisher exact & > 0.99 \\
+\hspace*{0.2cm}\textit{Collection year (continuous)} & Kruskal-Wallis & 0.14 \\
+\hspace*{0.2cm}\textit{Collection timing (binned)} & Fisher exact (MC) & < 0.001 \\
+\underline{Covariate vs. covariate} &  &  \\
+\hspace*{0.2cm}\textit{Age vs Sex} & Wilcoxon & 0.26 \\
+\hspace*{0.2cm}\textit{Age vs year} & Spearman & 0.89 \\
+\hspace*{0.2cm}\textit{year vs Sex} & Wilcoxon & 0.83 \\
+\bottomrule[0.5pt]
+\end{tabular}

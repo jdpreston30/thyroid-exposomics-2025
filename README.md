@@ -71,7 +71,7 @@ source("All_Run/run.R")
 │   ├── config_dynamic.yaml     # Analysis configuration (update paths for your system)
 │   └── run.R                   # Main pipeline execution script
 ├── R/                          # Analysis code
-│   ├── Scripts/                # Analysis workflow scripts (00a-17)
+│   ├── Scripts/                # Analysis workflow scripts (00a-18)
 │   │   ├── 00a_environment_setup.R
 │   │   ├── 00b_setup.R
 │   │   ├── 00c_FTs.R
@@ -88,11 +88,12 @@ source("All_Run/run.R")
 │   │   ├── 10_post_validation_clean.R
 │   │   ├── 11_variant_vis.R
 │   │   ├── 12_IARC_vis.R
-│   │   ├── 13_render_figures.R
-│   │   ├── 14_render_supplementary_figures.R
-│   │   ├── 15_tables.R
-│   │   ├── 16_supplementary_tables.R
-│   │   └── 17_construct_supplementary.R
+│   │   ├── 13_confounding_analysis.R
+│   │   ├── 14_render_figures.R
+│   │   ├── 15_render_supplementary_figures.R
+│   │   ├── 16_tables.R
+│   │   ├── 17_supplementary_tables.R
+│   │   └── 18_construct_supplementary.R
 │   └── Utilities/              # Custom analysis functions
 │       ├── Analysis/           # Statistical and carcinogen classification
 │       ├── Helpers/            # Helper functions (config, validation, tables)
