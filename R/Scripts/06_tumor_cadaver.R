@@ -2,7 +2,7 @@
 #+ 6.1: Estimate PPM/PPB for Cadaver Thyroid
 #- 6.1.1: Normalize by tissue weight, compute PPM/PPB
 cadaver_qraw <- cadaver_qraw_i |>
-left_join(cadaver_tissue_wts, by = "control_ID") |>
+  left_join(cadaver_tissue_wts, by = "control_ID") |>
   mutate(
     PPM = (Ce * 10^2) / weight_mg,
     PPB = (Ce * 10^5) / weight_mg

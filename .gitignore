@@ -59,6 +59,8 @@ renv/staging/
 *.tmp
 *.bak
 *.log
+Cadaver/
+handoff.md
 
 # Validation files (generated outputs, transferred to OneDrive)
 Outputs/Validation/temp_RDS/
@@ -71,3 +73,6 @@ Outputs/Validation/temp_RDS/
 
 # System files
 .fuse_hidden*
+# Clean markdown renders of the (unpublished) manuscript + reviewer response
+.diagnostic/rendered/
+.diagnostic/read_docs.sh

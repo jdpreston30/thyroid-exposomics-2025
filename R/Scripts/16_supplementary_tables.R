@@ -177,3 +177,46 @@ abbrev_latex <- c(
 )
 #- 16.3.3: Save abbreviations to Supplementary/Components/Sections
 writeLines(abbrev_latex, "Supplementary/Components/Sections/abbreviations.tex")
+#+ 16.4: ST3: Cohort demographics (DTC tumors vs cadaver controls)
+#- 16.4.1: Assemble combined demographic frame (age, sex, sample collection timing)
+#! Collection year is binned (same scheme as Table 1's Sample_Collection_Timing) so it
+#! is summarized categorically as n (%) per bin rather than as a spurious numeric median.
+.yr_breaks <- seq(2006, 2022, length.out = 5)
+.yr_labels <- c("2006-2009", "2010-2013", "2014-2017", "2018-2021")
+demo_dtc <- tumor_pathology_raw |>
+  filter(str_detect(Patient_ID, "^(F|P|FVPTC)\\d+$")) |>
+  transmute(
+    Cohort = "Thyroid Tumor",
+    Sex = if_else(as.numeric(Sex) == 1, "Female", "Male"),
+    Age = as.numeric(Age),
+    `Sample Collection Timing` = cut(as.numeric(year), breaks = .yr_breaks, labels = .yr_labels, include.lowest = TRUE)
+  )
+demo_cad <- cadaver_metadata |>
+  transmute(
+    Cohort = "Cadaver Thyroid",
+    Sex = if_else(sex == "F", "Female", "Male"),
+    Age = as.numeric(age),
+    `Sample Collection Timing` = cut(as.numeric(collection_year), breaks = .yr_breaks, labels = .yr_labels, include.lowest = TRUE)
+  )
+demo_S3_data <- bind_rows(demo_dtc, demo_cad) |>
+  mutate(
+    Cohort = factor(Cohort, levels = c("Thyroid Tumor", "Cadaver Thyroid")),  # column order: tumor (primary) first
+    Sex = factor(Sex, levels = c("Female", "Male"))
+  )
+#- 16.4.2: Summarize with TernTables (returns display tibble; also writes Word version)
+ST3_tern <- ternG(
+  demo_S3_data,
+  group_var = "Cohort",
+  methods_doc = FALSE,
+  print_normality = FALSE,
+  show_test = FALSE,
+  show_p = TRUE,
+  open_doc = FALSE,
+  citation = FALSE,
+  font_family = "Times New Roman",
+  table_font_size = 10.5,
+  indent_info_column = TRUE
+)  
+#- 16.4.3: Build ST3 LaTeX (self-contained tabular) and save to Supplementary/Components/Tables
+st3_latex <- build_ST3(ST3_tern)
+writeLines(st3_latex, "Supplementary/Components/Tables/ST3.tex")

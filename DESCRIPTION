@@ -27,6 +27,7 @@ Imports:
     purrr,
     readxl,
     rmarkdown,
+    rsvg,
     stringr,
     TernTables,
     tibble,
@@ -34,6 +35,8 @@ Imports:
     tinytex,
     webchem,
     writexl,
+    DiagrammeR,
+    DiagrammeRsvg,
     yaml
 SystemRequirements: 
     TinyTeX (LaTeX distribution) - automatically installed via tinytex::install_tinytex() if not present,
