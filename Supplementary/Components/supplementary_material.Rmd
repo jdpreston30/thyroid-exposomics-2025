@@ -106,7 +106,9 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \textbf{Table S4} \dotfill 69
 
-\textbf{Table Abbreviation Dictionary} \dotfill 70
+\textbf{Table S5} \dotfill 70
+
+\textbf{Table Abbreviation Dictionary} \dotfill 71
 
 \newpage
 
@@ -295,6 +297,21 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \begin{center}
 \input{Tables/ST4.tex}
+\end{center}
+
+\fancyhead[R]{\fontsize{10}{12}\selectfont\textit{Table S5}}
+\newpage
+
+\markright{\textit{Table S5}}
+
+\noindent{\fontsize{12}{14.4}\selectfont\textbf{Table S5}}
+
+\noindent{\fontsize{10}{12}\selectfont \input{Tables/ST5_caption.tex}}
+
+\vspace{1em}
+
+\begin{center}
+\input{Tables/ST5.tex}
 \end{center}
 
 \fancyhead[R]{\fontsize{10}{12}\selectfont\textit{\rightmark}}

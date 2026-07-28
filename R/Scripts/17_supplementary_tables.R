@@ -259,3 +259,56 @@ st4_caption <- paste0(
   "The candidate confounders were also mutually independent."
 )
 writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")
+#+ 17.6: ST5: Covariate-adjusted tumor-type effects (reviewer #2 — do findings survive adjustment)
+#- 17.6.1: Format p-values and effect sizes
+.fmt_p5 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
+.fmt_es5 <- function(e) ifelse(is.na(e), "-", formatC(e, format = "f", digits = 3))
+#- 17.6.2: One block per mode, ordered by unadjusted significance within each
+.st5_block <- function(md, header) {
+  rows <- ancova_summary |>
+    filter(mode == md) |>
+    arrange(p_value_unadjusted) |>
+    transmute(
+      Chemical = short_name,
+      `n|detected` = if (md == "qual") formatC(n_detected, format = "d") else "-",
+      `P|unadjusted` = .fmt_p5(p_value_unadjusted),
+      `P|+ year` = .fmt_p5(p_value_year),
+      `P|+ year, age, sex` = .fmt_p5(p_value_full),
+      `Effect|unadjusted` = .fmt_es5(effect_size_unadjusted),
+      `Effect|+ year` = .fmt_es5(effect_size_year),
+      .section = FALSE
+    )
+  bind_rows(tibble(Chemical = header, .section = TRUE), rows)
+}
+ST5_data <- bind_rows(
+  .st5_block("quant", "Quantitative features (ANOVA; effect size = eta-squared)"),
+  .st5_block("qual", "Qualitative features (logistic LRT; effect size = McFadden R-squared)")
+) |>
+  mutate(across(-c(Chemical, .section), \(x) replace_na(x, "")))
+#- 17.6.3: Build ST5 LaTeX (self-contained tabular) and save
+writeLines(build_ST5(ST5_data), "Supplementary/Components/Tables/ST5.tex")
+#- 17.6.4: Wire the caption deterministically from ancova_summary
+.n_total <- nrow(ancova_summary)
+.n_year <- sum(ancova_summary$survives_year, na.rm = TRUE)
+.n_binned <- sum(ancova_summary$survives_binned, na.rm = TRUE)
+.n_sparse <- sum(ancova_summary$n_detected <= 10, na.rm = TRUE)
+.sparse_min <- min(ancova_summary$n_detected, na.rm = TRUE)
+st5_caption <- paste0(
+  "\\textbf{Tumor-type differences in validated chemicals before and after covariate adjustment.} ",
+  "Each of the ", .n_total, " validated type-differential chemicals was refit with adjustment for ",
+  "collection year alone and for collection year, age, and sex. Quantitative features were compared by ",
+  "analysis of covariance with the tumor-type term assessed by \\textit{F} test; qualitative (detection) ",
+  "features were compared by logistic-regression likelihood-ratio test, which unlike Fisher's exact test ",
+  "can accommodate covariates. Effect sizes quantify the magnitude of the tumor-type term and are on ",
+  "different scales in the two modes, so they are comparable within a mode but not across modes. ",
+  .n_year, " of ", .n_total, " chemicals remained significant after adjustment for collection year, ",
+  "with effect sizes essentially unchanged; the chemicals that lost significance were marginal before ",
+  "adjustment and are not among the findings emphasized in the manuscript. In a sensitivity analysis ",
+  "adjusting instead for the categorical collection intervals of Table 1, ", .n_binned, " of ", .n_total,
+  " remained significant; that parameterization discards within-interval variation and is reported in the ",
+  "Results for completeness. For qualitative features the number of samples with the chemical detected is ",
+  "given, because ", .n_sparse, " chemicals were detected in 10 or fewer of the 60 samples (minimum ",
+  .sparse_min, "), and adjusted estimates for these should be interpreted with caution given the limited ",
+  "number of events per model parameter."
+)
+writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")

@@ -61,6 +61,7 @@ renv/staging/
 *.log
 Cadaver/
 handoff.md
+.diagnostic/
 
 # Validation files (generated outputs, transferred to OneDrive)
 Outputs/Validation/temp_RDS/

@@ -132,7 +132,9 @@ print(qual_single_frag, n = Inf)
 #- 4.4.1: Pull short name from feature metadata
 short_name <- read_excel(config$paths$chemical_metadata, sheet = "feature_metadata") |>
   select(cas, name, Potential_EDC, IARC_Group, GHS_var_diff_only,Short_display_name, Graph_Class, Superclass, Table_Class, Annotation_or_Identification) |>
-  rename(annot_ident = Annotation_or_Identification)
+  rename(annot_ident = Annotation_or_Identification) |>
+  #! Display-casing correction pending a source fix in the feature_metadata sheet; root name is Title-Case in tables per convention
+  mutate(Short_display_name = str_replace(Short_display_name, "^o-aminoazotoluene", "o-Aminoazotoluene"))
 #- 4.4.2: Bind with quant features
 #_Filter quant to be safe
 summary_table <- summary_table_i |>

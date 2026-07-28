@@ -26,6 +26,21 @@
 #' and box dimensions keep the "Yes" arrows equal length and the outcome boxes
 #' aligned in a column.
 #'
+#' The final diamond is phrased as the logical complement of
+#' \code{classify_carcinogenicity()}'s actual test ("IARC group and/or GHS
+#' statement present?" rather than "neither present?") so that Uncertain Risk
+#' -- one of the four classes shown in the stacked bar figure -- reaches the
+#' right-hand column via "Yes" like every other bar-chart class. This is the
+#' same boolean partition, just restated as its negation: the code's only path
+#' to Unclassified requires BOTH no IARC group and no GHS statement, and every
+#' other remaining case (including its catch-all) resolves to Uncertain Risk,
+#' so "IARC and/or GHS present" exactly (not approximately) separates the two
+#' classes with no gap. Unclassified (excluded from the stacked bar) is the
+#' sole class left at the bottom of the spine via "No". "and/or" (rather than
+#' bare "or") is used here and in \code{q_partial} because both diamonds test
+#' multiple sub-conditions that can co-occur in the same chemical's GHS
+#' string, not mutually exclusive alternatives.
+#'
 #' Requires the \code{carcinogen_colors} and \code{IARC_colors} palettes to be
 #' in scope (sourced from themes.R by the pipeline, as with the other plot
 #' functions).
@@ -80,10 +95,10 @@ digraph carcinogenicity {
             color = "#8DA0B8", fixedsize = false, width = 2.8, height = 0.7]
   q_iarc1  [label = "IARC =\\nGroup 1?"]
   q_iarc2a [label = "IARC =\\nGroup 2A?"]
-  q_h350   [label = "H350 or H350i\\n≥ 50%?"]
+  q_h350   [label = "H350 and/or H350i\\n≥ 50%?"]
   q_iarc2b [label = "IARC =\\nGroup 2B?"]
-  q_partial[label = "0% < H350/H350i\\n< 50%, or\\nH351 > 0%?"]
-  q_none   [label = "No IARC group and\\nno GHS\\nstatement?"]
+  q_partial[label = "0% < H350/H350i\\n< 50%, and/or\\nH351 > 0%?"]
+  q_none   [label = "IARC group and/or\\nGHS statement\\npresent?"]
 
   // --- terminal nodes (uniform boxes), colored by carcinogen_colors ---
   node [shape = box, style = "filled,rounded", penwidth = 0, fixedsize = true,
@@ -115,7 +130,7 @@ digraph carcinogenicity {
   q_h350   -> q_iarc2b  [label = "    No"]
   q_iarc2b -> q_partial [label = "    No"]
   q_partial-> q_none    [label = "    No"]
-  q_none   -> uncertn2  [label = "    No"]
+  q_none   -> unclass   [label = "    No"]
 
   // --- "Yes" branches out to the right ---
   // headclip/tailclip=false -> both segments run to the label node centre and
@@ -125,14 +140,14 @@ digraph carcinogenicity {
   q_h350   -> yl3 [arrowhead = none, headclip = false]   yl3 -> likely2   [tailclip = false]
   q_iarc2b -> yl4 [arrowhead = none, headclip = false]   yl4 -> possible1 [tailclip = false]
   q_partial-> yl5 [arrowhead = none, headclip = false]   yl5 -> possible2 [tailclip = false]
-  q_none   -> yl7 [arrowhead = none, headclip = false]   yl7 -> unclass   [tailclip = false]
+  q_none   -> yl7 [arrowhead = none, headclip = false]   yl7 -> uncertn2  [tailclip = false]
 
   { rank = same; q_iarc1;  yl1; known }
   { rank = same; q_iarc2a; yl2; likely1 }
   { rank = same; q_h350;   yl3; likely2 }
   { rank = same; q_iarc2b; yl4; possible1 }
   { rank = same; q_partial; yl5; possible2 }
-  { rank = same; q_none;   yl7; unclass }
+  { rank = same; q_none;   yl7; uncertn2 }
 }
 '
 

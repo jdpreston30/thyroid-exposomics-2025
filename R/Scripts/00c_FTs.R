@@ -64,6 +64,11 @@ ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
   filter(Disposition != "Endogenous") |>
   mutate(subid_col = paste0("mz", subid)) |>
   select(id, name = st1_name, trt, monoisotopic, cas, formula, Disposition, subid_col, tmz) |>
+  #! Display-casing corrections pending a source fix in the library sheet; root name is Title-Case in tables per convention
+  mutate(
+    name = str_replace(name, "^propoxur", "Propoxur"),
+    name = str_replace(name, "benzenehexachloride", "Benzenehexachloride")
+  ) |>
   mutate(
     name = if_else(
       Disposition == "Exogenous and Endogenous" & !is.na(name),
@@ -156,6 +161,18 @@ tumors_qual <- tumor |>
   select(all_of(c("variant", cols_qual))) |>
   mutate(across(-variant, ~ ifelse(is.na(.), 0, 1))) |>
   select(where(~ any(. != 0) | is.character(.)))
+#- 0c.3.4: Qualitative table with patient_ID retained, for script 13's covariate join
+{
+  tumor_id <- tumor_column |>
+    pivot_longer(-name_sub_lib_id, names_to = "ID", values_to = "Value") |>
+    pivot_wider(names_from = name_sub_lib_id, values_from = Value) |>
+    left_join(tumor_seq, by = "ID") |>
+    rename(patient_ID = ID)
+  tumors_qual_id <- tumor_id |>
+    select(all_of(c("patient_ID", "variant", cols_qual))) |>
+    mutate(across(-c(variant, patient_ID), ~ ifelse(is.na(.), 0, 1))) |>
+    select(where(~ any(. != 0) | is.character(.)))
+}
 #+ 0c.4: Clean Up Targeted Feature Tables
 #- 0c.4.1: Normalize by weights
 tumors_quant_wt_i <- tumor_column |>
@@ -168,8 +185,8 @@ tumors_quant_wt_i <- tumor_column |>
   mutate(across(-c(variant, patient_ID), ~ ifelse(is.na(.), 0.5 * min(., na.rm = TRUE), .))) |>
   left_join(weights, by = "patient_ID") |> # join tissue weights in
   mutate(across(where(is.numeric) & !matches("weight_mg"), ~ . / weight_mg)) |>
-  select(-c(weight_mg, patient_ID)) |>
-  mutate(across(-variant, ~ log2(.)))
+  select(-weight_mg) |>
+  mutate(across(-c(variant, patient_ID), ~ log2(.)))
 #- 0c.4.2: Pull endogenous features
 endog_cas <- read_excel(config$paths$chemical_metadata, sheet = "endogenous_excluded_features") |>
   pull(cas)
@@ -179,5 +196,8 @@ cas_key_endog <- tumor_raw |>
   filter(cas %in% endog_cas) |>
   pull(name_sub_lib_id)
 #- 0c.4.4: Remove endogenous features from quantitative weighted table
-tumors_quant_wt <- tumors_quant_wt_i |>
+tumors_quant_wt_id <- tumors_quant_wt_i |>
   select(-any_of(cas_key_endog))
+#- 0c.4.5: Strip patient ID for downstream analysis
+tumors_quant_wt <- tumors_quant_wt_id |>
+  select(-patient_ID)

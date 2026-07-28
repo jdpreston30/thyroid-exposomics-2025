@@ -57,7 +57,7 @@ ST1_tibble <- ST1_import |>
 #+ 16.2: Build Table 1 (with TernTables); Export
 table1 <- ternG(
   clinical_data,
-  exclude_vars = "year",
+  exclude_vars = c("Patient_ID", "year"),
   group_var = "Variant",
   output_docx = "Outputs/Tables/T1.docx",
   methods_doc = FALSE,
