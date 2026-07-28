@@ -103,6 +103,43 @@ variant_benchmark_check <- variant_benchmark |>
     by = "mode"
   ) |>
   mutate(match = screen_n_sig == canonical_n_sig)
+#- 13.3.5: Summary table (PNG)
+#! Effect size is quant-only because the two qualitative tests yield different metrics (Cramer's V, McFadden R-squared) that are not comparable
+{
+  # Create table
+  covariate_screen_table <- bind_rows(
+    covariate_chemical_summary |> select(mode, covariate, n_sig, pct_sig, median_effect_sig),
+    variant_benchmark |> select(mode, covariate, n_sig, pct_sig, median_effect_sig)
+  ) |>
+    mutate(cell = sprintf("%d (%.1f%%)", n_sig, pct_sig)) |>
+    select(covariate, mode, cell, median_effect_sig) |>
+    pivot_wider(names_from = mode, values_from = c(cell, median_effect_sig)) |>
+    mutate(covariate = case_match(covariate,
+      "year" ~ "Collection year (continuous)",
+      "Sample_Collection_Timing" ~ "Collection timing (binned)",
+      "Variant" ~ "Tumor type (reference)",
+      .default = covariate
+    )) |>
+    arrange(match(covariate, c("Collection year (continuous)", "Collection timing (binned)", "Sex", "Age", "Tumor type (reference)"))) |>
+    transmute(
+      Covariate = covariate,
+      Quantitative = cell_quant,
+      Qualitative = cell_qual,
+      `Median eta-squared\n(quantitative)` = sprintf("%.3f", median_effect_sig_quant)
+    )
+  # Render table
+  render_response_table(
+    covariate_screen_table,
+    "Outputs/Revisions/covariate_screen_table.png",
+    title = "Association of covariates with chemical features",
+    footnote = paste0(
+      "Significant features, n (%), at P < 0.05; approximately 5% expected by chance. ",
+      "Quantitative n = ", covariate_chemical_summary$n_testable[covariate_chemical_summary$mode == "quant"][1],
+      "; qualitative n = ", max(covariate_chemical_summary$n_testable[covariate_chemical_summary$mode == "qual"]), ".\n",
+      "Effect size is shown for quantitative features only, where a single metric (eta-squared) applies to every comparison."
+    )
+  )
+}
 #+ 13.4.1: Targeted ANCOVA
 #- 13.4.1: Specify ANCOVA adjustment variables
 #! Continuous year is the primary adjustment; binned timing is a sensitivity check on the Table 1 parameterization
