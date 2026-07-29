@@ -13,11 +13,11 @@ balance_by_type <- ternG(
   filter(variable %in% c("Age", "Sex", "year", "Sample_Collection_Timing")) |>
   arrange(match(variable, c("Age", "Sex", "year", "Sample_Collection_Timing"))) |>
   mutate(variable = case_match(variable,
-    "year" ~ "Collection year (continuous)",
-    "Sample_Collection_Timing" ~ "Collection timing (binned)",
+    "year" ~ "Collection Year (Continuous)",
+    "Sample_Collection_Timing" ~ "Collection Timing (Binned)",
     .default = variable
   )) |>
-  select(covariate = variable, test, P = p_fmt)
+  select(covariate = variable, test, P = p_value)
 #- 13.1.3: Year central tendency by type
 year_by_type <- clinical_data_confounding |>
   group_by(Variant) |>
@@ -38,13 +38,14 @@ year_by_type <- clinical_data_confounding |>
   ay_test <- classify_normality(clinical_data_confounding |> select(Age, year), group_var = NULL)$is_normal |> all() |> ifelse("Pearson", "Spearman")
 }
 #- 13.2.2: Determine cross-associations with appropriate tests
+#! P is left numeric here; display formatting happens in 17 so every supplementary table rounds identically
 covariate_cross <- tibble(
-  pair = c("Age vs Sex", "Age vs year", "year vs Sex"),
+  pair = c("Age vs. Sex", "Age vs. Year", "Year vs. Sex"),
   test = c(sex_rows$test[1], ay_test, sex_rows$test[2]),
   P = c(
-    sex_rows$p_fmt[1],
-    val_p_format(suppressWarnings(cor.test(clinical_data_confounding$Age, clinical_data_confounding$year, method = tolower(ay_test))$p.value)),
-    sex_rows$p_fmt[2]
+    sex_rows$p_value[1],
+    suppressWarnings(cor.test(clinical_data_confounding$Age, clinical_data_confounding$year, method = tolower(ay_test))$p.value),
+    sex_rows$p_value[2]
   )
 )
 #+ 13.3: Associations of covariates with chemicals
@@ -115,12 +116,12 @@ variant_benchmark_check <- variant_benchmark |>
     select(covariate, mode, cell, median_effect_sig) |>
     pivot_wider(names_from = mode, values_from = c(cell, median_effect_sig)) |>
     mutate(covariate = case_match(covariate,
-      "year" ~ "Collection year (continuous)",
-      "Sample_Collection_Timing" ~ "Collection timing (binned)",
-      "Variant" ~ "Tumor type (reference)",
+      "year" ~ "Collection Year (Continuous)",
+      "Sample_Collection_Timing" ~ "Collection Timing (Binned)",
+      "Variant" ~ "Tumor Type (Reference)",
       .default = covariate
     )) |>
-    arrange(match(covariate, c("Collection year (continuous)", "Collection timing (binned)", "Sex", "Age", "Tumor type (reference)"))) |>
+    arrange(match(covariate, c("Collection Year (Continuous)", "Collection Timing (Binned)", "Sex", "Age", "Tumor Type (Reference)"))) |>
     transmute(
       Covariate = covariate,
       Quantitative = cell_quant,

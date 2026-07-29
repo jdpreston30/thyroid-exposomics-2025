@@ -1,15 +1,15 @@
 \begin{tabular}{lcc}
 \toprule[0.5pt]
-\rule{0pt}{12pt}\raisebox{-0.5\height}{\fontsize{10pt}{12pt}\selectfont\textbf{Comparison}} & \raisebox{-0.5\height}{\fontsize{10pt}{12pt}\selectfont\textbf{Test}} & \raisebox{-0.5\height}{\fontsize{10pt}{12pt}\selectfont\textbf{\textit{P}}} \\
+\rule[-0.35em]{0pt}{1.25em}\fontsize{10pt}{12pt}\selectfont\textbf{Comparison} & \fontsize{10pt}{12pt}\selectfont\textbf{Test} & \fontsize{10pt}{12pt}\selectfont\textbf{\textit{P}} \\
 \midrule[0.5pt]
-\underline{Covariate vs. tumor type} &  &  \\
+\underline{Covariate vs. Tumor Type} &  &  \\
 \hspace*{0.2cm}\textit{Age} & Welch ANOVA & 0.933 \\
 \hspace*{0.2cm}\textit{Sex} & Chi-squared & 0.926 \\
-\hspace*{0.2cm}\textit{Collection year (continuous)} & Kruskal-Wallis & 0.142 \\
-\hspace*{0.2cm}\textit{Collection timing (binned)} & Fisher exact (simulated) & 2E-4 \\
-\underline{Covariate vs. covariate} &  &  \\
-\hspace*{0.2cm}\textit{Age vs Sex} & Welch t-test & 0.343 \\
-\hspace*{0.2cm}\textit{Age vs year} & Pearson & 0.973 \\
-\hspace*{0.2cm}\textit{year vs Sex} & Wilcoxon rank-sum & 0.829 \\
+\hspace*{0.2cm}\textit{Collection Year (Continuous)} & Kruskal-Wallis & 0.142 \\
+\hspace*{0.2cm}\textit{Collection Timing (Binned)} & Fisher exact (simulated) & < 0.001 \\
+\underline{Covariate vs. Covariate} &  &  \\
+\hspace*{0.2cm}\textit{Age vs. Sex} & Welch t-test & 0.343 \\
+\hspace*{0.2cm}\textit{Age vs. Year} & Pearson & 0.973 \\
+\hspace*{0.2cm}\textit{Year vs. Sex} & Wilcoxon rank-sum & 0.829 \\
 \bottomrule[0.5pt]
 \end{tabular}

@@ -30,14 +30,20 @@ build_ST4 <- function(data) {
     x
   }
   vmat <- as.matrix(df[value_cols])
-  # Header cells: 10pt bold, vertically centered via \raisebox (matches ST3). The
-  # statistical symbol P is italicized; all other headers are plain bold.
+  # Header cells: 10pt bold; the statistical symbol P is italicized, others plain bold.
+  #! \raisebox{-0.5\height} centres a box ON the baseline, so half of it hangs below. Paired with a
+  #! height-only strut (all above the baseline) that reads as centred only when the box is tall enough
+  #! to fill the strut, i.e. multi-line headers. With single-line headers the text sinks to the bottom
+  #! of the row, so those get a strut with both height and depth and no raisebox instead.
+  multiline <- any(grepl("shortstack", c(label_col, value_cols), fixed = TRUE))
   hdr_cell <- function(h) {
     inner <- if (h == "P") "\\textit{P}" else h
-    paste0("\\raisebox{-0.5\\height}{\\fontsize{10pt}{12pt}\\selectfont\\textbf{", inner, "}}")
+    body <- paste0("\\fontsize{10pt}{12pt}\\selectfont\\textbf{", inner, "}")
+    if (multiline) paste0("\\raisebox{-0.5\\height}{", body, "}") else body
   }
   header_cells <- c(hdr_cell(label_col), vapply(value_cols, hdr_cell, character(1), USE.NAMES = FALSE))
-  header_line <- paste0("\\rule{0pt}{12pt}", paste(header_cells, collapse = " & "), " \\\\")
+  strut <- if (multiline) "\\rule{0pt}{12pt}" else "\\rule[-0.35em]{0pt}{1.25em}"
+  header_line <- paste0(strut, paste(header_cells, collapse = " & "), " \\\\")
   # Body: section rows underlined-plain at base indent; entry rows italic + indented
   body <- vapply(seq_len(nrow(df)), function(i) {
     lab <- esc(df[[label_col]][i])

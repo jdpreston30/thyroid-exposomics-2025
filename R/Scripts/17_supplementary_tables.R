@@ -225,16 +225,16 @@ writeLines(st3_latex, "Supplementary/Components/Tables/ST3.tex")
 #! covariate) merged under underlined section headers. The collection-year distribution
 #! reconciliation is emitted to ST4_caption.tex so its numbers are wired from R (not
 #! hand-typed) — build_ST4() styles the tabular to match ST3 (see its roxygen).
-#- 17.5.1: Merge the balance + cross-association blocks under two section headers. P is
-#!          already formatted in script 13 (balance via TernTables' val_p_format, identical
-#!          to Table 1; cross-associations via the same formatter).
+#- 17.5.1: Merge the balance + cross-association blocks under two section headers
+#! Script 13 supplies numeric P; formatting happens here so ST3, ST4 and ST5 all round identically
+.fmt_p4 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
 ST4_data <- tibble(
   Comparison = c(
-    "Covariate vs. tumor type", balance_by_type$covariate,
-    "Covariate vs. covariate", covariate_cross$pair
+    "Covariate vs. Tumor Type", balance_by_type$covariate,
+    "Covariate vs. Covariate", covariate_cross$pair
   ),
   Test = c("", balance_by_type$test, "", covariate_cross$test),
-  P = c("", balance_by_type$P, "", covariate_cross$P),
+  P = c("", .fmt_p4(balance_by_type$P), "", .fmt_p4(covariate_cross$P)),
   .section = c(TRUE, rep(FALSE, nrow(balance_by_type)), TRUE, rep(FALSE, nrow(covariate_cross)))
 )
 #- 17.5.2: Build ST4 LaTeX (self-contained tabular) and save
@@ -269,20 +269,28 @@ writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")
     filter(mode == md) |>
     arrange(p_value_unadjusted) |>
     transmute(
-      Chemical = short_name,
-      `n|detected` = if (md == "qual") formatC(n_detected, format = "d") else "-",
-      `P|unadjusted` = .fmt_p5(p_value_unadjusted),
-      `P|+ year` = .fmt_p5(p_value_year),
-      `P|+ year, age, sex` = .fmt_p5(p_value_full),
-      `Effect|unadjusted` = .fmt_es5(effect_size_unadjusted),
-      `Effect|+ year` = .fmt_es5(effect_size_year),
+      #! MT_final appends * for quality == 2; converted to the dagger/double-dagger convention used in S1/S2
+      Chemical = paste0(
+        str_remove(short_name, "\\*$"),
+        if_else(str_detect(short_name, "\\*$"), "\\textsuperscript{\\textdagger}", ""),
+        if_else(!is.na(n_detected) & n_detected <= 10, "\\textsuperscript{\\textdaggerdbl}", "")
+      ),
+      `n|Detected` = if (md == "qual") formatC(n_detected, format = "d") else "-",
+      #! Model 1/2/3 rather than spelled-out adjustment sets; the sets are defined in the caption and the numbering keeps the columns narrow
+      `P|Model 1` = .fmt_p5(p_value_unadjusted),
+      `P|Model 2` = .fmt_p5(p_value_year),
+      `P|Model 3` = .fmt_p5(p_value_full),
+      `Effect|Model 1` = .fmt_es5(effect_size_unadjusted),
+      `Effect|Model 2` = .fmt_es5(effect_size_year),
+      `Effect|Model 3` = .fmt_es5(effect_size_full),
       .section = FALSE
     )
   bind_rows(tibble(Chemical = header, .section = TRUE), rows)
 }
+#! Test and effect-size metric are stated in the caption rather than the section headers, which otherwise force the first column wide
 ST5_data <- bind_rows(
-  .st5_block("quant", "Quantitative features (ANOVA; effect size = eta-squared)"),
-  .st5_block("qual", "Qualitative features (logistic LRT; effect size = McFadden R-squared)")
+  .st5_block("quant", "Quantitative features"),
+  .st5_block("qual", "Qualitative features")
 ) |>
   mutate(across(-c(Chemical, .section), \(x) replace_na(x, "")))
 #- 17.6.3: Build ST5 LaTeX (self-contained tabular) and save
@@ -295,20 +303,25 @@ writeLines(build_ST5(ST5_data), "Supplementary/Components/Tables/ST5.tex")
 .sparse_min <- min(ancova_summary$n_detected, na.rm = TRUE)
 st5_caption <- paste0(
   "\\textbf{Tumor-type differences in validated chemicals before and after covariate adjustment.} ",
-  "Each of the ", .n_total, " validated type-differential chemicals was refit with adjustment for ",
-  "collection year alone and for collection year, age, and sex. Quantitative features were compared by ",
-  "analysis of covariance with the tumor-type term assessed by \\textit{F} test; qualitative (detection) ",
-  "features were compared by logistic-regression likelihood-ratio test, which unlike Fisher's exact test ",
-  "can accommodate covariates. Effect sizes quantify the magnitude of the tumor-type term and are on ",
-  "different scales in the two modes, so they are comparable within a mode but not across modes. ",
-  .n_year, " of ", .n_total, " chemicals remained significant after adjustment for collection year, ",
+  "Each of the ", .n_total, " validated type-differential chemicals was refit under three nested models: ",
+  "Model 1, unadjusted; Model 2, adjusted for collection year; Model 3, adjusted for collection year, age, ",
+  "and sex. Quantitative features were compared by ",
+  "analysis of covariance with the tumor-type term assessed by an $F$ test, and effect size is partial ",
+  "$\\eta^{2}$; qualitative (detection) features were compared by logistic-regression likelihood-ratio ",
+  "test, and effect size is McFadden's pseudo-$R^{2}$. The two effect-size metrics are on different ",
+  "scales and are therefore comparable within a mode but not across modes. Because Fisher's exact test ",
+  "cannot accommodate covariates, likelihood-ratio tests are used throughout this table so that ",
+  "unadjusted and adjusted models are directly comparable; unadjusted values for qualitative features ",
+  "therefore differ slightly from the exact tests reported in Table 3, although every chemical is ",
+  "significant under both. ",
+  .n_year, " of ", .n_total, " chemicals remained significant under Model 2, ",
   "with effect sizes essentially unchanged; the chemicals that lost significance were marginal before ",
   "adjustment and are not among the findings emphasized in the manuscript. In a sensitivity analysis ",
   "adjusting instead for the categorical collection intervals of Table 1, ", .n_binned, " of ", .n_total,
-  " remained significant; that parameterization discards within-interval variation and is reported in the ",
-  "Results for completeness. For qualitative features the number of samples with the chemical detected is ",
-  "given, because ", .n_sparse, " chemicals were detected in 10 or fewer of the 60 samples (minimum ",
-  .sparse_min, "), and adjusted estimates for these should be interpreted with caution given the limited ",
-  "number of events per model parameter."
+  " remained significant; because that parameterization discards within-interval variation it is reported ",
+  "here for completeness rather than as a primary specification, and is not tabulated separately. ",
+  "\\textit{$\\dagger$ Level 2 identification; $\\ddagger$ detected in 10 or fewer of the 60 samples ",
+  "(minimum ", .sparse_min, "), for which covariate-adjusted estimates should be interpreted with caution ",
+  "given the limited number of events per model parameter.}"
 )
 writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
