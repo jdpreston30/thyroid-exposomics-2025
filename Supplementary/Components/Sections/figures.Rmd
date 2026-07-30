@@ -32,7 +32,7 @@
 
 \markright{\textit{Figure S2.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S2.2\ifthenelse{\value{page}>29}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S2.2\ifthenelse{\value{page}>27}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S2.2.pdf}
 
 \newpage
 
@@ -54,7 +54,7 @@
 
 \markright{\textit{Figure S3.2}}
 
-\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S3.2\ifthenelse{\value{page}>34}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
+\includepdf[pages=-,scale=0.85,pagecommand={\thispagestyle{fancy}\centering{\fontsize{12}{14.4}\selectfont\textbf{Figure S3.2\ifthenelse{\value{page}>33}{ (Continued)}{}}}\vspace{1em}}]{Figures/PDF/S3.2.pdf}
 
 \newpage
 

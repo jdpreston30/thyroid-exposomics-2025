@@ -1,8 +1,10 @@
-#' Build Supplementary Table 5 (ST5) — Covariate-adjusted tumor-type effects
+#' Build a supplementary table tabular (shared emitter for ST5 and ST6)
 #'
-#' Emits a self-contained LaTeX tabular (no \\begin{table} wrapper) for the
-#' covariate-adjustment results produced by \code{\link{adjust_type_effect}}.
-#' Visual style matches \code{build_ST3()} / \code{build_ST4()}: mode section
+#' Emits a self-contained LaTeX tabular (no \\begin{table} wrapper). Used by both
+#' ST5 (covariate-chemical association screen) and ST6 (covariate-adjusted
+#' tumor-type effects from \code{\link{adjust_type_effect}}); the two tables are
+#' structurally identical, so they share one emitter rather than duplicating it.
+#' Visual style matches \code{build_ST3()} / \code{build_ST4()}: section
 #' headers (e.g. "Quantitative features") are plain underlined text at the base
 #' indent, and individual chemicals are italic and indented
 #' (\code{\\hspace*\{0.2cm\}}). Font (Times New Roman) is inherited from the
@@ -16,11 +18,12 @@
 #'   pre-formatted character value columns, and a logical \code{.section} column
 #'   flagging mode-header rows. Value columns are emitted in the order given;
 #'   supply them already rounded/formatted (this function does no numeric
-#'   formatting, matching the contract of \code{build_ST4()}).
+#'   formatting, matching the contract of \code{build_ST4()}). Two-line headers
+#'   are given as "line1|line2".
 #'
 #' @return A character scalar of LaTeX code ready to \\input.
 #'
-build_ST5 <- function(data) {
+build_supp_tabular <- function(data) {
   df <- as.data.frame(data, check.names = FALSE, stringsAsFactors = FALSE)
   is_sec <- if (".section" %in% names(df)) as.logical(df$.section) else rep(FALSE, nrow(df))
   df$.section <- NULL

@@ -9,10 +9,11 @@ components_dir <- here::here("Supplementary", "Components")
 sections_dir <- file.path(components_dir, "Sections")
 cover_page_path <- file.path(sections_dir, "cover_page.Rmd")
 note1_path <- file.path(sections_dir, "note1.tex")
+note2_path <- file.path(sections_dir, "note2.tex")
 figures_path <- file.path(sections_dir, "figures.Rmd")
 tables_path <- file.path(sections_dir, "tables.tex")
 #- 18.3.2: Check that all components exist
-required_files <- c(cover_page_path, note1_path, figures_path, tables_path)
+required_files <- c(cover_page_path, note1_path, note2_path, figures_path, tables_path)
 missing_files <- required_files[!file.exists(required_files)]
 if (length(missing_files) > 0) {
   stop("Missing component files: ", paste(missing_files, collapse = ", "))
@@ -21,6 +22,7 @@ if (length(missing_files) > 0) {
 #- 18.4.1: Read each component
 cover_content <- readLines(cover_page_path, warn = FALSE)
 note1_content <- readLines(note1_path, warn = FALSE)
+note2_content <- readLines(note2_path, warn = FALSE)
 figures_content <- readLines(figures_path, warn = FALSE)
 tables_content <- readLines(tables_path, warn = FALSE)
 #- 18.4.2: Fix paths for correct references when rendered from Components directory
@@ -47,6 +49,8 @@ full_content <- c(
   cover_content,
   "",  # Empty line for separation
   note1_content,     # Supplementary Note 1 (before the figures)
+  "",  # Empty line for separation
+  note2_content,     # Supplementary Note 2 (confounding/robustness methods)
   "",  # Empty line for separation
   figures_content,
   "",  # Empty line for separation

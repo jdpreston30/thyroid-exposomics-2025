@@ -52,7 +52,8 @@ clinical_data <- tumor_pathology_raw |>
   select(Patient_ID, Variant, Sex, Age, Sample_Collection_Timing = year_bin, T_Category = T_stage_comp, N_Category = N, M_Category = M, Pathologic_Stage = Stage, year)
 #- 1.2.2: Cadaver metadata
 cadaver_metadata <- cadaver_metadata_raw |>
-  filter(seq != "006") |> # Did not run this sample
+  filter(seq != "T-006") |> #! T-006 was HBcAb reactive, destroyed, and never run; seq is "T-00N" so the previous bare "006" silently matched nothing and left 9 rows
   mutate(collection_year = as.integer(format(DOD, "%Y"))) |> # extract collection year from DOD
   select(seq, age, sex, collection_year)
+stopifnot(nrow(cadaver_metadata) == 8) # guard: the filter above failed silently once
   

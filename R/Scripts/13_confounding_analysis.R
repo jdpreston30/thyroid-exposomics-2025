@@ -175,8 +175,6 @@ ancova_summary <- ancova_res |>
     flips = p_value_unadjusted < 0.05 & !survives_year,
     low_detection = n_detected < 10
   )
-
-
 #+ 13.5: Why the binned sensitivity attenuates
 #- 13.5.1: Association of tumor type with binned collection timing
 timing_cramer <- table(clinical_data$Variant, clinical_data$Sample_Collection_Timing) |>

@@ -259,12 +259,64 @@ st4_caption <- paste0(
   "The candidate confounders were also mutually independent."
 )
 writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")
-#+ 17.6: ST5: Covariate-adjusted tumor-type effects (reviewer #2 — do findings survive adjustment)
-#- 17.6.1: Format p-values and effect sizes
-.fmt_p5 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
-.fmt_es5 <- function(e) ifelse(is.na(e), "-", formatC(e, format = "f", digits = 3))
-#- 17.6.2: One block per mode, ordered by unadjusted significance within each
-.st5_block <- function(md, header) {
+#+ 17.6: ST5: Covariate-chemical association screen (reviewer #2 — do covariates track the chemicals)
+#- 17.6.1: Reshape the per-covariate screen counts, with tumor type as an on-scale reference row
+#! Effect size is quantitative-only: the two qualitative tests yield different metrics (Cramer's V, McFadden R-squared) that are not comparable
+.st5_rows <- bind_rows(
+  covariate_chemical_summary |> select(mode, covariate, n_sig, pct_sig, median_effect_sig),
+  variant_benchmark |> select(mode, covariate, n_sig, pct_sig, median_effect_sig)
+) |>
+  mutate(cell = sprintf("%d (%.1f%%)", n_sig, pct_sig)) |>
+  select(covariate, mode, cell, median_effect_sig) |>
+  pivot_wider(names_from = mode, values_from = c(cell, median_effect_sig)) |>
+  mutate(covariate = case_match(covariate,
+    "year" ~ "Collection Year (Continuous)",
+    "Sample_Collection_Timing" ~ "Collection Timing (Binned)",
+    "Variant" ~ "Tumor Type",
+    .default = covariate
+  )) |>
+  arrange(match(covariate, c("Collection Year (Continuous)", "Collection Timing (Binned)", "Sex", "Age", "Tumor Type"))) |>
+  transmute(
+    Covariate = covariate,
+    `Significant|Quantitative` = cell_quant,
+    `Significant|Qualitative` = cell_qual,
+    `Median $\\eta^{2}$|Quantitative` = if_else(is.na(median_effect_sig_quant), "-", sprintf("%.3f", median_effect_sig_quant)),
+    .section = FALSE
+  )
+#! Tumor type is split into its own section so it reads as the on-scale reference contrast rather than as another candidate confounder
+ST5_data <- bind_rows(
+  tibble(Covariate = "Candidate Confounders", .section = TRUE),
+  .st5_rows |> filter(Covariate != "Tumor Type"),
+  tibble(Covariate = "Reference", .section = TRUE),
+  .st5_rows |> filter(Covariate == "Tumor Type")
+) |>
+  mutate(across(-c(Covariate, .section), \(x) replace_na(x, "")))
+#- 17.6.2: Build ST5 LaTeX (self-contained tabular) and save
+writeLines(build_supp_tabular(ST5_data), "Supplementary/Components/Tables/ST5.tex")
+#- 17.6.3: Wire the caption deterministically from the screen summaries
+.n_quant_tested <- max(covariate_chemical_summary$n_testable[covariate_chemical_summary$mode == "quant"])
+.n_qual_tested <- max(covariate_chemical_summary$n_testable[covariate_chemical_summary$mode == "qual"])
+st5_caption <- paste0(
+  "\\textbf{Association of candidate confounders with individual chemical features.} ",
+  "Every annotated feature was tested against each candidate confounder in both analytical modes ",
+  "(", .n_quant_tested, " quantitative and ", .n_qual_tested, " qualitative features), and the number ",
+  "of features significant at $P < 0.05$ is reported as \\textit{n} (\\%). Approximately 5\\% of features ",
+  "are expected to reach this threshold by chance alone, so the relevant comparison for each covariate is ",
+  "against that 5\\% baseline rather than against zero. Collection year appears twice: as a continuous ",
+  "measure and as the categorical intervals used in Table 1. Tumor type is included as a reference row so ",
+  "that the covariate associations can be read against the exposure contrast of interest using the same ",
+  "metric; it is not a confounder, and the comparison is not adjusted for the differing degrees of freedom ",
+  "consumed by each variable. Effect size is reported for quantitative features only, as a median across ",
+  "the features reaching significance. Test selection and effect-size metrics are detailed in ",
+  "Supplementary Note 2."
+)
+writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
+#+ 17.7: ST6: Covariate-adjusted tumor-type effects (reviewer #2 — do findings survive adjustment)
+#- 17.7.1: Format p-values and effect sizes
+.fmt_p6 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
+.fmt_es6 <- function(e) ifelse(is.na(e), "-", formatC(e, format = "f", digits = 3))
+#- 17.7.2: One block per mode, ordered by unadjusted significance within each
+.st6_block <- function(md, header) {
   rows <- ancova_summary |>
     filter(mode == md) |>
     arrange(p_value_unadjusted) |>
@@ -275,53 +327,45 @@ writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")
         if_else(str_detect(short_name, "\\*$"), "\\textsuperscript{\\textdagger}", ""),
         if_else(!is.na(n_detected) & n_detected <= 10, "\\textsuperscript{\\textdaggerdbl}", "")
       ),
-      `n|Detected` = if (md == "qual") formatC(n_detected, format = "d") else "-",
+      `n Detected` = if (md == "qual") formatC(n_detected, format = "d") else "-",
       #! Model 1/2/3 rather than spelled-out adjustment sets; the sets are defined in the caption and the numbering keeps the columns narrow
-      `P|Model 1` = .fmt_p5(p_value_unadjusted),
-      `P|Model 2` = .fmt_p5(p_value_year),
-      `P|Model 3` = .fmt_p5(p_value_full),
-      `Effect|Model 1` = .fmt_es5(effect_size_unadjusted),
-      `Effect|Model 2` = .fmt_es5(effect_size_year),
-      `Effect|Model 3` = .fmt_es5(effect_size_full),
+      `P|Model 1` = .fmt_p6(p_value_unadjusted),
+      `P|Model 2` = .fmt_p6(p_value_year),
+      `P|Model 3` = .fmt_p6(p_value_full),
+      `Effect|Model 1` = .fmt_es6(effect_size_unadjusted),
+      `Effect|Model 2` = .fmt_es6(effect_size_year),
+      `Effect|Model 3` = .fmt_es6(effect_size_full),
       .section = FALSE
     )
   bind_rows(tibble(Chemical = header, .section = TRUE), rows)
 }
 #! Test and effect-size metric are stated in the caption rather than the section headers, which otherwise force the first column wide
-ST5_data <- bind_rows(
-  .st5_block("quant", "Quantitative features"),
-  .st5_block("qual", "Qualitative features")
+ST6_data <- bind_rows(
+  .st6_block("quant", "Quantitative features"),
+  .st6_block("qual", "Qualitative features")
 ) |>
   mutate(across(-c(Chemical, .section), \(x) replace_na(x, "")))
-#- 17.6.3: Build ST5 LaTeX (self-contained tabular) and save
-writeLines(build_ST5(ST5_data), "Supplementary/Components/Tables/ST5.tex")
-#- 17.6.4: Wire the caption deterministically from ancova_summary
+#- 17.7.3: Build ST6 LaTeX (self-contained tabular) and save
+writeLines(build_supp_tabular(ST6_data), "Supplementary/Components/Tables/ST6.tex")
+#- 17.7.4: Wire the caption deterministically from ancova_summary
 .n_total <- nrow(ancova_summary)
-.n_year <- sum(ancova_summary$survives_year, na.rm = TRUE)
 .n_binned <- sum(ancova_summary$survives_binned, na.rm = TRUE)
-.n_sparse <- sum(ancova_summary$n_detected <= 10, na.rm = TRUE)
 .sparse_min <- min(ancova_summary$n_detected, na.rm = TRUE)
-st5_caption <- paste0(
+st6_caption <- paste0(
   "\\textbf{Tumor-type differences in validated chemicals before and after covariate adjustment.} ",
   "Each of the ", .n_total, " validated type-differential chemicals was refit under three nested models: ",
   "Model 1, unadjusted; Model 2, adjusted for collection year; Model 3, adjusted for collection year, age, ",
-  "and sex. Quantitative features were compared by ",
-  "analysis of covariance with the tumor-type term assessed by an $F$ test, and effect size is partial ",
-  "$\\eta^{2}$; qualitative (detection) features were compared by logistic-regression likelihood-ratio ",
-  "test, and effect size is McFadden's pseudo-$R^{2}$. The two effect-size metrics are on different ",
-  "scales and are therefore comparable within a mode but not across modes. Because Fisher's exact test ",
-  "cannot accommodate covariates, likelihood-ratio tests are used throughout this table so that ",
-  "unadjusted and adjusted models are directly comparable; unadjusted values for qualitative features ",
-  "therefore differ slightly from the exact tests reported in Table 3, although every chemical is ",
-  "significant under both. ",
-  .n_year, " of ", .n_total, " chemicals remained significant under Model 2, ",
-  "with effect sizes essentially unchanged; the chemicals that lost significance were marginal before ",
-  "adjustment and are not among the findings emphasized in the manuscript. In a sensitivity analysis ",
-  "adjusting instead for the categorical collection intervals of Table 1, ", .n_binned, " of ", .n_total,
-  " remained significant; because that parameterization discards within-interval variation it is reported ",
-  "here for completeness rather than as a primary specification, and is not tabulated separately. ",
+  "and sex. Effect size is partial $\\eta^{2}$ for quantitative features and McFadden's pseudo-$R^{2}$ for ",
+  "qualitative features, and should be compared only within a mode. Unadjusted \\textit{P} values for ",
+  "qualitative features differ slightly from the exact tests reported in Table 3, because a ",
+  "likelihood-ratio test is used throughout this table so that unadjusted and adjusted models remain ",
+  "directly comparable; every chemical is significant under both. The chemicals that lost significance ",
+  "under adjustment were marginal beforehand and are not among the findings emphasized in the manuscript. ",
+  "In a sensitivity analysis adjusting instead for the categorical collection intervals of Table 1, ",
+  .n_binned, " of ", .n_total, " remained significant; because that parameterization discards ",
+  "within-interval variation it is reported here for completeness rather than as a primary specification. ",
+  "Full model specification is given in Supplementary Note 2. ",
   "\\textit{$\\dagger$ Level 2 identification; $\\ddagger$ detected in 10 or fewer of the 60 samples ",
-  "(minimum ", .sparse_min, "), for which covariate-adjusted estimates should be interpreted with caution ",
-  "given the limited number of events per model parameter.}"
+  "(minimum ", .sparse_min, "), for which covariate-adjusted estimates should be interpreted with caution.}"
 )
-writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
+writeLines(st6_caption, "Supplementary/Components/Tables/ST6_caption.tex")

@@ -76,7 +76,9 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \fontsize{10}{11}\selectfont
 
-\textbf{Supplementary Note 1} \dotfill 2-3
+\textbf{Supplementary Note 1} \dotfill 2
+
+\textbf{Supplementary Note 2} \dotfill 3
 
 \textbf{Figure S1} \dotfill 4
 
@@ -108,7 +110,9 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N.
 
 \textbf{Table S5} \dotfill 70
 
-\textbf{Table Abbreviation Dictionary} \dotfill 71
+\textbf{Table S6} \dotfill 71
+
+\textbf{Table Abbreviation Dictionary} \dotfill 72
 
 \newpage
 
