@@ -45,7 +45,7 @@ header-includes:
 
 \vspace{0.5em}
 
-Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami N. Teeny^c^, Jaclyn Weinberg^c,e^, William J. Crandall^c,e^, Zachery R. Jarrell^c^, Xin Hu^c,f^, Susan A. Safley^d^, Jennifer M. Robertson^g^, ViLinh Tran^c^, Anee S. Jackson^d^, Snehal G. Patel^d^, Logan D. Glosser^d^, Collin J. Weber^d^, Jyotirmay Sharma^d^, Neil D. Saunders^d^, Young-Mi Go^c^, Dean P. Jones^c^, and M. Ryan Smith^c,h^
+Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami Teeny^c^, Jaclyn Weinberg^c,e^, William J. Crandall^c,e^, Zachery R. Jarrell^c^, Xin Hu^c,f^, Susan A. Safley^d^, Jennifer M. Robertson^g^, ViLinh Tran^c^, Anee S. Jackson^d^, Snehal G. Patel^d^, Logan D. Glosser^d^, Collin J. Weber^d^, Jyotirmay Sharma^d^, Neil D. Saunders^d^, Young-Mi Go^c^, Dean P. Jones^c^, and M. Ryan Smith^c,h^
 
 \vspace{0.5em}
 
