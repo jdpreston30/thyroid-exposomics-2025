@@ -246,8 +246,11 @@ writeLines(build_ST4(ST4_data), "Supplementary/Components/Tables/ST4.tex")
   formatC(.yb$median, format = "d"), formatC(.yb$median, format = "f", digits = 1)
 )
 .med_phrase <- paste(sprintf("%s (%s)", .med_fmt, .yb$Variant), collapse = ", ")
-.range_lo <- min(year_by_type$min)
-.range_hi <- max(year_by_type$max)
+#! Ranges are grouped and reported per type; the union alone would attribute one type's wider span to all three
+.join_types <- function(x) if (length(x) == 1) x else if (length(x) == 2) paste(x, collapse = " and ") else paste0(paste(x[-length(x)], collapse = ", "), ", and ", x[length(x)])
+.rng_labels <- sprintf("%d--%d", .yb$min, .yb$max)
+.rng_groups <- vapply(split(as.character(.yb$Variant), factor(.rng_labels, levels = unique(.rng_labels))), .join_types, character(1))
+.range_phrase <- paste(sprintf("%s, %s", .rng_groups, names(.rng_groups)), collapse = "; ")
 st4_caption <- paste0(
   "\\textbf{Candidate confounder assessment for the tumor-type chemical comparisons.} ",
   "Each candidate confounder (age, sex, and collection year) was tested against tumor type, and ",
@@ -255,7 +258,7 @@ st4_caption <- paste0(
   "table, and the basis for its selection is described in the Methods. No covariate differed across ",
   "tumor type except collection timing in its binned form, which reflects the arbitrary display bins of ",
   "Table 1: treated as the continuous variable it is, collection-year central tendency did not differ ",
-  "across types (medians ", .med_phrase, "; fully overlapping ranges, ", .range_lo, "--", .range_hi, "). ",
+  "across types (medians ", .med_phrase, "; fully overlapping ranges: ", .range_phrase, "). ",
   "The candidate confounders were also mutually independent."
 )
 writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")

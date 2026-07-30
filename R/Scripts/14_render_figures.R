@@ -1,7 +1,8 @@
 #* 14: Render Figures
 #+ 14.1: Clean Up Any Corrupted PDFs from Previous Runs
-if (file.exists("Outputs/Figures/Figs1-3.pdf")) {
-  file.remove("Outputs/Figures/Figs1-3.pdf")
+#! Figs1-3.pdf is the pre-GA output name; removed here so the stale file cannot be mistaken for the current figures.pdf
+for (f in c("Outputs/Figures/figures.pdf", "Outputs/Figures/Figs1-3.pdf")) {
+  if (file.exists(f)) file.remove(f)
 }
 #+ 14.2: Figure 1
 fig1 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
@@ -103,18 +104,25 @@ print_to_tiff(fig3, "Fig3.tiff", output_dir = "Outputs/Figures/TIFF")
 while (!is.null(dev.list())) { 
   dev.off() 
 }
-pdf("Outputs/Figures/Figs1-3.pdf", width = 8.5, height = 11)
-# Page 1: Fig1
+pdf("Outputs/Figures/figures.pdf", width = 8.5, height = 11)
+# Page 1: GA
+#! GA is a static repo asset, landscape (8400x5100) unlike the portrait figures, so it is fit to page width and centred rather than stretched; skipped silently if absent so the run never stalls
+if (file.exists("Outputs/Figures/PNG/GA.png")) {
+  imgGA <- readPNG("Outputs/Figures/PNG/GA.png")
+  grid::grid.newpage()
+  grid::grid.raster(imgGA, width = grid::unit(8.5, "inches"), height = grid::unit(8.5 * dim(imgGA)[1] / dim(imgGA)[2], "inches"))
+}
+# Page 2: Fig1
 img1 <- readPNG("Outputs/Figures/PNG/Fig1.png")
 grid::grid.newpage()
 grid::grid.raster(img1, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
-# Page 2: Fig2
+# Page 3: Fig2
 img2 <- readPNG("Outputs/Figures/PNG/Fig2.png")
 grid::grid.newpage()
 grid::grid.raster(img2, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
-# Page 3: Fig3
+# Page 4: Fig3
 img3 <- readPNG("Outputs/Figures/PNG/Fig3.png")
 grid::grid.newpage()
 grid::grid.raster(img3, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 dev.off()
-cat("PDF compiled: Outputs/Figures/Figs1-3.pdf\n")
+cat("PDF compiled: Outputs/Figures/figures.pdf\n")
