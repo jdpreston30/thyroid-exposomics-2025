@@ -262,7 +262,7 @@ st4_caption <- paste0(
   "The candidate confounders were also mutually independent."
 )
 writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")
-#+ 17.6: ST5: Covariate-chemical association screen (reviewer #2 — do covariates track the chemicals)
+#+ 17.6: ST5: Covariate-chemical Association Screen (reviewer #2 — Do Covariates Track the chemicals)
 #- 17.6.1: Reshape the per-covariate screen counts, with tumor type as an on-scale reference row
 #! Effect size is quantitative-only: the two qualitative tests yield different metrics (Cramer's V, McFadden R-squared) that are not comparable
 .st5_rows <- bind_rows(
@@ -314,7 +314,7 @@ st5_caption <- paste0(
   "Supplementary Note 2."
 )
 writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
-#+ 17.7: ST6: Covariate-adjusted tumor-type effects (reviewer #2 — do findings survive adjustment)
+#+ 17.7: ST6: Covariate-adjusted Tumor-type Effects (reviewer #2 — Do Findings Survive adjustment)
 #- 17.7.1: Format p-values and effect sizes
 .fmt_p6 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
 .fmt_es6 <- function(e) ifelse(is.na(e), "-", formatC(e, format = "f", digits = 3))

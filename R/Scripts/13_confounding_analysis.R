@@ -25,7 +25,7 @@ year_by_type <- clinical_data_confounding |>
     median = median(year), mean = round(mean(year), 1),
     min = min(year), max = max(year), n = n(), .groups = "drop"
   )
-#+ 13.2: Cross-associations between covariates
+#+ 13.2: Cross-associations Between Covariates
 #- 13.2.1: Determine each test based on normality testing
 {
   # Normality testing on sex cross-association rows
@@ -48,7 +48,7 @@ covariate_cross <- tibble(
     sex_rows$p_value[2]
   )
 )
-#+ 13.3: Associations of covariates with chemicals
+#+ 13.3: Associations of Covariates with Chemicals
 #- 13.3.1: Screen every feature against each covariate in both modes
 #! year tested continuously (1 df linear trend) and binned (3 df) to separate monotone drift from batch structure
 covariate_chemical_screens <- c("Age", "year", "Sex", "Sample_Collection_Timing") |>
@@ -141,7 +141,7 @@ variant_benchmark_check <- variant_benchmark |>
     )
   )
 }
-#+ 13.4.1: Targeted ANCOVA
+#+ 13.4: Targeted ANCOVA
 #- 13.4.1: Specify ANCOVA adjustment variables
 #! Continuous year is the primary adjustment; binned timing is a sensitivity check on the Table 1 parameterization
 ancova_adjustments <- list(
@@ -175,7 +175,7 @@ ancova_summary <- ancova_res |>
     flips = p_value_unadjusted < 0.05 & !survives_year,
     low_detection = n_detected < 10
   )
-#+ 13.5: Why the binned sensitivity attenuates
+#+ 13.5: Why the Binned Sensitivity Attenuates
 #- 13.5.1: Association of tumor type with binned collection timing
 timing_cramer <- table(clinical_data$Variant, clinical_data$Sample_Collection_Timing) |>
   (\(tab) sqrt(as.numeric(suppressWarnings(chisq.test(tab)$statistic)) / (sum(tab) * (min(dim(tab)) - 1))))()
@@ -208,7 +208,7 @@ attenuating_pairwise <- bind_rows(
 
 
 
-#+ 13.6: Common support
+#+ 13.6: Common Support
 #! Year adjustment is interpolation only where types share collection years; no overlap would make it extrapolation
 common_support <- combn(levels(clinical_data$Variant), 2, simplify = FALSE) |>
   map(\(pr) {
