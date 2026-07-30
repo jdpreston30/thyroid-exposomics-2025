@@ -176,48 +176,17 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       panel.border = element_rect(color = "black", fill = NA, linewidth = 0.3)
     )
   
-  # Add a single outer frame (linewidth 0.8, matching Fig 3D-F's axis.line/ticks
-  # weight) around the whole stacked-facet block, on top of the per-facet
-  # panel.border (kept at 0.3 above so the horizontal dividers between the 5
-  # chemical facets stay their current thickness). ggplot2's panel.border theme
-  # element draws identically on every facet, including the shared edges between
-  # adjacent facets, so a single theme setting can't give the true outer
-  # perimeter a different weight than those internal dividers -- this overlay is
-  # the only way to do both. Requires converting to a gtable and locating the
-  # combined bounding box of all "panel-*" grid cells (facet_wrap(ncol = 1)
-  # stacks them in one column, so this spans row 1's top to row 5's bottom).
-  #! ggplotGrob() computes text metrics (axis/strip/legend text), which needs an
-  #! active graphics device; in a headless Rscript run with none open, R silently
-  #! auto-opens the default device (a stray "Rplots.pdf" in the working directory
-  #! at the time this runs). Wrap in a throwaway null pdf() device so it never
-  #! touches the real figure device or leaves a file behind.
-  .add_outer_frame <- function(plot, linewidth = 0.8) {
-    grDevices::pdf(NULL)
-    on.exit(grDevices::dev.off())
-    gt <- ggplotGrob(plot)
-    panel_idx <- grep("^panel", gt$layout$name)
-    frame <- grid::rectGrob(
-      gp = grid::gpar(col = "black", fill = NA, lwd = linewidth * .pt)
-    )
-    gtable::gtable_add_grob(
-      gt, frame,
-      t = min(gt$layout$t[panel_idx]), b = max(gt$layout$b[panel_idx]),
-      l = min(gt$layout$l[panel_idx]), r = max(gt$layout$r[panel_idx]),
-      z = Inf, clip = "off", name = "outer-frame"
-    )
-  }
-
   # If return_legend is TRUE, extract legend and return both
   if (return_legend) {
     # Create a temporary plot with legend visible to extract it
     p_temp <- p + theme(legend.position = "right")
     legend <- cowplot::get_legend(p_temp)
-
+    
     # Remove legend from main plot
     p_no_legend <- p + theme(legend.position = "none")
-
-    return(list(plot = .add_outer_frame(p_no_legend), legend = legend))
+    
+    return(list(plot = p_no_legend, legend = legend))
   }
-
-  return(.add_outer_frame(p))
+  
+  return(p)
 }

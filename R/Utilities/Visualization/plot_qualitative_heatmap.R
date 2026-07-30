@@ -14,7 +14,7 @@
 #' @return A ggplot2 object showing a heatmap with:
 #'   \itemize{
 #'     \item Blue-to-red gradient (0% = #1A5FA5, 50% = #DDC9C2, 100% = #BF303B)
-#'     \item Black borders between tiles (0.8 linewidth, matching Fig 3D-F)
+#'     \item Black borders between tiles (0.3 linewidth)
 #'     \item Horizontal legend at top with "Percent Detection" title
 #'     \item X-axis variant labels rotated 45 degrees
 #'     \item Bold Arial text throughout
@@ -31,7 +31,7 @@ plot_qualitative_heatmap <- function(data) {
   library(ggplot2)
   
   p <- ggplot(data, aes(x = variant, y = short_name, fill = pct_detection)) +
-    geom_tile(color = "black", linewidth = 0.8) +
+    geom_tile(color = "black", linewidth = 0.3) +
     scale_fill_gradient2(
       low = "#0C5EA5", mid = "#DDC9C2", high = "#BE4E4D", 
       midpoint = 50, limits = c(0, 100),
