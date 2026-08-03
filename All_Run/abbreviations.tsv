@@ -1,0 +1,76 @@
+Abbrev	Name	Use
+DDD	Dichlorodiphenyldichloroethane	Y
+DDE	Dichlorodiphenyldichloroethylene	Y
+DDT	Dichlorodiphenyltrichloroethane	Y
+HpCDD	Heptachlorodibenzo-p-dioxin	Y
+HpCDF	Heptachlorodibenzofuran	Y
+HxCDD	Hexachlorodibenzo-P-dioxin	Y
+HxCDF	Hexachlorodibenzofuran	Y
+PeCDD	Pentachlorodibenzo-p-dioxin	Y
+TCP	Trichlorophenyl	Y
+NPE	Nitrophenyl ether	Y
+BDE	Brominated diphenyl ether	Y
+PCB	Polychlorinated biphenyl	Y
+PBB	Polybrominated biphenyl	Y
+EPN	Ethyl p-nitrophenyl phenylphosphorothioate	Y
+B9-1679	2,3,5,6,8,8,9,10,10-Nonachlorobornane	Y
+B8-1413	2,3,5,6,8,8,10,10-Octachlorobornane	Y
+B9-1025	2,2,5,5,8,9,9,10,10-Nonachlorobornane	Y
+DFTPP	Decafluorotriphenylphosphine	Y
+EDC	endocrine-disrupting chemical	Y
+CAS	Chemical Abstracts Service (Number)	Y
+IARC	International Agency for Research on Cancer	Y
+NHANES	National Health and Nutrition Examination Survey	
+CDC	Centers for Disease Control and Prevention	
+min.	minutes	
+m/z	mass-to-charge ratio	Y
+PAH	polycyclic aromatic hydrocarbon	
+PPB	parts per billion	
+RT	retention time	Y
+9Cl-PF3ONS	9-Chlorohexadecafluoro-3-oxanone-1-sulfonic acid	
+BDCPP	bis(1,3-Dichloro-2-propyl) phosphate	
+BDPP	Bis(2,3-dibromopropyl) hydrogen phosphate	
+Bromo-TMP-Phenol	2-Bromo-4-(2,4,4-trimethylpentan-2-yl)phenol	
+CID	Compound ID (PubChem)	
+Compds.	compounds	
+DBahA	Dibenz(a,h)anthracene	
+DCP	Dichlorophenyl	
+DCPMNB 	4-(2,4-dichlorophenoxy)-2-methyl-1-nitrobenzene	
+DTPAs	Dithiophosphoric Acids	
+EtFOSAA	N-Ethylperfluoro-1-octanesulfonamidoacetic acid (linear)	
+Furaneol	4-Hydroxy-2,5-dimethyl-3(2H)-furanone	
+IMHP	2-Isopropyl-6-methyl-4-pyrimidinol	
+Lin.	linear	
+LLMs	lipid-like molecules	
+LOD	limit of detection	
+MBOT	4,4'-Methylenebis(o-toluidine)	
+MCPA	2-Methyl-4-chlorophenoxyacetic acid	
+MEcPP	Mono(5-carboxy-2-ethylpentyl) phthalate	
+MEHHP	Mono(2-ethyl-5-hydroxyhexyl) phthalate	
+MEOHP	Mono(2-ethyl-5-oxohexyl) phthalate	
+MGK-264	McLaughlin Gormley King-264 (also known as N-2-Ethylhexylbicycloheptenedicarboximide)	
+MOCA	4,4'-Methylenebis(2-chloroaniline)	
+N-MeFOSAA	N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear)	Y
+o-Dianisidine	3,3'-Dimethoxybenzidine	
+Org	organic	
+Org. Heterocycl.	organoheterocyclic	
+p-Chlorocresol	4-Chloro-3-methylphenol	
+PCDF	Pentachlorodibenzofuran	
+PKs	polyketides	
+SDs	Substituted Derivatives	
+TBBPA-BAE	Tetrabromobisphenol A bis(allyl ether)	
+TCDD	tetrachlorodibenzo-p-dioxin	
+TCDF	tetrachlorodibenzofuran	
+TCPP	Tris(1-chloro-2-propyl) phosphate	
+TDCPP	Tris(1,3-dichloro-2-propyl)phosphate	
+TEEP	Tetraethyl ethylenediphosphonate	Y
+TPAs	Thiophosphoric acids	
+TTBNPP	Tris(tribromoneopentyl) phosphate	
+5-NOT	5-Nitro-o-toluidine	Y
+ANOVA	analysis of variance	Y
+DEET	N,N-Diethyl-meta-toluamide	Y
+DNOP	Di-n-octyl phthalate	Y
+MDA	4,4'-Diaminodiphenylmethane	Y
+MEHP	Mono-2-ethylhexyl phthalate	Y
+OD-PABA	Octyl-dimethyl-p-aminobenzoic acid	Y
+UV	ultraviolet	Y
