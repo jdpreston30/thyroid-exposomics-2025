@@ -255,11 +255,10 @@ st4_caption <- paste0(
   "\\textbf{Candidate confounder assessment for the tumor-type chemical comparisons.} ",
   "Each candidate confounder (age, sex, and collection year) was tested against tumor type, and ",
   "the confounders were tested against one another; the test used for each comparison is given in the ",
-  "table, and the basis for its selection is described in the Methods. No covariate differed across ",
-  "tumor type except collection timing in its binned form, which reflects the arbitrary display bins of ",
-  "Table 1: treated as the continuous variable it is, collection-year central tendency did not differ ",
-  "across types (medians ", .med_phrase, "; fully overlapping ranges: ", .range_phrase, "). ",
-  "The candidate confounders were also mutually independent."
+  "table. No covariate differed across tumor type except collection timing when grouped into the ",
+  "categorical bins defined in \\textbf{Table 1}. When treated as a continuous variable, collection-year central ",
+  "tendency did not differ across types (medians ", .med_phrase, "; fully overlapping ranges: ",
+  .range_phrase, "). The candidate confounders also showed no significant cross-associations."
 )
 writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")
 #+ 17.6: ST5: Covariate-chemical Association Screen (reviewer #2 — Do Covariates Track the chemicals)
@@ -306,11 +305,12 @@ st5_caption <- paste0(
   "of features significant at $P < 0.05$ is reported as \\textit{n} (\\%). Approximately 5\\% of features ",
   "are expected to reach this threshold by chance alone, so the relevant comparison for each covariate is ",
   "against that 5\\% baseline rather than against zero. Collection year appears twice: as a continuous ",
-  "measure and as the categorical intervals used in Table 1. Tumor type is included as a reference row so ",
+  "measure and as the categorical bins defined in \\textbf{Table 1}. Tumor type is included as a reference row so ",
   "that the covariate associations can be read against the exposure contrast of interest using the same ",
   "metric; it is not a confounder, and the comparison is not adjusted for the differing degrees of freedom ",
-  "consumed by each variable. Effect size is reported for quantitative features only, as a median across ",
-  "the features reaching significance. Test selection and effect-size metrics are detailed in ",
+  "consumed by each variable. Effect size is reported for quantitative features only, and is the median ",
+  "$\\eta^{2}$ among the features that reached significance for that covariate. Test selection and ",
+  "effect-size metrics are detailed in ",
   "Supplementary Note 2."
 )
 writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
@@ -357,17 +357,17 @@ writeLines(build_supp_tabular(ST6_data), "Supplementary/Components/Tables/ST6.te
 st6_caption <- paste0(
   "\\textbf{Tumor-type differences in validated chemicals before and after covariate adjustment.} ",
   "Each of the ", .n_total, " validated type-differential chemicals was refit under three nested models: ",
-  "Model 1, unadjusted; Model 2, adjusted for collection year; Model 3, adjusted for collection year, age, ",
+  "Model 1, unadjusted; Model 2, adjusted for collection year (analyzed as a continuous measure); ",
+  "Model 3, adjusted for collection year, age, ",
   "and sex. Effect size is partial $\\eta^{2}$ for quantitative features and McFadden's pseudo-$R^{2}$ for ",
   "qualitative features, and should be compared only within a mode. Unadjusted \\textit{P} values for ",
-  "qualitative features differ slightly from the exact tests reported in Table 3, because a ",
+  "qualitative features differ slightly from the exact tests reported in \\textbf{Table 3}, because a ",
   "likelihood-ratio test is used throughout this table so that unadjusted and adjusted models remain ",
-  "directly comparable; every chemical is significant under both. The chemicals that lost significance ",
-  "under adjustment were marginal beforehand and are not among the findings emphasized in the manuscript. ",
-  "In a sensitivity analysis adjusting instead for the categorical collection intervals of Table 1, ",
+  "directly comparable; every chemical is significant under both. ",
+  "In a sensitivity analysis adjusting instead for the categorical bins defined in \\textbf{Table 1}, ",
   .n_binned, " of ", .n_total, " remained significant; because that parameterization discards ",
-  "within-interval variation it is reported here for completeness rather than as a primary specification. ",
-  "Full model specification is given in Supplementary Note 2. ",
+  "within-interval variation, it is summarized in this legend rather than tabulated as a fourth model. ",
+  "Full model specification is provided in Supplementary Note 2. ",
   "\\textit{$\\dagger$ Level 2 identification; $\\ddagger$ detected in 10 or fewer of the 60 samples ",
   "(minimum ", .sparse_min, "), for which covariate-adjusted estimates should be interpreted with caution.}"
 )

@@ -90,7 +90,7 @@ digraph carcinogenicity {
   node [shape = diamond, style = "filled", fillcolor = "#EEF2F7",
         color = "#8DA0B8", penwidth = 1, fixedsize = true,
         width = __DIAW__, height = __DIAH__]
-  start    [label = "Chemical with IARC group\\nand/or GHS statement",
+  start    [label = "Chemical differing\\nbetween tumor types",
             shape = box, style = "filled,rounded", fillcolor = "#DCE6F1",
             color = "#8DA0B8", fixedsize = false, width = 2.8, height = 0.7]
   q_iarc1  [label = "IARC =\\nGroup 1?"]

@@ -83,7 +83,8 @@ ST1_import <- read_excel(config$paths$primary_data, sheet = "library") |>
   ) |>
   arrange(cas)
 #- 0c.1.12: ST1 abbreviations
-ST_abbrevs <- read_excel(config$paths$primary_data, sheet = "abbreviations") |>
+#! Lives in-repo (not primary_data.xlsx) because it is display metadata, not measurement data; version-controlled so dictionary edits are diffable. Use == "Y" selects the subset shown in the supplement
+ST_abbrevs <- read_tsv(here::here("All_Run", "abbreviations.tsv"), show_col_types = FALSE, na = "") |>
   mutate(formatted = paste(Abbrev, "=", Name)) |>
   filter(Use == "Y") |>
   arrange(tolower(Abbrev)) |>
