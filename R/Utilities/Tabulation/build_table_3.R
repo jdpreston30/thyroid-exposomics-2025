@@ -121,7 +121,8 @@ build_table_3 <- function(data, export_path) {
     "\u2020 Possible, likely, or known carcinogen",
     "\u2021 Potential endocrine disrupting chemical",
     "\u00b6 Indicates level 2 identification",
-    "Abbreviations: 5-NOT = 5-Nitro-o-toluidine; DEET = N,N-Diethyl-meta-toluamide; DNOP = Di-n-octyl phthalate; MDA = 4,4'-Diaminodiphenylmethane; MEHP = Mono-2-ethylhexyl phthalate; N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = Octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; TEEP = Tetraethyl ethylenediphosphonate; TTBNP = Tris(tribromoneopentyl); UV = ultraviolet",
+    #! TTBNP (CP2302) dropped with the compound itself -- see 00c_FTs.R section 0c.1.20
+    "Abbreviations: 5-NOT = 5-Nitro-o-toluidine; DEET = N,N-Diethyl-meta-toluamide; DNOP = Di-n-octyl phthalate; MDA = 4,4'-Diaminodiphenylmethane; MEHP = Mono-2-ethylhexyl phthalate; N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = Octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; TEEP = Tetraethyl ethylenediphosphonate; UV = ultraviolet",
     sep = "\n"
   )
   writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)

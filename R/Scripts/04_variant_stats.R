@@ -112,7 +112,7 @@ print(qual_dup_removed_frags, n = Inf)
 #! Aldicarb: aldicarb_0_BP2.GC2_CP2507 > detection than aldicarb_1_BP2.GC2_CP2507
 #! Fenvalerate: Fenvalerate_1_3_BP3.GC2_CP3164 > detection than Fenvalerate_2_3_BP3.GC2_CP3165
 #! Octyl-dimethyl-PABA: Octyl-dimethyl-PABA_1_BP2.GC2_CP2331 > detection than Octyl-dimethyl-PABA_2_BP2.GC2_CP2331
-#! tris(tribromoneopentyl): tris(tribromoneopentyl)_2_BP2.GC2_CP2302 > detection than tris(tribromoneopentyl)_3_BP2.GC2_CP2302
+#! tris(tribromoneopentyl) (CP2302) removed upstream -- see 00c_FTs.R section 0c.1.20
 #- 4.3.4: Pull the duplicate fragment names for removal
 #_qual/quant duplicates
 qual_quant_dupl_removed <- dupl_check_qual_quant |>
