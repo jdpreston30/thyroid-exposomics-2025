@@ -370,7 +370,7 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 
 \noindent{\fontsize{12}{14.4}\selectfont\textbf{Table Abbreviation Dictionary}}
 
-\noindent{\fontsize{10}{12}\selectfont The supplementary tables have a substantial number of abbreviations, largely for chemical names. A full dictionary of abbreviations relevant to all tables can be found below:}
+\noindent{\fontsize{10}{12}\selectfont The supplementary data have a substantial number of abbreviations, largely for chemical names. A full dictionary of abbreviations relevant to all supplementary data can be found below:}
 
 \fontsize{10}{12}\selectfont
 \input{Sections/abbreviations.tex}

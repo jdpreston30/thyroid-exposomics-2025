@@ -49,7 +49,7 @@ MEcPP	Mono(5-carboxy-2-ethylpentyl) phthalate
 MEHHP	Mono(2-ethyl-5-hydroxyhexyl) phthalate	
 MEOHP	Mono(2-ethyl-5-oxohexyl) phthalate	
 MGK-264	McLaughlin Gormley King-264 (also known as N-2-Ethylhexylbicycloheptenedicarboximide)	
-MOCA	4,4'-Methylenebis(2-chloroaniline)	
+MOCA	4,4'-Methylenebis(2-chloroaniline)	Y
 N-MeFOSAA	N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear)	Y
 o-Dianisidine	3,3'-Dimethoxybenzidine	
 Org	organic	
@@ -74,3 +74,6 @@ MDA	4,4'-Diaminodiphenylmethane	Y
 MEHP	Mono-2-ethylhexyl phthalate	Y
 OD-PABA	Octyl-dimethyl-p-aminobenzoic acid	Y
 UV	ultraviolet	Y
+2-ABP	2-Aminobiphenyl	Y
+4-ABP	4-Aminobiphenyl	Y
+gamma-BHC	gamma-Benzenehexachloride	Y
