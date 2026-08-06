@@ -34,7 +34,8 @@ summary_table_i <- tumors_quant_sig_i |>
       pivot_longer(-variant, names_to = "name_sub_lib_id", values_to = "value") |>
       group_by(name_sub_lib_id) |>
       summarise(
-        p_value = round(summary(aov(value ~ variant))[[1]][["Pr(>F)"]][1], 4),
+        #! Full precision retained: pre-rounding to 4 dp put values like MEHP (0.009533) exactly on a 3 dp boundary, so Table 3 and ST6 rendered the same P as 0.009 vs 0.010
+        p_value = summary(aov(value ~ variant))[[1]][["Pr(>F)"]][1],
         .groups = "drop"
       ),
     by = "name_sub_lib_id"
@@ -133,6 +134,8 @@ print(qual_single_frag, n = Inf)
 short_name <- read_excel(config$paths$chemical_metadata, sheet = "feature_metadata") |>
   select(cas, name, Potential_EDC, IARC_Group, GHS_var_diff_only,Short_display_name, Graph_Class, Superclass, Table_Class, Annotation_or_Identification) |>
   rename(annot_ident = Annotation_or_Identification) |>
+  #! re-read from source, so re-apply the 00c exclusion; harmless today (left-join target only) but keeps the guarantee structural
+  drop_excluded() |>
   #! Display-casing correction pending a source fix in the feature_metadata sheet; root name is Title-Case in tables per convention
   mutate(Short_display_name = str_replace(Short_display_name, "^o-aminoazotoluene", "o-Aminoazotoluene"))
 #- 4.4.2: Bind with quant features

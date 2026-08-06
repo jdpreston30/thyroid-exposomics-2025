@@ -179,8 +179,7 @@ abbrev_latex <- c(
 writeLines(abbrev_latex, "Supplementary/Components/Sections/abbreviations.tex")
 #+ 17.4: ST3: Cohort Demographics (DTC Tumors vs Cadaver controls)
 #- 17.4.1: Assemble combined demographic frame (age, sex, sample collection timing)
-#! Collection year is binned (same scheme as Table 1's Sample_Collection_Timing) so it
-#! is summarized categorically as n (%) per bin rather than as a spurious numeric median.
+#! Collection year is binned (same scheme as Table 1's Sample_Collection_Timing) so it is summarized categorically as n (%) per bin rather than as a spurious numeric median.
 .yr_breaks <- seq(2006, 2022, length.out = 5)
 .yr_labels <- c("2006-2009", "2010-2013", "2014-2017", "2018-2021")
 demo_dtc <- tumor_pathology_raw |>
@@ -221,10 +220,7 @@ ST3_tern <- ternG(
 st3_latex <- build_ST3(ST3_tern)
 writeLines(st3_latex, "Supplementary/Components/Tables/ST3.tex")
 #+ 17.5: ST4: Candidate Confounder Assessment (reviewer #2 — confounding)
-#! Two same-structured test blocks from script 13 (covariate vs. type; covariate vs.
-#! covariate) merged under underlined section headers. The collection-year distribution
-#! reconciliation is emitted to ST4_caption.tex so its numbers are wired from R (not
-#! hand-typed) — build_ST4() styles the tabular to match ST3 (see its roxygen).
+#! Two same-structured test blocks from script 13 (covariate vs. type; covariate vs. covariate) merged under underlined section headers. The collection-year distribution reconciliation is emitted to ST4_caption.tex so its numbers are wired from R (not hand-typed) — build_ST4() styles the tabular to match ST3 (see its roxygen).
 #- 17.5.1: Merge the balance + cross-association blocks under two section headers
 #! Script 13 supplies numeric P; formatting happens here so ST3, ST4 and ST5 all round identically
 .fmt_p4 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
@@ -236,7 +232,9 @@ ST4_data <- tibble(
   Test = c("", balance_by_type$test, "", covariate_cross$test),
   P = c("", .fmt_p4(balance_by_type$P), "", .fmt_p4(covariate_cross$P)),
   .section = c(TRUE, rep(FALSE, nrow(balance_by_type)), TRUE, rep(FALSE, nrow(covariate_cross)))
-)
+) |>
+  #! t is a statistical symbol, so italicised to match the ST3 caption's "Welch's \\textit{t}-test"; the other six test names contain no symbols
+  mutate(Test = str_replace(Test, "\\bt-test\\b", "\\\\textit{t}-test"))
 #- 17.5.2: Build ST4 LaTeX (self-contained tabular) and save
 writeLines(build_ST4(ST4_data), "Supplementary/Components/Tables/ST4.tex")
 #- 17.5.3: Wire the caption deterministically from year_by_type (medians/ranges from R)
@@ -302,7 +300,7 @@ st5_caption <- paste0(
   "\\textbf{Association of candidate confounders with individual chemical features.} ",
   "Every annotated feature was tested against each candidate confounder in both analytical modes ",
   "(", .n_quant_tested, " quantitative and ", .n_qual_tested, " qualitative features), and the number ",
-  "of features significant at $P < 0.05$ is reported as \\textit{n} (\\%). Approximately 5\\% of features ",
+  "of features significant at \\textit{P} < 0.05 is reported as \\textit{n} (\\%). Approximately 5\\% of features ",
   "are expected to reach this threshold by chance alone, so the relevant comparison for each covariate is ",
   "against that 5\\% baseline rather than against zero. Collection year appears twice: as a continuous ",
   "measure and as the categorical bins defined in \\textbf{Table 1}. Tumor type is included as a reference row so ",
@@ -311,7 +309,7 @@ st5_caption <- paste0(
   "consumed by each variable. Effect size is reported for quantitative features only, and is the median ",
   "$\\eta^{2}$ among the features that reached significance for that covariate. Test selection and ",
   "effect-size metrics are detailed in ",
-  "Supplementary Note 2."
+  "\\textbf{Supplementary Note 2}."
 )
 writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
 #+ 17.7: ST6: Covariate-adjusted Tumor-type Effects (reviewer #2 — Do Findings Survive adjustment)
@@ -361,14 +359,14 @@ st6_caption <- paste0(
   "Model 3, adjusted for collection year, age, ",
   "and sex. Effect size is partial $\\eta^{2}$ for quantitative features and McFadden's pseudo-$R^{2}$ for ",
   "qualitative features, and should be compared only within a mode. Unadjusted \\textit{P} values for ",
-  "qualitative features differ slightly from the exact tests reported in \\textbf{Table 3}, because a ",
-  "likelihood-ratio test is used throughout this table so that unadjusted and adjusted models remain ",
+  "qualitative features differ from the exact tests reported in \\textbf{Table 3}, because a ",
+  "likelihood-ratio test is used throughout this table so that unadjusted and adjusted models remained ",
   "directly comparable; every chemical is significant under both. ",
   "In a sensitivity analysis adjusting instead for the categorical bins defined in \\textbf{Table 1}, ",
   .n_binned, " of ", .n_total, " remained significant; because that parameterization discards ",
   "within-interval variation, it is summarized in this legend rather than tabulated as a fourth model. ",
-  "Full model specification is provided in Supplementary Note 2. ",
-  "\\textit{$\\dagger$ Level 2 identification; $\\ddagger$ detected in 10 or fewer of the 60 samples ",
+  "Full model specification is provided in \\textbf{Supplementary Note 2}. ",
+  "\\textit{$\\dagger$ Level 2 identification; $\\ddagger$ detected in ten or fewer of the 60 samples ",
   "(minimum ", .sparse_min, "), for which covariate-adjusted estimates should be interpreted with caution.}"
 )
 writeLines(st6_caption, "Supplementary/Components/Tables/ST6_caption.tex")

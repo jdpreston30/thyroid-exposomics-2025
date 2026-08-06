@@ -31,10 +31,7 @@ build_ST4 <- function(data) {
   }
   vmat <- as.matrix(df[value_cols])
   # Header cells: 10pt bold; the statistical symbol P is italicized, others plain bold.
-  #! \raisebox{-0.5\height} centres a box ON the baseline, so half of it hangs below. Paired with a
-  #! height-only strut (all above the baseline) that reads as centred only when the box is tall enough
-  #! to fill the strut, i.e. multi-line headers. With single-line headers the text sinks to the bottom
-  #! of the row, so those get a strut with both height and depth and no raisebox instead.
+  #! \raisebox{-0.5\height} centres a box ON the baseline, so half of it hangs below. Paired with a height-only strut (all above the baseline) that reads as centred only when the box is tall enough to fill the strut, i.e. multi-line headers. With single-line headers the text sinks to the bottom of the row, so those get a strut with both height and depth and no raisebox instead.
   multiline <- any(grepl("shortstack", c(label_col, value_cols), fixed = TRUE))
   hdr_cell <- function(h) {
     inner <- if (h == "P") "\\textit{P}" else h

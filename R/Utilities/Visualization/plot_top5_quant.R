@@ -126,7 +126,8 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       limits = c(-2.3, 3)
     ) +
     labs(
-      x = "Peak Area Z-Score",
+      #! z-score is a variable symbol, so lowercase italic z per AMA/APA and Methods 2.6; expression() rather than ggtext to avoid adding a theme dependency for one label
+      x = expression(paste(bold("Peak Area "), bolditalic(z), bold("-score"))),
       y = NULL,
       fill = NULL
     ) +

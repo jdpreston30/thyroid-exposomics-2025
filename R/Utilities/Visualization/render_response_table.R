@@ -65,8 +65,7 @@ render_response_table <- function(data, path, title = NULL, footnote = NULL,
   tg <- gtable::gtable_add_grob(tg, hline(1, 1.4), t = 1, b = 1, l = 1, r = ncol(tg))
   tg <- gtable::gtable_add_grob(tg, hline(0, 0.8), t = 1, b = 1, l = 1, r = ncol(tg))
   tg <- gtable::gtable_add_grob(tg, hline(0, 1.4), t = nrow(tg), b = nrow(tg), l = 1, r = ncol(tg))
-  #! Heights are accumulated per-part and summed, so the canvas is derived from the actual
-  #! grobs rather than padding constants; a multi-line footnote would otherwise be clipped.
+  #! Heights are accumulated per-part and summed, so the canvas is derived from the actual grobs rather than padding constants; a multi-line footnote would otherwise be clipped.
   parts <- list()
   hts <- list()
   if (!is.null(title)) {
@@ -79,8 +78,7 @@ render_response_table <- function(data, path, title = NULL, footnote = NULL,
   hts <- c(hts, list(sum(tg$heights)))
   w_tbl <- grid::convertWidth(sum(tg$widths), "in", valueOnly = TRUE)
   if (!is.null(footnote)) {
-    #! Wrap over-long lines to the table width; existing \n breaks are preserved, so a
-    #! footnote wider than the table neither clips nor forces a banner-wide canvas.
+    #! Wrap over-long lines to the table width; existing \n breaks are preserved, so a footnote wider than the table neither clips nor forces a banner-wide canvas.
     fgp <- grid::gpar(fontfamily = font_family, fontface = "italic", fontsize = base_size - 1.5)
     footnote <- paste(unlist(lapply(strsplit(footnote, "\n", fixed = TRUE)[[1]], function(ln) {
       if (!nzchar(ln)) return(ln)

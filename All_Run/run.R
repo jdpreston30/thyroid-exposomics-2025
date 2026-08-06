@@ -1,5 +1,4 @@
 {
-#! Captured here rather than in script 19 because 19 runs last and cannot know when the pipeline began
 .pipeline_start <- Sys.time()
 source("R/Utilities/Helpers/restore_renv.R")
 source("R/Utilities/Helpers/load_dynamic_config.R")

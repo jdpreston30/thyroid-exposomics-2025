@@ -12,10 +12,13 @@ bp3_cadaver <- read_csv(file.path(config$paths$peakwalk_cadaver_dir, "BP3.GC2/fe
 #- 0d.2.1: Tumors
 combined_peakwalk_tumor <- bind_rows(bp1_tumor, bp2_tumor, bp3_tumor) |>
   select(-...1) |>
+  #! drop_excluded() (defined in 00c) applied here rather than on the *_rt_long frames, which keep only id_subid/file/rt -- none of its key columns -- so a call there would be a silent no-op
+  drop_excluded() |>
   mutate(id_subid = paste0(id, "_", subid))
 #- 0d.2.2: Cadaver
 combined_peakwalk_cadaver <- bind_rows(bp1_cadaver, bp2_cadaver, bp3_cadaver) |> 
   select(-...1) |>
+  drop_excluded() |>
   mutate(id_subid = paste0(id, "_", subid))
 #+ 0d.3: Import RT Data
 #- 0d.3.1: Tumors RT tables from PeakWalk
@@ -30,10 +33,12 @@ bp3_cadaver_rt <- read_csv(file.path(config$paths$peakwalk_cadaver_dir, "BP3.GC2
 #- 0d.4.1: Tumors
 combined_peakwalk_tumor_rt <- bind_rows(bp1_tumor_rt, bp2_tumor_rt, bp3_tumor_rt) |>
   select(-...1) |>
+  drop_excluded() |>
   mutate(id_subid = paste0(id, "_", subid))
 #- 0d.4.2: Cadaver
 combined_peakwalk_cadaver_rt <- bind_rows(bp1_cadaver_rt, bp2_cadaver_rt, bp3_cadaver_rt) |> 
   select(-...1) |>
+  drop_excluded() |>
   mutate(id_subid = paste0(id, "_", subid))
 #+ 0d.5: Simplify RT Tables for Lookup
 #- 0d.5.1: Tumors - pivot to long format with id_subid, file, and rt
