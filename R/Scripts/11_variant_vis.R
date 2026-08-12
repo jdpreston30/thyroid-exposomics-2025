@@ -82,4 +82,5 @@ qualitative_heatmap_data <- qualitative_heatmap_data_i |>
   mutate(short_name = str_replace_all(short_name, "\\*", "ᵃ")) |>
   mutate(short_name = factor(short_name, levels = str_replace_all(compound_order, "\\*", "ᵃ")))
 #- 11.4.5: Create heatmap
+#! Line weights are the approved Figure 3 values, held as defaults in plot_qualitative_heatmap() -- set from a measured render, so override here only against another one.
 p3B <- plot_qualitative_heatmap(qualitative_heatmap_data)

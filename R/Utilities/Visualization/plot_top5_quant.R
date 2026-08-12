@@ -10,7 +10,8 @@
 #' @return ggplot object or list with plot and legend if return_legend = TRUE
 #' @export
 #' 
-plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, add_cld = FALSE) {
+plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, add_cld = FALSE,
+                            axis_text_size = 10, axis_title_size = 12) {
   
   # Get short names from MT_final if not provided
   if (is.null(compound_names)) {
@@ -108,7 +109,9 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
   # Create plot (flipped coordinates)
   p <- ggplot(data_long, aes(x = z_score, y = variant, fill = variant, color = variant)) +
     geom_boxplot(outlier.shape = NA, alpha = 0.5, linewidth = 0.5, show.legend = TRUE) +
-    geom_jitter(height = 0.15, width = 0, size = 0.5, alpha = 1, show.legend = FALSE) +
+#! Seeded, so 3A's dots land identically on every draw -- unseeded jitter re-randomises per DRAW, not per build, so PNG/TIFF/PDF of one figure object disagreed. Matches seed = 42 in plot_iarc and plot_detection_scatter. geom_point, since geom_jitter() errors if given both position and width/height.
+    geom_point(position = position_jitter(height = 0.15, width = 0, seed = 42),
+               size = 0.5, alpha = 1, show.legend = FALSE) +
     facet_wrap(~chemical, ncol = 1, scales = "fixed", strip.position = "left", drop = FALSE) +
     scale_fill_manual(
       values = variant_colors_fill,
@@ -156,10 +159,20 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       strip.background = element_blank(),
       strip.text.y.left = element_text(angle = 0, hjust = 1, face = "bold", size = 9),
       strip.placement = "outside",
-      axis.text.x = element_text(face = "bold", size = 8),
+#! 10 to match 3B/3D/3E/3F's tick labels. Was 8 -- the smallest text in the figure, on the widest
+#! panel, which inverted the relationship between available space and type size.
+      axis.text.x = element_text(face = "bold", size = axis_text_size),
       axis.text.y = element_blank(),
       axis.ticks.y = element_blank(),
-      axis.title.x = element_text(face = "bold", size = 10),
+#! .x specifically, because axis.ticks.y is blanked above -- a bare axis.ticks would depend on order.
+#! 0.8 matches plot_iarc (3E/3F) and plot_carcinogen_stacked (3D). Previously unset, so it inherited
+#! theme_classic's base_line_size = base_size/22 = 0.4545, which rendered 4 px vs their 7 px at 300 dpi.
+      axis.ticks.x = element_line(color = "black", linewidth = 0.8),
+#! Absolute 0.15 cm to match 3D/3E/3F. theme_classic stores this as rel(0.5) against base_size, so at
+#! base_size = 10 it resolved to 2.5 pt (10.4 px at 300 dpi) versus their 17.7 px -- 59% as long.
+      axis.ticks.length = unit(0.15, "cm"),
+#! 12 to match 3D/3E/3F's axis titles. Sits directly above 3B/3C, so check clearance at y ~ 6.56.
+      axis.title.x = element_text(face = "bold", size = axis_title_size),
       axis.line = element_blank(),
       legend.position = "top",
       legend.justification = "center",
@@ -173,8 +186,15 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
       legend.spacing.x = unit(0.15, "cm"),
       legend.spacing.y = unit(0.02, "cm"),
       legend.box.spacing = unit(0, "cm"),
+#! Back to 0 so adjacent panel.border edges coincide and each internal divider renders as ONE line at
+#! the border linewidth, not a separated pair.
       panel.spacing = unit(0, "lines"),
-      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.3)
+#! 0.379 = 9 px at 800 dpi, measured, matching tile_linewidth in plot_qualitative_heatmap() so 3A's facet
+#! dividers and 3B's cell dividers read as the same weight. Was 0.337 (8 px). thickness_in = linewidth *
+#! 2.845276 / 96 holds here because adjacent panel.border edges coincide, so the full stroke is drawn.
+#! panel.border is per-panel and cannot differ between the outer edge and the facet dividers, so it is
+#! set to the DIVIDER weight here; the heavier outer frame comes from add_panel_frame() in 14.
+      panel.border = element_rect(color = "black", fill = NA, linewidth = 0.379)
     )
   
   # If return_legend is TRUE, extract legend and return both

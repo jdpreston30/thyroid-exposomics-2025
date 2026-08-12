@@ -56,16 +56,18 @@ fig2 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   ))
 #+ 14.4: Figure 3
 fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
-  draw_plot(p3A,
+#! add_panel_frame() draws the outer frame at 0.8 while panel.border stays 0.379 for the facet dividers -- panel.border is per-panel, so one setting cannot weight the outer edge and the dividers differently, and its outermost edge is half-clipped where the coincident inner edges are not. Extents are read from the gtable, so the frame tracks the panel block without hardcoded coordinates.
+  draw_plot(add_panel_frame(p3A, linewidth = 0.8),
     x = 0.75, y = 6.838,
     width = 7, height = 3.5
   ) +
+#! B/C shifted up 0.02 in to even the whitespace above and below the row: started at 246 rows above vs 216 below at 800 dpi, and 0.02 leaves 231/231. B and C move by the same amount to hold their relative position; their legends live inside p3B/p3C and travel with them.
   draw_plot(p3B,
-    x = 0.7258, y = 2.889133,
+    x = 0.7258, y = 2.889133 + 0.02,
     width = 3.346663, height = 3.74233
   ) +
   draw_plot(p3C,
-    x = 3.96875, y = 2.935833,
+    x = 3.96875, y = 2.935833 + 0.02,
     width = 4, height = 3.75
   ) +
   draw_plot(p3D,
@@ -83,8 +85,8 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
   # Labels
   figure_labels(list(
     A = c(0.785, 10.125),
-    B = c(0.785, 6.563333),
-    C = c(4.14, 6.563333),
+    B = c(0.785, 6.563333 + 0.02),
+    C = c(4.14, 6.563333 + 0.02),
     D = c(0.785, 2.75),
     E = c(3.424, 2.75),
     F = c(5.709, 2.75),
