@@ -126,32 +126,17 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami Te
 
 \vspace{0.5em}
 
-\begingroup
-\setlength{\abovedisplayskip}{2pt plus 1pt minus 1pt}
-\setlength{\belowdisplayskip}{9pt plus 2pt minus 1pt}
-\setlength{\abovedisplayshortskip}{1pt plus 1pt}
-\setlength{\belowdisplayshortskip}{8pt plus 2pt minus 1pt}
+\noindent \textbf{Quantitative estimates of chemical concentrations in tissues:} The standard reference material (SRM) used for annotation and identification had a concentration of 0.47 ng/mL for each individual environmental chemical (EC). Thus, we used the spectral intensities associated with these known concentrations to estimate chemical concentrations in tissues in parts per billion (ppb). It should be noted that the original data processing pipeline used a nominal concentration of 0.5 ng/mL for calibration calculations; therefore, a correction factor of 0.94 (0.47/0.5) was applied to all concentration estimates prior to ppb calculations to account for the true SRM concentration. Importantly, we relied on the following experimental features and assumptions:
 
-\noindent \textbf{Quantitative estimates of chemical concentrations in tissues:} The standard reference material (SRM) used for annotation and identification had a concentration of 0.47 ng/mL for each individual environmental chemical (EC). Thus, we used the spectral intensities associated with these known concentrations to estimate chemical concentrations in tissues in parts per million (ppm) and parts per billion (ppb). It should be noted that the original data processing pipeline used a nominal concentration of 0.5 ng/mL for calibration calculations; therefore, a correction factor of 0.94 (0.47/0.5) was applied to all concentration estimates prior to ppm and ppb calculations to account for the true SRM concentration. Importantly, we relied on the following experimental features and assumptions:
-
-\vspace{-0.7em}
 \begin{itemize}
-\setlength{\itemsep}{2pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
 \item Tissues are processed via solvent extraction and subsequent solvent evaporation, followed by reconstitution in 50 $\mu$L of isooctane. For the purposes of calculating concentrations in the original samples, we assume 100\% extraction efficiency from tissues and plasma, such that the entire amount of the EC present in the sample is recovered in the isooctane.
 \item A chemical concentration of 0 ng/mL results in an intensity of 0 (i.e., the origin of (0,0)). This is used in combination with the intensity from the known concentration in the SRM (0.47 ng/mL) to establish a two-point standard curve, which assumes linearity.
 \item While each chemical has a concentration in the SRM of 0.47 ng/mL, the concentration in 50 $\mu$L of isooctane is 1.88 ng/mL. This is because 200 $\mu$L of SRM plasma is used, and therefore, 0.094 ng of the total EC of interest is extracted. This is dried after extraction and reconstituted in 50 $\mu$L of isooctane, resulting in a concentration of 1.88 ng/mL in the injected solution.
 \end{itemize}
-\vspace{-0.7em}
 
 \noindent Our calculations to estimate tissue concentrations were performed as follows for each individual chemical:
 
-\vspace{-0.5em}
 \begin{enumerate}
-\setlength{\itemsep}{3pt}
-\setlength{\parskip}{0pt}
-\setlength{\parsep}{0pt}
 \item A linear model is fit based on the assumptions discussed above, such that:
 \[ y = \beta x \]
 where $y$ is the known concentration of the EC in the SRM (0.47 ng/mL for all ECs analyzed), $x$ is the observed spectral intensity for the given EC, and $\beta$ is the slope of the calibration curve, defined by the line through the origin (0,0) and the point $(x,y)$.
@@ -169,15 +154,12 @@ where $I$ is the observed spectral intensity for the given EC in the sample. How
 \[ M_{EC} \text{ (mg)} = C_{es} \text{ (mg/L)} \times 50 \text{ } \mu\text{L solvent} \times \frac{10^{-6} \text{ L}}{\mu\text{L}} \]
 \[ M_{EC} \text{ (mg)} = 5 \times 10^{-5} \text{ (L)} \times C_{es} \text{ (mg/L)} \]
 
-\item To derive the mass fraction of the EC in tissue, we divide $M_{EC}$ (mg) by $M_T$ (mg) and scale to ppm or ppb:
-\[ \text{ppm} = \frac{M_{EC}}{M_T} \times 10^{6} \]
+\item To derive the mass fraction of the EC in tissue, we divide $M_{EC}$ (mg) by $M_T$ (mg) and scale to ppb:
 \[ \text{ppb} = \frac{M_{EC}}{M_T} \times 10^{9} \]
 
 \noindent Alternatively, when algorithm outputs are used directly without unit conversions, the following formula can be used, provided $C_e$ is in ng/mL and $M_T$ is in mg:
-\[ \text{ppm} = \frac{C_e \times 10^{2}}{M_T} \]
-\[ \text{ppb} = \frac{C_e \times 10^{5}}{M_T} \]
+\[ \text{ppb} = \frac{200 \, C_e}{M_T} \]
 \end{enumerate}
-\endgroup
 
 \newpage
 

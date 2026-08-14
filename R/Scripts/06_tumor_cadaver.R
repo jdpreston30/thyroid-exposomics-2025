@@ -1,11 +1,12 @@
 #* 6: Tumor/Cadaver Comparison
+#! ppm = 0.2*Ce/M_T, ppb = 200*Ce/M_T. Ce is plasma-equivalent ng/mL, so mass = Ce * 0.200 mL = 0.2*Ce ng, and ng/mg IS ppm. The former 10^2/10^5 constants were 500x high (a dropped 10^-3 when the steps were collapsed, and the 4x reconstitution factor applied as 2x); see Supplementary Note 1.
 #+ 6.1: Estimate PPM/PPB for Cadaver Thyroid
 #- 6.1.1: Normalize by tissue weight, compute PPM/PPB
 cadaver_qraw <- cadaver_qraw_i |>
   left_join(cadaver_tissue_wts, by = "control_ID") |>
   mutate(
-    PPM = (Ce * 10^2) / weight_mg,
-    PPB = (Ce * 10^5) / weight_mg
+    PPM = (Ce * 0.2) / weight_mg,
+    PPB = (Ce * 200) / weight_mg
   ) |>
   select(name_sub_lib_id, control_ID, PPM, PPB)
 #- 6.1.2: Create PPM feature table
@@ -57,8 +58,8 @@ ppm_ppb_long <- conc_raw |>
   mutate(C = as.numeric(gsub(",", "", Ce))) |>
   left_join(weights, by = "patient_ID") |>
   mutate(
-    PPM = (Ce * 10^2) / weight_mg,
-    PPB = (Ce * 10^5) / weight_mg
+    PPM = (Ce * 0.2) / weight_mg,
+    PPB = (Ce * 200) / weight_mg
   ) |>
   select(name_sub_lib_id, patient_ID, PPM, PPB)
 #- 6.2.3: Create PPM feature table

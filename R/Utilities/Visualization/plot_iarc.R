@@ -6,7 +6,7 @@
 #' @param data A data frame with the following columns:
 #'   \describe{
 #'     \item{tumor_vs_ctrl}{Character indicating sample type ("Thyroid Tumor Tissue" or "Non-Cancer Cadaver Thyroids")}
-#'     \item{concentration}{Numeric concentration value in ppm}
+#'     \item{concentration}{Numeric concentration value in ppm; converted to ppb for display}
 #'   }
 #' @param chemical_name Character string for the chemical name to display on x-axis
 #' @param p_value Optional numeric p-value from statistical test (e.g., Wilcoxon).
@@ -18,7 +18,7 @@
 #' @details
 #' The plot includes:
 #' \itemize{
-#'   \item Y-axis: Logarithmic scale from 10^-4 to 10^3 ppm
+#'   \item Y-axis: Logarithmic scale in ppb, limits derived from the data
 #'   \item X-axis: Chemical name (no axis label)
 #'   \item Violin plots with 50% alpha fill
 #'   \item Overlaid jittered points
@@ -49,7 +49,10 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
   
   # Recode tumor_vs_ctrl to match expected values and create labels with line breaks
   plot_data <- data |>
+#! Incoming concentration is ppm (ppm_full_table); displayed as ppb to match Table 4 and the
+#! literature comparators. Converted here, not at the call sites, so 3E and 3F cannot diverge.
     mutate(
+      concentration = concentration * 1000,
       # Map "Control"/"Tumor" to full names for color matching
       tumor_vs_ctrl_full = case_when(
         tumor_vs_ctrl == "Control" ~ "Non-Cancer Cadaver Thyroids",
@@ -127,7 +130,7 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
     ) +
     labs(
       x = NULL,
-      y = "log(ppm)",
+      y = "log(ppb)",
       title = chemical_name,
       fill = NULL,
       color = NULL
