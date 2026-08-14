@@ -23,6 +23,7 @@ paths:
   validation_plot_directory_onedrive: "{base_data_path}/validation_plots"  # OneDrive final location
 
   # Raw MS data directories for spectral validation
+  # GC1 in the tumor folder name is a mislabel; both batches ran on GC2 -- see convert_raw_to_mzml.R
   tumor_raw_dir: "{base_data_path}/Tumors/GC080_GC1_M524_Thyroid_Tissue_12082022"
   cadaver_raw_dir: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024/ThyroidTissue_08222024"
   cadaver_metadata: "{base_data_path}/Cadaver/donor_info/cadaver_metadata.xlsx"

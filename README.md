@@ -98,7 +98,7 @@ source("All_Run/run.R")
 │   ├── config_dynamic.yaml     # Analysis configuration (update paths for your system)
 │   └── run.R                   # Main pipeline execution script
 ├── R/                          # Analysis code
-│   ├── Scripts/                # Analysis workflow scripts (00a-18)
+│   ├── Scripts/                # Analysis workflow scripts (00a-19)
 │   │   ├── 00a_environment_setup.R
 │   │   ├── 00b_setup.R
 │   │   ├── 00c_FTs.R
@@ -120,7 +120,8 @@ source("All_Run/run.R")
 │   │   ├── 15_render_supplementary_figures.R
 │   │   ├── 16_tables.R
 │   │   ├── 17_supplementary_tables.R
-│   │   └── 18_construct_supplementary.R
+│   │   ├── 18_construct_supplementary.R
+│   │   └── 19_session_info.R
 │   └── Utilities/              # Custom analysis functions
 │       ├── Analysis/           # Statistical and carcinogen classification
 │       ├── Clinical/           # AJCC 8th ed. staging and T-category assignment
@@ -162,6 +163,7 @@ The complete pipeline executes in sequence:
 11. **14-15**: Render main and supplementary figures
 12. **16-17**: Generate manuscript and supplementary tables
 13. **18**: Construct supplementary materials document
+14. **19**: Write `SESSION_INFO.txt` session record
 
 ## 💻 System Requirements
 
