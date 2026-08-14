@@ -1,3 +1,4 @@
+#! INSTRUMENT ATTRIBUTION -- the GC1/GC2 labels in the archived OneDrive folder names are hand-applied and WRONG for the tumor batch. The instrument is identified by the acquisition host written at byte offset 98 of every .raw (HOSTNAME\account, plus its D: data root): GC2 = BJFCY23 with root Clinlc_Biomarkers_Laboratory_SSL; GC1 = THERMO-GC1 with root GC1_Clinic_Biomarkers_Lab_SSL. BOTH thyroid batches (GC080 tumor, GC097 cadaver) are BJFCY23, i.e. GC2 -- verified across 23 files spanning May 2022 to Aug 2024 and 15 studies, and the two hosts coexist in 2026 (GC115 batch on THERMO-GC1, GC116 batch on BJFCY23), which rules out a rename. The instrument never writes a GC1/GC2 token itself. 126 mzML still carry GC080_GC1_M524 in sourceFile@location; left as-is deliberately -- it is descriptive provenance that nothing resolves, and MS:INSTRUMENT_NAME in the mwTab is the authoritative field.
 {
 .pipeline_start <- Sys.time()
 source("R/Utilities/Helpers/restore_renv.R")

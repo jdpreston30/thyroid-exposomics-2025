@@ -3,7 +3,8 @@
 ## 📖 Citation
 
 This code is associated with the analysis presented in the following manuscript:
-> Preston et al. (2025). Environmental Chemical Burden in Differentiated Thyroid Cancer. (submitted).
+> Preston et al. (2026). Environmental Chemical Burden in Differentiated Thyroid Cancer.
+> *Environmental International* (submitted).
 
 ## 📝 Terminology Note (code vs. manuscript)
 
@@ -17,14 +18,39 @@ Per the 2022 WHO Classification of Thyroid Tumours (Jung et al., 2022; WHO Class
 - **No raw data files** are included in this repository
 - **All instructions below assume you have obtained data files or are using your own data**
 - **To reproduce this analysis**: Contact the first author (Joshua D. Preston, joshua.preston@emory.edu) or senior author (M. Ryan Smith, matthew.ryan.smith@emory.edu) to obtain the data files—this is the easiest and recommended approach
-- **Public data access**: Raw GC-MS data will be made publicly available upon manuscript acceptance
+- **Public data access**: Open-format spectra (`.mzML`) are deposited at Metabolomics Workbench — link TBD, added on publication. Vendor `.raw` files are **not** deposited (see below)
 - **To run analyses with your own data or provided data files**: Update file paths in `All_Run/config_dynamic.yaml` to match your system
 
-### Option 1: Using Docker (Recommended for Exact Reproducibility)
+## 📤 Metabolomics Workbench deposition
 
-**Status**: In Progress
+Open-format spectra (`.mzML`) for all 191 acquisitions across both batches are deposited at the NIH
+Common Fund's National Metabolomics Data Repository, **Metabolomics Workbench**.
 
-### Option 2: Manual Installation (Without Docker)
+**Deposit link: TBD** — Study ID, Project ID and DOI will be added here on publication.
+
+Three things about that deposit are worth knowing before you try to reproduce anything from it.
+
+**Deposited filenames are batch-prefixed.** Every file is named `GC080_*` (DTC tumor batch,
+Dec 2022) or `GC097_*` (non-cancer cadaver batch, Aug 2024). The prefix exists because 26
+QC/blank/standard filenames are byte-identical across the two runs — `wash-1_1`, `BP1_1`,
+`Qstd-1_1` and so on — so a single flat archive would otherwise collide on 52 files. Prefixing every
+file, rather than only the colliding ones, keeps the archive self-describing: batch is readable from
+any filename.
+
+**The original acquisition name is published for every file** as `acquisition_file` in the
+`SUBJECT_SAMPLE_FACTORS` block, alongside `study` (`tumor`/`cadaver`) and `analytical_batch`. That is
+the name this pipeline uses internally, and it is what the spectral-validation panels in Supplementary
+Figures S2-S4 print as `Sample:`. A published panel therefore maps directly onto a deposited file.
+
+**The validation figures were not generated from the deposited mzML.** `convert_raw_to_mzml.R`
+produces a separate conversion into `mzML_validation/` from the vendor `.raw` files, and the figure
+code reads only from there. The `.raw` files are not deposited — they carry biorepository specimen
+accessions in their `Sample name` field, which cannot be removed without corrupting the format, and
+those identifiers are not publicly shareable. Reproducing the validation figures from the deposit
+means substituting the deposited mzML, which derive from the same acquisitions but a different
+conversion run: equivalent inputs, not byte-identical ones.
+
+### Installation
 
 **Prerequisites**: 
 - R >= 4.5.1
@@ -67,6 +93,7 @@ source("All_Run/run.R")
 ```
 ├── DESCRIPTION                 # R package dependencies
 ├── renv.lock                   # Exact package versions for reproducibility
+├── SESSION_INFO.txt            # Session record from the manuscript run
 ├── All_Run/                    # Pipeline execution
 │   ├── config_dynamic.yaml     # Analysis configuration (update paths for your system)
 │   └── run.R                   # Main pipeline execution script
@@ -96,6 +123,7 @@ source("All_Run/run.R")
 │   │   └── 18_construct_supplementary.R
 │   └── Utilities/              # Custom analysis functions
 │       ├── Analysis/           # Statistical and carcinogen classification
+│       ├── Clinical/           # AJCC 8th ed. staging and T-category assignment
 │       ├── Helpers/            # Helper functions (config, validation, tables)
 │       ├── Tabulation/         # Table generation (demographics, supplementary)
 │       ├── Terminal/           # Terminal helper functions
@@ -109,11 +137,13 @@ source("All_Run/run.R")
 │       ├── initial_compile/    # Initial validation compilation
 │       ├── revised/            # Revised validation plots
 │       └── top_fragments/      # Top fragment validations
-├── Supplementary/              # Materials for compiled supplementary PDF
-│   ├── Components/             # R Markdown components
-│   └── Build_Logs/             # LaTeX build logs
-└── metadata_files/             # Chemical metadata, libraries, etc.
+└── Supplementary/              # Materials for compiled supplementary PDF
+    ├── Components/             # R Markdown components
+    └── Build_Logs/             # LaTeX build logs
 ```
+
+Chemical metadata and reference libraries live outside the repository (OneDrive); paths are set in
+`All_Run/config_dynamic.yaml`.
 
 ## 🔬 Analysis Workflow
 
@@ -128,9 +158,10 @@ The complete pipeline executes in sequence:
 7. **06**: Tumor vs cadaver control comparisons
 8. **07-10**: Spectral validation workflow (preparation, execution, plotting, cleanup)
 9. **11-12**: Variant and IARC carcinogen visualizations
-10. **13-14**: Render main and supplementary figures
-11. **15-16**: Generate manuscript and supplementary tables
-12. **17**: Construct supplementary materials document
+10. **13**: Confounding analysis (age, sex, collection timing)
+11. **14-15**: Render main and supplementary figures
+12. **16-17**: Generate manuscript and supplementary tables
+13. **18**: Construct supplementary materials document
 
 ## 💻 System Requirements
 
@@ -147,15 +178,11 @@ The complete pipeline executes in sequence:
   - Installation: `~/bin/ThermoRawFileParser/`
   - Download: https://github.com/compomics/ThermoRawFileParser
 
-*Note: System dependencies will be automatically installed in the Docker container (In Progress). For manual installation, see above.*
 
 ## 📦 Package Dependencies
 
-All R package dependencies are specified in `DESCRIPTION`. Key packages include:
-
-### CRAN and Bioconductor Packages
-
-*See `DESCRIPTION` file for complete list of all dependencies.*
+All CRAN, Bioconductor and GitHub dependencies are declared in `DESCRIPTION` and pinned in
+`renv.lock`. See those files for the complete, authoritative list.
 
 ## 🔄 Reproducibility Features
 
@@ -164,8 +191,6 @@ This project implements best practices for computational reproducibility:
 - ✅ **Version Control**: Complete analysis code on GitHub
 - ✅ **Package Management**: `renv` with `renv.lock` pinning all packages to exact versions
 - ✅ **Dependency Declaration**: All dependencies specified in `DESCRIPTION` with automatic loading
-- ✅ **Containerization**: In Progress
-- ✅ **Docker Hub Distribution**: In Progress
 - ✅ **Configuration-Driven**: All parameters in `config_dynamic.yaml` (computer-specific paths)
 - ✅ **Dynamic Path Resolution**: Automatic detection of computer/user for path configuration
 - ✅ **Documentation**: Comprehensive function documentation (roxygen2 style) and workflow comments
@@ -187,5 +212,4 @@ This project implements best practices for computational reproducibility:
 ---
 
 **Repository**: https://github.com/jdpreston30/thyroid-exposomics-2025  
-**Docker Hub**: In Progress  
-**Zenodo Archive**: In Progress
+**Metabolomics Workbench**: TBD

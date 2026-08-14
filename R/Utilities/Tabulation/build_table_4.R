@@ -15,6 +15,7 @@
 build_table_4 <- function(ppm_full_table, ST1_tibble, literature_ST3,
                            validation_check_files_unfiltered, export_path) {
   library(openxlsx)
+#! PCB-138 (35065-28-2) and PCB-153 (35065-27-1) are legitimately quantified and stay in Table 4. An older standard list flags them as mixture-sourced and therefore uncalibratable; that list is out of date. The preparation actually used was a newer 10 ug/mL per-congener standard, which propagates correctly through the BP1 dilution to the same reference concentration as every other EC (nominal 0.5 ng/mL, corrected to 0.47 by the 0.94 factor applied at import in 00c_FTs.R). Their ppb estimates rest on the same calibration as everything else in this table -- do not exclude them.
 #_ Vector of selected CAS numbers
 selected_ST3_cas <- c(
   "83-32-9", "208-96-8", "120-12-7", "56-55-3", "205-99-2", "207-08-9", "50-32-8", "218-01-9",
