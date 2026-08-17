@@ -99,6 +99,13 @@ ST3_tibble_flat <- ST3_tibble_2 |>
   mutate(
     Name = gsub("[\u2020\u2021]", "", Name),
     Name = gsub("\\*", "", Name),
+#! AT_ref is blank in primary_data.xlsx for four PAHs (benz(a)anthracene, benzo(b)fluoranthene, chrysene, dibenz(a,h)anthracene), so their adipose values printed with no citation. The values are Mlyczynska 2023 -- verified cell by cell against the paper: 0.14/1.11, 0.21/0.54, 0.14/0.38, 0.11/0.49 all appear in its adipose tables. Backfilled here rather than in the spreadsheet, matching the TTBNP precedent in 00c_FTs.R: in code at the external-data gateway so it is version-controlled and reversible.
+    AT_ref = if_else(is.na(AT_ref) & !is.na(AT_manuscript) &
+                       CAS %in% c("56-55-3", "205-99-2", "218-01-9", "53-70-3"),
+                     "mlyczynska2023", AT_ref),
+#! Benz(a)anthracene (56-55-3) is entered as "< 1" but its highest adipose mean is 1.11 ng/g (Polish omental, Mlyczynska Table 3), so by this table's own rule -- highest mean across any cohort/depot, rounded to the nearest integer -- it must read 1. Only its French means (max 0.17, Table 2) are below 1, which is likely how the "< 1" arose. The other three backfilled above genuinely max below 1 (0.54, 0.38, 0.49) and stay "< 1".
+    AT_manuscript = if_else(CAS == "56-55-3" & trimws(AT_manuscript) == "< 1",
+                            "1", AT_manuscript),
     `Adipose Tissue (ppb)` = case_when(
       !is.na(AT_manuscript) & !is.na(AT_ref) ~
         paste0(AT_manuscript, resolve_ref(AT_ref)),
