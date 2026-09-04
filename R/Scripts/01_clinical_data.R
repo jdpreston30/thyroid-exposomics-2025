@@ -11,7 +11,7 @@ clinical_data <- tumor_pathology_raw |>
   assign_T_cat(ld_col = "LD", ete_col = "ETE", units = "cm", out_col = "T_stage_comp") |>
     mutate(year_bin = cut(as.numeric(year),
     breaks = seq(2006, 2022, length.out = 5),
-    labels = c("2006-2009", "2010-2013", "2014-2017", "2018-2021"),
+    labels = c("2006–2009", "2010–2013", "2014–2017", "2018–2021"),
     include.lowest = TRUE
   )) |>
   mutate(

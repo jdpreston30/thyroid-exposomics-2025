@@ -67,6 +67,10 @@ MWB/
 # Validation files (generated outputs, transferred to OneDrive)
 Outputs/Validation/temp_RDS/
 
+# Literature-review source material and CDC Biomonitoring extracts backing Table 4
+Outputs/Tables/Literature/
+Outputs/Tables/T4_CDC_biomonitor/
+
 # IDE
 .vscode/
 .idea/
@@ -78,3 +82,9 @@ Outputs/Validation/temp_RDS/
 # Clean markdown renders of the (unpublished) manuscript + reviewer response
 .diagnostic/rendered/
 .diagnostic/read_docs.sh
+
+# Punch list and agent working files (unpublished manuscript text — never commit)
+.A/
+
+# Claude Code local permission rules (machine-specific absolute paths)
+.claude/

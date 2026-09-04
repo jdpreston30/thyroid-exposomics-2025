@@ -90,7 +90,8 @@ plot_edc_donut <- function(edc_data) {
       "text",
       x = 0.4,
       y = 0.5,
-      label = "Endocrine Disrupting Chemicals",
+#! Hyphenated: compound modifier before "Chemicals", matching the abstract and the EDC dictionary entry.
+      label = "Endocrine-Disrupting Chemicals",
       fontface = "bold",
       size = 10 / .pt,
       family = "Arial",

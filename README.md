@@ -18,15 +18,20 @@ Per the 2022 WHO Classification of Thyroid Tumours (Jung et al., 2022; WHO Class
 - **No raw data files** are included in this repository
 - **All instructions below assume you have obtained data files or are using your own data**
 - **To reproduce this analysis**: Contact the first author (Joshua D. Preston, joshua.preston@emory.edu) or senior author (M. Ryan Smith, matthew.ryan.smith@emory.edu) to obtain the data files—this is the easiest and recommended approach
-- **Public data access**: Open-format spectra (`.mzML`) are deposited at Metabolomics Workbench — link TBD, added on publication. Vendor `.raw` files are **not** deposited (see below)
+- **Public data access**: Open-format spectra (`.mzML`) and the processed feature tables are deposited at Metabolomics Workbench, [Study ST005162](https://doi.org/10.21228/M87P2Q). Vendor `.raw` files are **not** deposited (see below)
 - **To run analyses with your own data or provided data files**: Update file paths in `All_Run/config_dynamic.yaml` to match your system
 
 ## 📤 Metabolomics Workbench deposition
 
-Open-format spectra (`.mzML`) for all 191 acquisitions across both batches are deposited at the NIH
-Common Fund's National Metabolomics Data Repository, **Metabolomics Workbench**.
+Open-format spectra (`.mzML`) for all 191 acquisitions across both batches, together with the
+processed feature tables, are deposited at the NIH Common Fund's National Metabolomics Data
+Repository, **Metabolomics Workbench**.
 
-**Deposit link: TBD** — Study ID, Project ID and DOI will be added here on publication.
+| | |
+|---|---|
+| Project ID | PR003330 |
+| Study ID | ST005162 |
+| Project DOI | https://doi.org/10.21228/M87P2Q |
 
 Three things about that deposit are worth knowing before you try to reproduce anything from it.
 
@@ -214,4 +219,4 @@ This project implements best practices for computational reproducibility:
 ---
 
 **Repository**: https://github.com/jdpreston30/thyroid-exposomics-2025  
-**Metabolomics Workbench**: TBD
+**Metabolomics Workbench**: [ST005162](https://doi.org/10.21228/M87P2Q) (Project PR003330)

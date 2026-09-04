@@ -90,7 +90,8 @@ plot_iarc_donut <- function(iarc_data) {
     scale_fill_manual(
       values = IARC_colors,
       breaks = c("Group 1", "Group 2A", "Group 2B", "Group 3", "Not Classified"),
-      labels = c("Group 1", "Group 2A", "Group 2B", "Group 3", "Not Classified"),
+#! Display label only -- data value stays "Not Classified"; separates never-assessed from Group 3.
+      labels = c("Group 1", "Group 2A", "Group 2B", "Group 3", "Not Evaluated"),
       drop = FALSE
     ) +
     coord_polar(theta = "y") +

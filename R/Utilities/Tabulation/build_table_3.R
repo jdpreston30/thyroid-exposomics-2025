@@ -32,8 +32,6 @@ build_table_3 <- function(data, export_path) {
         # Organic UV Filters (plural to singular)
         str_detect(`Usage Class (Type)`, "Organic UV Filters") ~ "Organic UV Filter",
         
-        # Dye intermediate - capitalize Intermediate
-        `Usage Class (Type)` == "Dye intermediate" ~ "Dye Intermediate",
         
         # Preservative - singular
         str_detect(`Usage Class (Type)`, "Preservative \\(Parabens\\)") ~ "Preservative (Paraben)",
@@ -71,6 +69,15 @@ build_table_3 <- function(data, export_path) {
     valign = "center",
     fgFill = "#D9D9D9"
   )
+#! Column 6 is the statistical symbol P and must render italic. A one-character cell can be styled wholesale by openxlsx, which intra-cell formatting cannot -- this is why the header is bare "P" rather than "P-value".
+  header_style_center_italic <- createStyle(
+    fontSize = 7.5,
+    fontName = "Times New Roman",
+    textDecoration = c("bold", "italic"),
+    halign = "center",
+    valign = "center",
+    fgFill = "#D9D9D9"
+  )
   
   # Data styles - bottom vertical alignment
   data_style_left <- createStyle(
@@ -90,7 +97,10 @@ build_table_3 <- function(data, export_path) {
   # Apply header styles (row 1)
   # Columns 1-2 (Chemical Name, Usage Class) - left aligned
   addStyle(wb, sheet = 1, style = header_style_left, rows = 1, cols = 1:2, gridExpand = TRUE, stack = FALSE)
-  # Columns 3-6 (FTC_let, IEFVPTC, PTC, P value) - center aligned
+  # Columns 3-5 (FTC_let, IEFVPTC, PTC) - center aligned
+  addStyle(wb, sheet = 1, style = header_style_center, rows = 1, cols = 3:5, gridExpand = TRUE, stack = FALSE)
+  # Column 6 (P) - center aligned, italic symbol
+  addStyle(wb, sheet = 1, style = header_style_center_italic, rows = 1, cols = 6, gridExpand = TRUE, stack = FALSE)
   
   # Apply data styles (rows 2 onwards)
   data_rows <- 2:(nrow(data_formatted) + 1)
@@ -119,10 +129,14 @@ build_table_3 <- function(data, export_path) {
   # Add footnote text to merged cell
   footnote_text <- paste(
     "\u2020 Possible, likely, or known carcinogen",
-    "\u2021 Potential endocrine disrupting chemical",
-    "\u00b6 Indicates level 2 identification",
+#! Hyphenated: compound modifier before "chemical", matching the abstract and the EDC dictionary entry.
+    "\u2021 Potential endocrine-disrupting chemical",
+    "\u00b6 Indicates Level 2 identification",
+#! Reviewer C3: the displayed P values are unadjusted, so the column carries the FDR outcome. Marker is \u2016 (double vertical line), continuing the table's existing dagger/ddagger/pilcrow sequence.
+    "\u2016 Unadjusted P-values are displayed; none remained significant after FDR correction.",
     #! TTBNP (CP2302) dropped with the compound itself -- see 00c_FTs.R section 0c.1.20
-    "Abbreviations: 5-NOT = 5-Nitro-o-toluidine; DEET = N,N-Diethyl-meta-toluamide; DNOP = Di-n-octyl phthalate; MDA = 4,4'-Diaminodiphenylmethane; MEHP = Mono-2-ethylhexyl phthalate; N-MeFOSAA = N-Methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = Octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; TEEP = Tetraethyl ethylenediphosphonate; UV = ultraviolet",
+#! Chemical expansions are lowercase here and title-case in the table cells: a footnote is prose, a cell is a column entry. Proper nouns and nitrogen locants keep their capitals. Prime is U+2032, not an apostrophe.
+    "Abbreviations: 5-NOT = 5-nitro-o-toluidine; DEET = N,N-diethyl-meta-toluamide; DNOP = di-n-octyl phthalate; FDR = false discovery rate; MDA = 4,4\u2032-diaminodiphenylmethane; MEHP = mono(2-ethylhexyl) phthalate; N-MeFOSAA = N-methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; PFAS = per- and polyfluoroalkyl substances; TEEP = tetraethyl ethylenediphosphonate; UV = ultraviolet",
     sep = "\n"
   )
   writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
@@ -131,7 +145,6 @@ build_table_3 <- function(data, export_path) {
   merge_cell_style <- createStyle(
     fontSize = 8,
     fontName = "Times New Roman",
-    textDecoration = "italic",
     halign = "left",
     valign = "center",
     border = "bottom",

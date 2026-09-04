@@ -1,10 +1,12 @@
 #* 17: Supplementary Tables
 #+ 17.1: ST1: Chemical Library (pivoted subid)
 #- 17.1.1: Build and format ST1 gt table
-gt_ST1 <- build_ST1(ST1_tibble)
+#! Locants are sentinel-marked before gt because gt::as_latex() escapes backslashes; unmark_locants() turns them into \textit{} once the LaTeX is final.
+gt_ST1 <- build_ST1(ST1_tibble |> mutate(Name = mark_locants(Name)))
 #- 17.1.2: Save ST1 as LaTeX (without table wrapper) to Supplementary/Components/Tables
 latex_code <- gt::as_latex(gt_ST1) |> as.character()
 latex_code <- fix_latex_header_fill(latex_code)
+latex_code <- unmark_locants(latex_code)
 # Remove table wrapper for direct inclusion in supplementary
 latex_lines <- strsplit(latex_code, "\n")[[1]]
 latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} and \end{table}
@@ -19,7 +21,9 @@ ST2_base <- feature_metadata |>
   left_join(ST1_tibble |> select(Name, CAS), by = "CAS") |>
   mutate(Name = gsub("\u2021", "", Name)) |>
   mutate(Name = gsub("\\*", "\u2020", Name)) |>
-  arrange(GROUP, Class, Subclass, Name)
+  arrange(GROUP, Class, Subclass, Name) |>
+#! Marked after the sort: the sentinel is a high codepoint, so marking first would push every locant-bearing name to the end of its group.
+  mutate(Name = mark_locants(Name))
 #- 17.2.2: Build hierarchical structure with proper nesting
 ST2_list <- list()
 all_groups <- unique(ST2_base$GROUP)
@@ -157,6 +161,7 @@ gt_ST2 <- build_ST2(ST2_tibble)
 #- 17.2.5: Save ST2 as LaTeX (without table wrapper) to Supplementary/Components/Tables
 latex_code <- gt::as_latex(gt_ST2) |> as.character()
 latex_code <- fix_ST2_latex(latex_code)
+latex_code <- unmark_locants(latex_code)
 # Remove table wrapper for direct inclusion in supplementary
 latex_lines <- strsplit(latex_code, "\n")[[1]]
 latex_lines <- latex_lines[-c(1, length(latex_lines))]  # Remove \begin{table} and \end{table}
@@ -165,7 +170,16 @@ writeLines(latex_code, "Supplementary/Components/Tables/ST2.tex")
 #+ 17.3: Abbreviations Dictionary
 #- 17.3.1: Build abbreviations list
 abbrev_list <- ST_abbrevs |>
-  arrange(formatted)
+#! Already sorted by `arrange(tolower(Abbrev))` in 00c_FTs.R:97 -- do NOT re-sort here. A second
+#! `arrange(formatted)` sorts the whole "ABBREV = expansion" string case-sensitively, which pushes
+#! lowercase-initial entries (gamma-BHC, m/z) past UV to the end of the dictionary.
+#! Same reason as ST2: mark only after the alphabetical sort has been taken.
+  mutate(formatted = unmark_locants(mark_locants(formatted))) |>
+#! m and z are quantity symbols (ISO 80000) and take italic; the solidus is an operator and stays upright.
+#! mark_locants() only handles alphabetic locants, so this statistical symbol falls through and is set here.
+#! Matches the ST1 column header and the Table S1 caption, which already render it this way.
+  mutate(formatted = stringr::str_replace_all(
+    formatted, "(?<![A-Za-z])m/z(?![A-Za-z])", "\\\\textit{m}/\\\\textit{z}"))
 #- 17.3.2: Convert to LaTeX itemize list with reduced spacing
 abbrev_latex <- c(
   "\\begin{itemize}",
@@ -181,7 +195,7 @@ writeLines(abbrev_latex, "Supplementary/Components/Sections/abbreviations.tex")
 #- 17.4.1: Assemble combined demographic frame (age, sex, sample collection timing)
 #! Collection year is binned (same scheme as Table 1's Sample_Collection_Timing) so it is summarized categorically as n (%) per bin rather than as a spurious numeric median.
 .yr_breaks <- seq(2006, 2022, length.out = 5)
-.yr_labels <- c("2006-2009", "2010-2013", "2014-2017", "2018-2021")
+.yr_labels <- c("2006–2009", "2010–2013", "2014–2017", "2018–2021")
 demo_dtc <- tumor_pathology_raw |>
   filter(str_detect(Patient_ID, "^(F|P|FVPTC)\\d+$")) |>
   transmute(
@@ -233,8 +247,11 @@ ST4_data <- tibble(
   P = c("", .fmt_p4(balance_by_type$P), "", .fmt_p4(covariate_cross$P)),
   .section = c(TRUE, rep(FALSE, nrow(balance_by_type)), TRUE, rep(FALSE, nrow(covariate_cross)))
 ) |>
-  #! t is a statistical symbol, so italicised to match the ST3 caption's "Welch's \\textit{t}-test"; the other six test names contain no symbols
-  mutate(Test = str_replace(Test, "\\bt-test\\b", "\\\\textit{t}-test"))
+  #! t is a statistical symbol, so italicised to match the ST3 caption's "Welch's \\textit{t}-test"; the other six test names contain no symbols Kruskal--Wallis joins two surnames, so it takes an en dash to match the manuscript; ternG supplies it hyphenated. Chi-squared is a compound, not an eponym -- leave it.
+  mutate(
+    Test = str_replace(Test, "\\bt-test\\b", "\\\\textit{t}-test"),
+    Test = str_replace(Test, "\\bKruskal-Wallis\\b", "Kruskal--Wallis")
+  )
 #- 17.5.2: Build ST4 LaTeX (self-contained tabular) and save
 writeLines(build_ST4(ST4_data), "Supplementary/Components/Tables/ST4.tex")
 #- 17.5.3: Wire the caption deterministically from year_by_type (medians/ranges from R)
@@ -251,6 +268,9 @@ writeLines(build_ST4(ST4_data), "Supplementary/Components/Tables/ST4.tex")
 .range_phrase <- paste(sprintf("%s, %s", .rng_groups, names(.rng_groups)), collapse = "; ")
 st4_caption <- paste0(
   "\\textbf{Candidate confounder assessment for the tumor-type chemical comparisons.} ",
+#! Defined here, not in the abbreviation dictionary: this caption is the only place in the whole supplement these three appear, and the dictionary is scoped to table and figure content only.
+  "Tumor types are papillary thyroid carcinoma (PTC), follicular thyroid carcinoma (FTC), and ",
+  "invasive encapsulated follicular variant of PTC (IEFVPTC). ",
   "Each candidate confounder (age, sex, and collection year) was tested against tumor type, and ",
   "the confounders were tested against one another; the test used for each comparison is given in the ",
   "table. No covariate differed across tumor type except collection timing when grouped into the ",
@@ -299,7 +319,9 @@ writeLines(build_supp_tabular(ST5_data), "Supplementary/Components/Tables/ST5.te
 st5_caption <- paste0(
   "\\textbf{Association of candidate confounders with individual chemical features.} ",
   "Every annotated feature was tested against each candidate confounder in both analytical modes ",
-  "(", .n_quant_tested, " quantitative and ", .n_qual_tested, " qualitative features), and the number ",
+#! Thousands separator: these are live counts, and the qualitative one is currently 1041, so it needs a comma to match the rest of the manuscript. trimws() because format() left-pads to a common width.
+  "(", trimws(format(.n_quant_tested, big.mark = ",")), " quantitative and ",
+  trimws(format(.n_qual_tested, big.mark = ",")), " qualitative features), and the number ",
   "of features significant at \\textit{P} < 0.05 is reported as \\textit{n} (\\%). Approximately 5\\% of features ",
   "are expected to reach this threshold by chance alone, so the relevant comparison for each covariate is ",
   "against that 5\\% baseline rather than against zero. Collection year appears twice: as a continuous ",
@@ -324,7 +346,8 @@ writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
     transmute(
       #! MT_final appends * for quality == 2; converted to the dagger/double-dagger convention used in S1/S2
       Chemical = paste0(
-        str_remove(short_name, "\\*$"),
+#! ST6 row labels are italic as a sub-heading device (as in S3-S5), so the locant reverses to upright to stay distinguishable inside the italic run.
+        unmark_locants(mark_locants(str_remove(short_name, "\\*$")), "textup"),
         if_else(str_detect(short_name, "\\*$"), "\\textsuperscript{\\textdagger}", ""),
         if_else(!is.na(n_detected) & n_detected <= 10, "\\textsuperscript{\\textdaggerdbl}", "")
       ),
@@ -358,15 +381,16 @@ st6_caption <- paste0(
   "Model 1, unadjusted; Model 2, adjusted for collection year (analyzed as a continuous measure); ",
   "Model 3, adjusted for collection year, age, ",
   "and sex. Effect size is partial $\\eta^{2}$ for quantitative features and McFadden's pseudo-$R^{2}$ for ",
-  "qualitative features, and should be compared only within a mode. Unadjusted \\textit{P} values for ",
+  "qualitative features, and should be compared only within a mode. Unadjusted \\textit{P}-values for ",
   "qualitative features differ from the exact tests reported in \\textbf{Table 3}, because a ",
-  "likelihood-ratio test is used throughout this table so that unadjusted and adjusted models remained ",
+  "likelihood-ratio test was used throughout this table so that unadjusted and adjusted models remained ",
   "directly comparable; every chemical is significant under both. ",
   "In a sensitivity analysis adjusting instead for the categorical bins defined in \\textbf{Table 1}, ",
   .n_binned, " of ", .n_total, " remained significant; because that parameterization discards ",
   "within-interval variation, it is summarized in this legend rather than tabulated as a fourth model. ",
   "Full model specification is provided in \\textbf{Supplementary Note 2}. ",
-  "\\textit{$\\dagger$ Level 2 identification; $\\ddagger$ detected in ten or fewer of the 60 samples ",
-  "(minimum ", .sparse_min, "), for which covariate-adjusted estimates should be interpreted with caution.}"
+#! Footnote definitions are roman, matching the Table 3 footnote block in the manuscript.
+  "$\\dagger$ Level 2 identification; $\\ddagger$ detected in ten or fewer of the 60 samples ",
+  "(minimum ", .sparse_min, "), for which covariate-adjusted estimates should be interpreted with caution."
 )
 writeLines(st6_caption, "Supplementary/Components/Tables/ST6_caption.tex")

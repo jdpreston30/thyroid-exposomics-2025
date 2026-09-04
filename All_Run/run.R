@@ -25,5 +25,12 @@ source("R/Scripts/15_render_supplementary_figures.R")
 source("R/Scripts/16_tables.R")
 source("R/Scripts/17_supplementary_tables.R")
 source("R/Scripts/18_construct_supplementary.R")
-source("R/Scripts/19_session_info.R")
+source("R/Scripts/19_results_validate.R")
+source("R/Scripts/20_session_info.R")
 }
+
+
+
+
+
+

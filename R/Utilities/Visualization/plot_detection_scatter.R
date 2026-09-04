@@ -90,10 +90,11 @@ plot_detection_scatter <- function(detection_data, p_value = NULL) {
   
   # Add p-value annotation if provided
   if (!is.null(p_value)) {
+#! plotmath string, not literal text: italic(P) renders the symbol italic per journal style. Needs parse = TRUE.
     p_text <- if (p_value < 0.001) {
-      "Kruskal-Wallis p < 0.001"
+      "\"Kruskal–Wallis\"~italic(P)~\"< 0.001\""
     } else {
-      sprintf("Kruskal-Wallis p = %.3f", p_value)
+      sprintf("\"Kruskal–Wallis\"~italic(P)~\"= %.3f\"", p_value)
     }
     
     p <- p + annotate(
@@ -101,6 +102,7 @@ plot_detection_scatter <- function(detection_data, p_value = NULL) {
       x = -Inf,
       y = 339.5,
       label = p_text,
+      parse = TRUE,
       hjust = -0.1,
       vjust = 1.5,
       size = 8 / .pt,

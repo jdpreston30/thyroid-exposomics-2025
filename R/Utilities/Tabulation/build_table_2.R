@@ -177,7 +177,8 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
     addWorksheet(wb, "Table")
     
     # Add custom header first (row 1)
-    writeData(wb, sheet = 1, x = "GROUP: Class: Type", startRow = 1, startCol = 1, colNames = FALSE)
+#! Indented header, not colon-delimited: the 4/8-space steps mirror the Class/Type indentation in the rows below, so the hierarchy reads down the column. Matches the pasted Table 2 in the manuscript.
+    writeData(wb, sheet = 1, x = "GROUP    Class        Type", startRow = 1, startCol = 1, colNames = FALSE)
     writeData(wb, sheet = 1, x = "n (%)", startRow = 1, startCol = 2, colNames = FALSE)
     
     # Write data starting at row 2 without column names
@@ -242,7 +243,7 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
       "‖ Includes a triazinone (metribuzin)",
       "# Includes the wood preservative breakdown product, pentachloroanisole",
       "",
-      "Abbreviations: UV = Ultraviolet",
+      "Abbreviations: UV = ultraviolet",
       sep = "\n"
     )
     writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
@@ -251,7 +252,6 @@ build_table_2 <- function(data, header_col, class_col, subclass_col, export_path
     merge_cell_style <- createStyle(
       fontSize = 8,
       fontName = "Times New Roman",
-      textDecoration = "italic",
       halign = "left",
       valign = "center",
       border = "bottom",

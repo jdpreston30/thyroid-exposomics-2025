@@ -74,13 +74,17 @@ fig3 <- ggdraw(xlim = c(0, 8.5), ylim = c(0, 11)) +
     x = 0.7182667, y = 0.4446667,
     width = 2.75, height = 2.386667
   ) +
+#! E and F are 0.0333 in taller than the nominal 2.5 -- exactly 10 px at 300 dpi. Their plotmath titles
+#! reserve more height than the plain-text titles they replaced, which pushed both panel tops 10 px below
+#! D's. Both grow by the same amount so their title baselines stay aligned with each other (that equality
+#! is what locant_title()'s phantom descenders buy); y is unchanged so all three bottoms stay flush.
   draw_plot(p3E,
     x = 3.3, y = 0.388,
-    width = 2.5, height = 2.5
+    width = 2.5, height = 2.5333
   ) +
   draw_plot(p3F,
     x = 5.335+0.25, y = 0.388,
-    width = 2.5, height = 2.5
+    width = 2.5, height = 2.5333
   ) +
   # Labels
   figure_labels(list(

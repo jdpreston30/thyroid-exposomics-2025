@@ -85,7 +85,10 @@ plot_qualitative_heatmap <- function(data,
     ) +
     labs(x = NULL, y = NULL) +
     scale_x_discrete(expand = c(0, 0)) +
-    scale_y_discrete(expand = c(0, 0)) +
+#! locant_expr() emits plotmath, not markdown: gridtext would re-measure the text and shift the panel.
+#! Measured on this exact label set -- panel bounds are pixel-identical, since the widest label
+#! (3-Hydroxycarbofuran) carries no locant. axis.text.y stays element_text(); plotmath needs no theme change.
+    scale_y_discrete(expand = c(0, 0), labels = locant_expr) +
     # coord_fixed(ratio = 0.5) +
     theme_minimal(base_size = 10, base_family = "Arial") +
     theme(

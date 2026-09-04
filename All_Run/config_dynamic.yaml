@@ -25,7 +25,10 @@ paths:
   # Raw MS data directories for spectral validation
   # GC1 in the tumor folder name is a mislabel; both batches ran on GC2 -- see convert_raw_to_mzml.R
   tumor_raw_dir: "{base_data_path}/Tumors/GC080_GC1_M524_Thyroid_Tissue_12082022"
-  cadaver_raw_dir: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024/ThyroidTissue_08222024"
+  # Trailing /ThyroidTissue_08222024 removed 2026-09-03: that folder does not exist. raw/, mzxml/ and
+  # mzML_validation/ (45 files each) sit directly under GC097_GC2_Thyroid_Tissue_08222024, and
+  # convert_raw_to_mzml() appends "mzML_validation" itself, so the extra segment broke every cadaver path.
+  cadaver_raw_dir: "{base_data_path}/Cadaver/GC097_GC2_Thyroid_Tissue_08222024"
   cadaver_metadata: "{base_data_path}/Cadaver/donor_info/cadaver_metadata.xlsx"
   
   # PeakWalk data directories
@@ -56,6 +59,8 @@ analysis:
   
   # Script execution flags
   run_validation_step: false  # Set to true to run full validation workflow (scripts 08-09)
+  #! TEMPORARILY TRUE 2026-09-03 for the validation grob rebuild (y-axis abs() fix + chemical names).
+  #! SET BACK TO false ONCE THE REBUILD IS VERIFIED -- otherwise every r() re-runs 08-09 and rewrites all 59 grobs.
   
   # Environment preferences
   tibble_options:

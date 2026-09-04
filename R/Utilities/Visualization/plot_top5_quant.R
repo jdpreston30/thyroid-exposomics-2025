@@ -112,7 +112,10 @@ plot_top5_quant <- function(data, compound_names = NULL, return_legend = FALSE, 
 #! Seeded, so 3A's dots land identically on every draw -- unseeded jitter re-randomises per DRAW, not per build, so PNG/TIFF/PDF of one figure object disagreed. Matches seed = 42 in plot_iarc and plot_detection_scatter. geom_point, since geom_jitter() errors if given both position and width/height.
     geom_point(position = position_jitter(height = 0.15, width = 0, seed = 42),
                size = 0.5, alpha = 1, show.legend = FALSE) +
-    facet_wrap(~chemical, ncol = 1, scales = "fixed", strip.position = "left", drop = FALSE) +
+#! Italics applied at the labeller, NOT by re-levelling `chemical`: chemical_order and the compact-letter
+#! lookup both key off those levels, so they must stay plain. label_parsed renders the plotmath strings.
+    facet_wrap(~chemical, ncol = 1, scales = "fixed", strip.position = "left", drop = FALSE,
+               labeller = ggplot2::as_labeller(locant_plotmath, default = ggplot2::label_parsed)) +
     scale_fill_manual(
       values = variant_colors_fill,
       breaks = c("Follicular", "IEFVPTC", "Papillary"),

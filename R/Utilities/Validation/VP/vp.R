@@ -122,7 +122,11 @@ vp <- function(plot_obj,
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank()
     ) +
-    ggplot2::scale_y_continuous(labels = scales::scientific)
+#! abs() because the mirror is drawn by negating the standard (process_single_compound.R:523), so the
+#! lower half is standard intensity, not a negative quantity. Without it this line overrides the correct
+#! labeller set at creation, and it is only repaired if zoom_y, remove_standard or zoom_fragment runs.
+#! Identical to the labeller those three already use, so plots that do reach them are unaffected.
+    ggplot2::scale_y_continuous(labels = function(x) scales::scientific(abs(x)))
   
   #- Step 1: Remove standard if requested
   if (remove_std) {

@@ -82,27 +82,27 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami Te
 
 \textbf{Figure S1} \dotfill 4
 
-\textbf{Figure S2} \dotfill 5-28
+\textbf{Figure S2} \dotfill 5--28
 
-\quad \textit{2.1: Level 1 identifications (21 pages)} \dotfill 5-25
+\quad \textit{2.1: Level 1 identifications (21 pages)} \dotfill 5--25
 
-\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 26-28
+\quad \textit{2.2: Level 2 identifications (3 pages)} \dotfill 26--28
 
-\textbf{Figure S3} \dotfill 29-33
+\textbf{Figure S3} \dotfill 29--33
 
-\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 29-31
+\quad \textit{3.1: Level 1 identifications (3 pages)} \dotfill 29--31
 
-\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 32-33
+\quad \textit{3.2: Level 2 identifications (2 pages)} \dotfill 32--33
 
-\textbf{Figure S4} \dotfill 34-37
+\textbf{Figure S4} \dotfill 34--37
 
-\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 34-36
+\quad \textit{4.1: Level 1 identifications (3 pages)} \dotfill 34--36
 
 \quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 37
 
-\textbf{Table S1} \dotfill 38-55
+\textbf{Table S1} \dotfill 38--55
 
-\textbf{Table S2} \dotfill 56-66
+\textbf{Table S2} \dotfill 56--66
 
 \textbf{Table S3} \dotfill 67
 
@@ -112,7 +112,7 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami Te
 
 \textbf{Table S6} \dotfill 70
 
-\textbf{Table Abbreviation Dictionary} \dotfill 71
+\textbf{Abbreviation Dictionary} \dotfill 71
 
 \newpage
 

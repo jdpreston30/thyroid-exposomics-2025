@@ -87,7 +87,7 @@ table_3_tibble <- MT_final |>
   mutate(
     Table_Class = case_when(
       Table_Class == "Insecticides and Pesticides" ~ "Insecticide/Pesticide",
-      str_detect(Table_Class, "Dye intermediates") ~ "Dye intermediate",
+      str_detect(Table_Class, "Dye Intermediates") ~ "Dye Intermediate",
       str_detect(Table_Class, "Chemical Synthesis Intermediates") ~ "Chemical Synthesis Intermediate",
       str_detect(Table_Class, "Carcinogenic Research Chemicals") ~ "Carcinogenic Research Chemical",
       str_detect(Table_Class, "Combustion Byproducts") ~ "Combustion Byproduct",
@@ -127,6 +127,8 @@ table_3_tibble <- MT_final |>
     FTC_let = coalesce(FTC_let, FTC),
     FV_PTC_let = coalesce(FV_PTC_let, FV_PTC),
     PTC_let = coalesce(PTC_let, PTC),
+#! Keep the numeric P for sorting: sprintf() coerces to character, and arranging the string puts 3-decimal ties (e.g. the four 0.039 rows) in arbitrary order rather than true ascending order.
+    p_sort = p_value,
     p_value = sprintf("%.3f", p_value)
   ) |>
   mutate(short_name = str_replace(short_name, "NA([\u2020\u2021\u00b6]*)$", "\\1")) |>
@@ -142,8 +144,8 @@ table_3_tibble <- MT_final |>
       TRUE ~ short_name
     )
   ) |>
-  arrange(p_value) |>
-  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `IEFVPTC` = FV_PTC_let, PTC = PTC_let, `P value` = p_value)
+  arrange(p_sort) |>
+  select(`Chemical Name` = short_name, `Usage Class (Type)` = Table_Class, FTC = FTC_let, `IEFVPTC` = FV_PTC_let, PTC = PTC_let, `P` = p_value)
 #- 16.4.2: Build table 3 with function
 table_3 <- build_table_3(
   data = table_3_tibble,
@@ -154,6 +156,7 @@ table_4 <- build_table_4(
   ppm_full_table = ppm_full_table,
   ST1_tibble = ST1_tibble,
   literature_ST3 = literature_ST3,
+  literature_long = literature_long,
   validation_check_files_unfiltered = validation_check_files_unfiltered,
   export_path = "Outputs/Tables/T4.xlsx"
 )

@@ -85,7 +85,9 @@ plot_carcinogen_stacked <- function(data) {
     ) +
     labs(
       x = NULL,
-      y = "# Highest in Variant",
+#! Displayed text says "type", not "variant" -- see the terminology note at the top of 00c_FTs.R.
+#! The x aesthetic below still maps the `Variant` data column; only this label changes.
+      y = "# Highest in Type",
       title = " ",
       fill = NULL
     ) +

@@ -6,13 +6,15 @@
 #'
 #' @param ppm_full_table ppm data table from the pipeline
 #' @param ST1_tibble ST1 tibble (used to join chemical names)
-#' @param literature_ST3 Literature comparison data (from primary_data.xlsx, sheet "literature_comp_pared")
+#' @param literature_ST3 Usage-class lookup (from primary_data.xlsx, sheet "literature_comp_pared")
+#' @param literature_long Audited long-form literature values (sheet "literature_long"); supplies the
+#'   three literature columns, one row per (reference, compound, matrix), already in ppb
 #' @param validation_check_files_unfiltered Unfiltered validation check files
 #' @param export_path Path to export the Excel file
 #'
 #' @return The final ST3 tibble (hierarchical, formatted)
 #'
-build_table_4 <- function(ppm_full_table, ST1_tibble, literature_ST3,
+build_table_4 <- function(ppm_full_table, ST1_tibble, literature_ST3, literature_long,
                            validation_check_files_unfiltered, export_path) {
   library(openxlsx)
 #! PCB-138 (35065-28-2) and PCB-153 (35065-27-1) are legitimately quantified and stay in Table 4. An older standard list flags them as mixture-sourced and therefore uncalibratable; that list is out of date. The preparation actually used was a newer 10 ug/mL per-congener standard, which propagates correctly through the BP1 dilution to the same reference concentration as every other EC (nominal 0.5 ng/mL, corrected to 0.47 by the 0.94 factor applied at import in 00c_FTs.R). Their ppb estimates rest on the same calibration as everything else in this table -- do not exclude them.
@@ -31,15 +33,17 @@ ST3_tibble_i <- ppm_full_table |>
            ~ . * 10^3,
            .names = "{.col}")
   ) |>
+#! trimws() on every format() call: format() pads a vector to a common width, so a 4-digit value like 1,248 silently left-pads every shorter cell in the same column. The intentional spaces in "< 1" and in the "a - b" range are inside the strings and unaffected.
   mutate(
     across(c(mean_ctrl, mean_tumor),
-           ~ if_else(. < 1, "< 1", format(round(.), big.mark = ",")),
+           ~ if_else(. < 1, "< 1", trimws(format(round(.), big.mark = ","))),
            .names = "{.col}"),
-    half_min = if_else(half_min < 1, "< 1", format(round(half_min), big.mark = ",")),
-    max_value = if_else(max_value < 1, "< 1", format(round(max_value), big.mark = ","))
+    half_min = if_else(half_min < 1, "< 1", trimws(format(round(half_min), big.mark = ","))),
+    max_value = if_else(max_value < 1, "< 1", trimws(format(round(max_value), big.mark = ",")))
   ) |>
   left_join(ST1_tibble |> select(Name, CAS), by = "CAS") |>
-  mutate(range = paste0(trimws(half_min), " - ", trimws(max_value))) |>
+#! Unspaced en dash: number ranges close up (< 1–81), and this matches the pasted Table 4 so a re-paste cannot silently revert it.
+  mutate(range = paste0(trimws(half_min), "–", trimws(max_value))) |>
   group_by(CAS) |>
   mutate(
     best_fragment = if_else(pct_det_tumor == max(pct_det_tumor), "★", ""),
@@ -74,62 +78,49 @@ ST3_fail_check <- validation_check_files_unfiltered |>
 #_ Failed chemicals vector
 failed_ST3 <- c(
   "50-32-8", # Benzo[a]pyrene
-  "207-08-9", # Benzo(k)fluoranthene
+  "207-08-9", # Benzo[k]fluoranthene
   "92-87-5"  # Benzidine
 )
 #_ Build flat tibble with literature values
 # citation letters (reading order): ᵃ=mlyczynska2023, ᵇ=wang2010, ᶜ=riffelmann1995, ᵈ=cdc2024, ᵉ=maier2022
+#! Keyed on BOTH the reference slug and the single letter: literature_long carries the letter directly, while the older literature_comp_pared columns carry the slug. Same superscript either way.
 ref_map <- c(
-  mlyczynska2023 = "\u1d43",  # ᵃ
-  maier2022      = "\u1d49",  # ᵉ
-  riffelmann1995 = "\u1d9c",  # ᶜ
-  cdc2024        = "\u1d48",  # ᵈ
-  wang2010       = "\u1d47"   # ᵇ
+  mlyczynska2023 = "\u1d43", a = "\u1d43",  # ᵃ
+  maier2022      = "\u1d49", e = "\u1d49",  # ᵉ
+  riffelmann1995 = "\u1d9c", c = "\u1d9c",  # ᶜ
+  cdc2024        = "\u1d48", d = "\u1d48",  # ᵈ
+  wang2010       = "\u1d47", b = "\u1d47"   # ᵇ
 )
 resolve_ref <- function(ref) {
   dplyr::coalesce(ref_map[ref], ref)
 }
+#_ Literature columns, derived from the audited long-form sheet
+#! literature_long holds one row per (reference, compound, matrix), each already the highest subgroup mean within its own source. Here we take the max ACROSS sources per (CAS, column) and carry that winner's citation letter, so the superscript always names the study the printed number came from. Hb adducts are excluded: they measure cumulative covalent binding to erythrocyte protein over the ~120-day red-cell lifespan, not a circulating concentration, so they share no axis with the ng/g and ng/mL values here. Riffelmann reports 4-aminobiphenyl ONLY as an adduct, so its serum/plasma cell is correctly empty; its urine comparator comes from CDC. Plasma and Serum both feed the single "Serum/Plasma" column; AT and Urine map 1:1.
+lit_col <- c(AT = "Adipose Tissue (ppb)", Urine = "Urine (ppb)",
+             Plasma = "Serum/Plasma (ppb)", Serum = "Serum/Plasma (ppb)")
+literature_wide <- literature_long |>
+  filter(matrix != "Hb (adduct)", !is.na(value_ppb)) |>
+  mutate(column = unname(lit_col[matrix])) |>
+#! Ties get BOTH citations rather than an arbitrary winner. Fluoranthene plasma is the only case: Mlyczynska 0.90 and Maier 0.9 are numerically equal, and both studies genuinely report that value, so citing one would imply the other did not. Letters are sorted so the pair is deterministic.
+  group_by(CAS, column) |>
+  filter(value_ppb == max(value_ppb)) |>
+  summarise(value_ppb = first(value_ppb),
+#! Comma-separate tied citation letters: bare "ᵃᵉ" reads as one glyph pair, "ᵃ,ᵉ" reads as two refs.
+            refs = paste0(resolve_ref(sort(unique(letter))), collapse = ","),
+            .groups = "drop") |>
+#! Same rounding rule as the study columns: "< 1" below unity, nearest integer otherwise. trimws() because format() pads a vector to a common width, which would leave stray leading spaces.
+  mutate(cell = paste0(if_else(value_ppb < 1, "< 1",
+                               trimws(format(round(value_ppb), big.mark = ","))),
+                       refs)) |>
+  select(CAS, column, cell) |>
+  pivot_wider(names_from = column, values_from = cell)
 ST3_tibble_flat <- ST3_tibble_2 |>
   filter(!CAS %in% failed_ST3) |>
-  left_join(
-    literature_ST3 |> select(CAS, `Usage Class`, AT_manuscript, AT_ref,
-                              plasma_manuscript, plasma_ref, urine_manuscript, urine_ref),
-    by = "CAS"
-  ) |>
+  left_join(literature_ST3 |> select(CAS, `Usage Class`), by = "CAS") |>
+  left_join(literature_wide, by = "CAS") |>
   mutate(
-    Name = gsub("[\u2020\u2021]", "", Name),
-    Name = gsub("\\*", "", Name),
-#! AT_ref is blank in primary_data.xlsx for four PAHs (benz(a)anthracene, benzo(b)fluoranthene, chrysene, dibenz(a,h)anthracene), so their adipose values printed with no citation. The values are Mlyczynska 2023 -- verified cell by cell against the paper: 0.14/1.11, 0.21/0.54, 0.14/0.38, 0.11/0.49 all appear in its adipose tables. Backfilled here rather than in the spreadsheet, matching the TTBNP precedent in 00c_FTs.R: in code at the external-data gateway so it is version-controlled and reversible.
-    AT_ref = if_else(is.na(AT_ref) & !is.na(AT_manuscript) &
-                       CAS %in% c("56-55-3", "205-99-2", "218-01-9", "53-70-3"),
-                     "mlyczynska2023", AT_ref),
-#! Benz(a)anthracene (56-55-3) is entered as "< 1" but its highest adipose mean is 1.11 ng/g (Polish omental, Mlyczynska Table 3), so by this table's own rule -- highest mean across any cohort/depot, rounded to the nearest integer -- it must read 1. Only its French means (max 0.17, Table 2) are below 1, which is likely how the "< 1" arose. The other three backfilled above genuinely max below 1 (0.54, 0.38, 0.49) and stay "< 1".
-    AT_manuscript = if_else(CAS == "56-55-3" & trimws(AT_manuscript) == "< 1",
-                            "1", AT_manuscript),
-    `Adipose Tissue (ppb)` = case_when(
-      !is.na(AT_manuscript) & !is.na(AT_ref) ~
-        paste0(AT_manuscript, resolve_ref(AT_ref)),
-      !is.na(AT_manuscript) ~ AT_manuscript,
-      TRUE ~ NA_character_
-    ),
-    `Urine (ppb)` = case_when(
-      !is.na(urine_manuscript) & !is.na(urine_ref) ~
-        paste0(urine_manuscript, resolve_ref(urine_ref)),
-      !is.na(urine_manuscript) ~ urine_manuscript,
-      TRUE ~ NA_character_
-    ),
-    `Serum/Plasma (ppb)` = case_when(
-      !is.na(plasma_manuscript) & !is.na(plasma_ref) ~
-        paste0(plasma_manuscript, resolve_ref(plasma_ref)),
-      !is.na(plasma_manuscript) ~ plasma_manuscript,
-      TRUE ~ NA_character_
-    ),
-    across(
-      c(`Adipose Tissue (ppb)`, `Serum/Plasma (ppb)`),
-      ~ str_replace_all(.x, "\u00a7", "\u2016")
-    ),
-    # Strip smoker flag from urine cells — ‖ moved to column header
-    `Urine (ppb)` = str_replace_all(`Urine (ppb)`, "\u00a7", "")
+    Name = gsub("[†‡]", "", Name),
+    Name = gsub("\\*", "", Name)
   ) |>
   select(
     `Usage Class`,
@@ -138,10 +129,10 @@ ST3_tibble_flat <- ST3_tibble_2 |>
     `IARC Group` = IARC_Group,
     `Mean Non-Cancer Thyroid Conc. (ppb)` = mean_ctrl,
     `Mean Tumor Conc. (ppb)` = mean_tumor,
-    `Range (ppb)†` = range,
+    `Study Range (ppb)†` = range,
     `Adipose Tissue (ppb)‡` = `Adipose Tissue (ppb)`,
-    `Urine (ppb)¶‖` = `Urine (ppb)`,
-    `Serum/Plasma (ppb)¶` = `Serum/Plasma (ppb)`
+    `Urine (ppb)‡` = `Urine (ppb)`,
+    `Serum/Plasma (ppb)‡` = `Serum/Plasma (ppb)`
   ) |>
   arrange(`Usage Class`, Name)
 #_ Build hierarchical structure with Usage Class headers
@@ -155,10 +146,10 @@ for (usage_idx in seq_along(all_usage_classes)) {
     `IARC Group` = NA_character_,
     `Mean Non-Cancer Thyroid Conc. (ppb)` = NA_character_,
     `Mean Tumor Conc. (ppb)` = NA_character_,
-    `Range (ppb)†` = NA_character_,
+    `Study Range (ppb)†` = NA_character_,
     `Adipose Tissue (ppb)‡` = NA_character_,
-    `Urine (ppb)¶‖` = NA_character_,
-    `Serum/Plasma (ppb)¶` = NA_character_
+    `Urine (ppb)‡` = NA_character_,
+    `Serum/Plasma (ppb)‡` = NA_character_
   )
   usage_data <- ST3_tibble_flat |>
     filter(`Usage Class` == usage_class) |>
@@ -169,8 +160,8 @@ for (usage_idx in seq_along(all_usage_classes)) {
     ST3_list[[length(ST3_list) + 1]] <- tibble(
       Name = "", CAS = "", `IARC Group` = "",
       `Mean Non-Cancer Thyroid Conc. (ppb)` = "", `Mean Tumor Conc. (ppb)` = "",
-      `Range (ppb)†` = "", `Adipose Tissue (ppb)‡` = "",
-      `Urine (ppb)¶‖` = "", `Serum/Plasma (ppb)¶` = ""
+      `Study Range (ppb)†` = "", `Adipose Tissue (ppb)‡` = "",
+      `Urine (ppb)‡` = "", `Serum/Plasma (ppb)‡` = ""
     )
   }
 }
@@ -178,7 +169,7 @@ for (usage_idx in seq_along(all_usage_classes)) {
 ST3_tibble <- bind_rows(ST3_list) |>
   mutate(
     across(
-      c(`Adipose Tissue (ppb)‡`, `Urine (ppb)¶‖`, `Serum/Plasma (ppb)¶`),
+      c(`Adipose Tissue (ppb)‡`, `Urine (ppb)‡`, `Serum/Plasma (ppb)‡`),
       ~ case_when(
         Name != "" & !is.na(CAS) & (is.na(.) | . == "") ~ "\u2013",
         TRUE ~ .
@@ -231,16 +222,14 @@ footnote_row <- bottom_row + 1
 mergeCells(wb, 1, cols = 1:n_cols, rows = footnote_row)
 footnote_text <- paste(
   "\u2020 The lower bound of the range is the \u2018theoretical minimum,\u2019 which is one half the lowest detected value. This value was used for imputing missing values to determine means.",
-  "\u2021 PAH measurements were obtained from a study that analyzed multiple adipose tissue depots across two geographically distinct cohorts\u1d43, while PCB measurements were derived from a separate study that also included two geographically distinct cohorts\u1d47. Thus, multiple means were listed for various subgroups within these studies. However, for each compound, the highest mean value reported across any cohort or cohort-tissue depot combination is presented.",
-  "\u00b6 Some urine or plasma values are derived from the CDC\u2019s Biomonitoring Data Tables for Environmental Chemicals\u1d48, which is based on data from NHANES cohorts. In the cases where compounds had data listed from multiple cohorts, the maximum geometric mean across any given cohort is listed.",
-  "\u2016 All reported urine values were derived from measurements listed separately for smokers and non-smokers; values from smokers are presented, as these were the highest reported.",
-  "References: \u1d43 = (Ml\u0079czy\u0144ska et al., 2023); \u1d47 = (Wang et al., 2010); \u1d9c = (Riffelmann et al., 1995); \u1d48 = (CDC, 2024); \u1d49 = (Maier, 2022)",
+  "\u2021 In several of the studies cited, values were reported for multiple subgroups within a given biological matrix. This included non-smoking vs. smoking, occupationally exposed vs. non-exposed, geographically distinct cohorts, varying adipose tissue depots, and different NHANES survey years. In all these cases, the highest reported mean (or geometric mean for NHANES) for any subgroup is summarized in this table. When more than one study reported values for the same compound in the same matrix, the highest value is also listed in this table among those studies. All NHANES values represent total population (values for demographic subgroups not used).",
+  "References: \u1d43 = (Ml\u0079czy\u0144ska et al., 2023); \u1d47 = (Wang et al., 2010); \u1d9c = (Riffelmann et al., 1995); \u1d48 = (\u201cBiomonitoring Data Tables for Environmental Chemicals | CDC,\u201d 2024); \u1d49 = (Vermillion Maier et al., 2022)",
   "Abbreviations: CDC = Centers for Disease Control and Prevention; IARC = International Agency for Research on Cancer; NHANES = National Health and Nutrition Examination Survey; PAH = polycyclic aromatic hydrocarbon; PCB = polychlorinated biphenyl; ppb = parts per billion",
   sep = "\n"
 )
 writeData(wb, 1, x = footnote_text, startRow = footnote_row, startCol = 1)
 addStyle(wb, 1,
-  createStyle(fontSize = 8, fontName = "Times New Roman", textDecoration = "italic",
+  createStyle(fontSize = 8, fontName = "Times New Roman",
               halign = "left", valign = "center", wrapText = TRUE,
               border = "bottom", borderColour = "black", borderStyle = "double"),
   rows = footnote_row, cols = 1:n_cols, gridExpand = TRUE, stack = TRUE)

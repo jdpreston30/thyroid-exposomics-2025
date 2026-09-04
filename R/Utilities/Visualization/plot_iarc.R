@@ -130,8 +130,14 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
     ) +
     labs(
       x = NULL,
-      y = "log(ppb)",
-      title = chemical_name,
+#! The axis plots concentration in ppb; scale_y_log10() makes the SPACING logarithmic while the ticks
+#! still carry ppb values (1e+02 = 100 ppb). Labelling it "log(ppb)" claimed the plotted quantity was a
+#! logarithm, which would put 2 at that tick, and took the log of a unit -- logs need a dimensionless
+#! argument. The axis names the quantity; the legend states the scale.
+      y = "Concentration (ppb)",
+#! Plotmath, matching panels A and B: locant_expr() italicises the locant while keeping the panel
+#! geometry unchanged. face = "bold" does not reach a plotmath label, so bold() is emitted inline.
+      title = locant_title(chemical_name),
       fill = NULL,
       color = NULL
     ) +
@@ -153,10 +159,11 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
   
   # Add p-value annotation if provided
   if (!is.null(p_value)) {
+#! plotmath string, not literal text: italic(P) renders the symbol italic per journal style. Needs parse = TRUE.
     p_text <- if (p_value < 0.001) {
-      "p < 0.001"
+      "italic(P)~\"< 0.001\""
     } else {
-      sprintf("p = %.3f", p_value)
+      sprintf("italic(P)~\"= %.3f\"", p_value)
     }
     
     p <- p + annotate(
@@ -164,6 +171,7 @@ plot_iarc <- function(data, chemical_name, p_value = NULL) {
       x = -Inf,
       y = y_max,
       label = p_text,
+      parse = TRUE,
       hjust = -0.25,
       vjust = 1.5,
       size = 8 / .pt,
