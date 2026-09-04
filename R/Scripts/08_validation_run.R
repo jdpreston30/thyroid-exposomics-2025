@@ -7,6 +7,9 @@ file_inventory <- convert_raw_to_mzml(
   cadaver_raw_dir = config$paths$cadaver_raw_dir
 )
 #+ 8.2: Manual Validation Plots Creation
+#! 8.2.1 and 8.2.2 are skippable when their grobs are already current on OneDrive. vp() falls back to reading validation_plots/{iarc_tumor_rtx,iarc_cadaver_rtx} when an object is absent from .GlobalEnv (vp.R:50-83), and script 09 needs only 16 of those objects. Nothing downstream consumes the iarc_tumor_rtx / iarc_cadaver_rtx variables -- they are used solely by the compile_validation_pdf() calls in this block.
+#! ONLY skip after confirming the OneDrive folders hold the CURRENT grobs. If they are stale, vp() loads the old ones silently and the figures come out with the previous chemical names -- no error, no warning.
+if (isTRUE(config$analysis$rebuild_iarc_grobs)) {
 #- 8.2.1: IARC tumor
 # Run rtx
 iarc_tumor_rtx <- rtx(
@@ -48,6 +51,10 @@ compile_validation_pdf(
   add_plot_tags = TRUE,
   external_subfolder = "iarc_cadaver_rtx"
 )
+} else {
+  cat("⏭️  Skipping 8.2.1/8.2.2 IARC grob rebuild (config$analysis$rebuild_iarc_grobs = FALSE);\n")
+  cat("   script 09 will load those grobs from the OneDrive backup via vp().\n")
+}
 #- 8.2.3: Variant differences chemicals (Part 1)
 # Subset to part 1
 vv_wide_pt1 <- vv_wide |>
