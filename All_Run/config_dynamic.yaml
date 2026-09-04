@@ -59,8 +59,9 @@ analysis:
   
   # Script execution flags
   run_validation_step: false  # Set to true to run full validation workflow (scripts 08-09)
-  #! TEMPORARILY TRUE 2026-09-03 for the validation grob rebuild (y-axis abs() fix + chemical names).
-  #! SET BACK TO false ONCE THE REBUILD IS VERIFIED -- otherwise every r() re-runs 08-09 and rewrites all 59 grobs.
+  #! Set to true ONLY for a grob rebuild, then back to false -- otherwise every r() re-runs 08-09 and rewrites all 59 grobs, discarding manual review state.
+  run_iarc_fragment_check: false  # Section 8.3 only; diagnostic PDFs, feeds nothing in the supplement
+  #! 8.3 is nine SERIAL single-compound runs (use_parallel = FALSE, iterate_through = 120) costing hours. Its output is not consumed by script 09 or by the figure_order sheet. Leave false unless you specifically want to eyeball IARC fragment PDFs.
   
   # Environment preferences
   tibble_options:

@@ -121,6 +121,8 @@ compile_validation_pdf(
   external_subfolder = "variant_rtx"
 )
 #+ 8.3: Iterate Through All Validated IARC1 (Post-hoc per Step 9)
+#! Diagnostic only, and OFF by default. Nothing here reaches the supplement: the figure_order sheet points exclusively at Outputs/Validation/revised/grobs/, script 09 never references a *_validated / *_check object, and its section 9.10 ("IARC 1 Top Fragments") is an empty stub. These are nine SERIAL single-compound runs at iterate_through = 120 with use_parallel = FALSE, so they cost hours while producing PDFs for eyeballing fragments. Flip run_iarc_fragment_check to true in the yaml only when you actually want that inspection.
+if (isTRUE(config$analysis$run_iarc_fragment_check)) {
 #- 8.3.1: IARC tumor - Pentachlorophenol
 {
   iarc_tumor_rtx_validated_pt1 <- rtx(
@@ -330,6 +332,9 @@ compile_validation_pdf(
     add_plot_tags = TRUE,
     external_subfolder = "iarc_cadaver_rtx_validated_check"
   )
+}
+} else {
+  cat("⏭️  Skipping 8.3 IARC fragment checks (config$analysis$run_iarc_fragment_check = FALSE)\n")
 }
 #+ 8.4: Skip Entire Section If YAML Specifies
 } else {
