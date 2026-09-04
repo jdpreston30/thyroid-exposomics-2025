@@ -69,7 +69,7 @@ variant_rtx_pt1 <- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 8
+  n_cores = NULL
 )
 # Write compiled PDF
 compile_validation_pdf(
@@ -93,7 +93,7 @@ variant_rtx_pt2<- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 8
+  n_cores = NULL
 )
 # Write compiled PDF
 compile_validation_pdf(
@@ -117,7 +117,7 @@ variant_rtx_pt3 <- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 8
+  n_cores = NULL
 )
 # Write compiled PDF
 compile_validation_pdf(
