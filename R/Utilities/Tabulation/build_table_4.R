@@ -224,7 +224,8 @@ footnote_text <- paste(
   "\u2020 The lower bound of the range is the \u2018theoretical minimum,\u2019 which is one half the lowest detected value. This value was used for imputing missing values to determine means.",
   "\u2021 In several of the studies cited, values were reported for multiple subgroups within a given biological matrix. This included non-smoking vs. smoking, occupationally exposed vs. non-exposed, geographically distinct cohorts, varying adipose tissue depots, and different NHANES survey years. In all these cases, the highest reported mean (or geometric mean for NHANES) for any subgroup is summarized in this table. When more than one study reported values for the same compound in the same matrix, the highest value is also listed in this table among those studies. All NHANES values represent total population (values for demographic subgroups not used).",
   "References: \u1d43 = (Ml\u0079czy\u0144ska et al., 2023); \u1d47 = (Wang et al., 2010); \u1d9c = (Riffelmann et al., 1995); \u1d48 = (\u201cBiomonitoring Data Tables for Environmental Chemicals | CDC,\u201d 2024); \u1d49 = (Vermillion Maier et al., 2022)",
-  "Abbreviations: CDC = Centers for Disease Control and Prevention; IARC = International Agency for Research on Cancer; NHANES = National Health and Nutrition Examination Survey; PAH = polycyclic aromatic hydrocarbon; PCB = polychlorinated biphenyl; ppb = parts per billion",
+#! CAS is defined here because this table carries a CAS column; it was added to the manuscript by hand and would have been lost on any re-paste.
+  "Abbreviations: CAS = Chemical Abstracts Service; CDC = Centers for Disease Control and Prevention; IARC = International Agency for Research on Cancer; NHANES = National Health and Nutrition Examination Survey; PAH = polycyclic aromatic hydrocarbon; PCB = polychlorinated biphenyl; ppb = parts per billion",
   sep = "\n"
 )
 writeData(wb, 1, x = footnote_text, startRow = footnote_row, startCol = 1)

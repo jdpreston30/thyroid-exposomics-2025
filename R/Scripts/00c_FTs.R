@@ -166,7 +166,16 @@ for (.obj in c("tumor_raw", "feature_metadata", "ST1_import", "conc_raw", "cadav
   cat(sprintf("  %-34s %5d -> %5d  (%d dropped)\n", .obj, .before, .after, .before - .after))
 }
 rm(.obj, .before, .after)
-#- 0c.1.22: Drop the BLANK spacer orphaned by the exclusion
+#- 0c.1.22: Library composition counts for the Methods claims (script 19)
+#! Standalone by design, like anova_all/fisher_all in 04: nothing downstream reads lib_composition, so adding it cannot disturb ST1_import or anything built from it. It exists because ST1_import is already filtered on Disposition != "Endogenous" above, which destroys the only place the endogenous count survives. Read here rather than beside ST1_import so EXCLUDED_LIB_IDS is already defined and the same exclusion applies to both, keeping the two totals reconcilable (699 + 10 = 709 = n_distinct(ST1_import$cas)).
+lib_composition <- read_excel(config$paths$primary_data, sheet = "library") |>
+  filter(!id %in% EXCLUDED_LIB_IDS) |>
+  distinct(cas, Disposition) |>
+  count(Disposition, name = "n_chemicals")
+cat("\n-- Library composition (unique CAS per disposition) --\n")
+print(as.data.frame(lib_composition), row.names = FALSE)
+cat(sprintf("  total standards: %d\n", sum(lib_composition$n_chemicals)))
+#- 0c.1.23: Drop the BLANK spacer orphaned by the exclusion
 #! The figure_order sheet is HAND-CURATED, not a simple alternating list: a chemical with two plots occupies top AND bottom of the same page (main plot above its isolated-fragment plot), and single-plot chemicals are padded with explicit BLANK spacer rows. Do NOT re-derive `panel` by row position -- that reorders curated pairs and would place isolated-fragment panels above their parents.
 #! CP2302 sat at order 43 (panel=top) with a BLANK at order 43.5 (panel=bottom), i.e. it held a page of its own. Removing the compound orphans that spacer, so it goes too. Net effect: S2.1 loses one whole page (22 -> 21) and downstream page numbers shift by 1.
 validation_plot_metadata_ordered <- validation_plot_metadata_ordered |>

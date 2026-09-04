@@ -88,3 +88,7 @@ Outputs/Tables/T4_CDC_biomonitor/
 
 # Claude Code local permission rules (machine-specific absolute paths)
 .claude/
+
+# Office lock/owner files (Excel and Word write these while a document is open)
+~$*
+.~lock.*

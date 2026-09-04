@@ -136,7 +136,8 @@ build_table_3 <- function(data, export_path) {
     "\u2016 Unadjusted P-values are displayed; none remained significant after FDR correction.",
     #! TTBNP (CP2302) dropped with the compound itself -- see 00c_FTs.R section 0c.1.20
 #! Chemical expansions are lowercase here and title-case in the table cells: a footnote is prose, a cell is a column entry. Proper nouns and nitrogen locants keep their capitals. Prime is U+2032, not an apostrophe.
-    "Abbreviations: 5-NOT = 5-nitro-o-toluidine; DEET = N,N-diethyl-meta-toluamide; DNOP = di-n-octyl phthalate; FDR = false discovery rate; MDA = 4,4\u2032-diaminodiphenylmethane; MEHP = mono(2-ethylhexyl) phthalate; N-MeFOSAA = N-methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; PFAS = per- and polyfluoroalkyl substances; TEEP = tetraethyl ethylenediphosphonate; UV = ultraviolet",
+#! FTC/IEFVPTC/PTC are defined here because they are this table's column headers; the tumor-type names appear nowhere else in it. Alphabetical among the other entries, matching the manuscript.
+    "Abbreviations: 5-NOT = 5-nitro-o-toluidine; DEET = N,N-diethyl-meta-toluamide; DNOP = di-n-octyl phthalate; FDR = false discovery rate; FTC = follicular thyroid carcinoma; IEFVPTC = invasive encapsulated follicular variant of papillary thyroid carcinoma; MDA = 4,4\u2032-diaminodiphenylmethane; MEHP = mono(2-ethylhexyl) phthalate; N-MeFOSAA = N-methylperfluoro-1-octanesulfonamidoacetic acid (linear); OD-PABA = octyl-dimethyl-p-aminobenzoic acid; PAH = polycyclic aromatic hydrocarbon; PFAS = per- and polyfluoroalkyl substances; PTC = papillary thyroid carcinoma; TEEP = tetraethyl ethylenediphosphonate; UV = ultraviolet",
     sep = "\n"
   )
   writeData(wb, sheet = 1, x = footnote_text, startRow = merge_row_num, startCol = 1)
