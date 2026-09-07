@@ -27,10 +27,9 @@ compile_validation_pdf <- function(compound_plots,
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   
   # Ensure no lingering graphics devices before opening PDF
-  while (dev.cur() > 1) {
-    dev.off()
-    cat("Closed lingering graphics device\n")
-  }
+#! BOUNDED, and on.exit-guarded. An unbounded `while (dev.cur() > 1) dev.off()` spins forever when a device refuses to close -- which is precisely what a failed PDF write produces ("internal read error in PDF_endpage"). On 2026-09-04 that hung the run, and the device it left behind later segfaulted script 09 inside ggplotGrob's text measurement. The on.exit guarantees the sweep runs even if this function errors out, so a failed diagnostic PDF can never poison a downstream script. Nothing reads this PDF; it must never be able to stop the pipeline.
+  for (.i in seq_len(20)) { if (dev.cur() <= 1) break; try(dev.off(), silent = TRUE) }
+  on.exit({ for (.i in seq_len(20)) { if (dev.cur() <= 1) break; try(dev.off(), silent = TRUE) } }, add = TRUE)
   
   pdf(pdf_path, width = 8.5, height = 11, family = "Helvetica", onefile = TRUE)
   
@@ -135,10 +134,8 @@ compile_validation_pdf <- function(compound_plots,
     TRUE
   }, error = function(e) {
     cat(sprintf("Error closing PDF: %s\n", e$message))
-    # Force close any remaining devices
-    while (dev.cur() > 1) {
-      try(dev.off(), silent = TRUE)
-    }
+    # Force close any remaining devices (bounded -- see the note at the top)
+    for (.i in seq_len(20)) { if (dev.cur() <= 1) break; try(dev.off(), silent = TRUE) }
     FALSE
   })
   

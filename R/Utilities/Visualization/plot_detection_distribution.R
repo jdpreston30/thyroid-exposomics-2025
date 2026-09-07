@@ -70,7 +70,7 @@ plot_detection_distribution <- function(freq_dist_data) {
     ) +
     labs(
       x = "Chemicals Annotated",
-      y = "Number of Samples",
+      y = "# of Samples",
       fill = NULL
     ) +
     coord_cartesian(clip = "off") +

@@ -1,5 +1,5 @@
 #* 19: Numerical Claim Validation
-#! Emits every numeric claim made in the manuscript prose, in the order it appears, next to the value the pipeline actually produces. PROSE values are hardcoded from the submitted text on purpose -- that is what makes drift detectable; when a claim legitimately changes, update the PROSE argument here in the same commit as the manuscript edit. Read-only: derives nothing new and writes no files.
+#! Emits every numeric claim made in the manuscript prose, in the order it appears, next to the value the pipeline actually produces. Two checks are deliberately NOT manuscript claims and are labelled as such in their output: [response letter] marks a number claimed only in R3_response_EI-D-26-02460.docx, and [internal] marks a consistency check on a split the paper never states. Everything else was confirmed present in the manuscript prose by searching the .docx on 2026-09-04. PROSE values are hardcoded from the submitted text on purpose -- that is what makes drift detectable; when a claim legitimately changes, update the PROSE argument here in the same commit as the manuscript edit. Read-only: derives nothing new and writes no files.
 #+ 19.1: Reporting Helpers
 #! Every getter is wrapped, so a partial pipeline degrades to "??" rather than aborting the run and losing the session-info step that follows. On any non-PASS the expression itself is echoed, so a wrong object or column name is immediately diagnosable instead of looking like a failed claim.
 .vfail <- 0L; .vskip <- 0L
@@ -36,6 +36,11 @@ cat("PROSE = as written in the submitted manuscript | PIPELINE = computed now\n"
 .chk("IARC Group 1 elevated in tumors (2)", 2, dplyr::n_distinct(IARC_combined$short_name))
 #+ 19.3: Methods
 .sec("Methods")
+#! Section 2.2 tissue weights. Placed first because the checks run in manuscript order, and 2.2 precedes the library counts below.
+.chk("tumor tissue weight, mean (52.7 mg)",  52.7, round(mean(weights$weight_mg, na.rm = TRUE), 1), tol = 0.05)
+.chk("  tumor tissue weight, SD (11.3 mg)",  11.3, round(sd(weights$weight_mg, na.rm = TRUE), 1), tol = 0.05)
+.chk("cadaver tissue weight, mean (43.1 mg)", 43.1, round(mean(cadaver_tissue_wts$weight_mg, na.rm = TRUE), 1), tol = 0.05)
+.chk("  cadaver tissue weight, SD (4.5 mg)",  4.5, round(sd(cadaver_tissue_wts$weight_mg, na.rm = TRUE), 1), tol = 0.05)
 .chk("features tested, total (1,476)",       1476, nrow(anova_all) + nrow(fisher_all))
 .chk("  quantitative features (435)",        435,  nrow(anova_all))
 .chk("  qualitative features (1,041)",       1041, nrow(fisher_all))
@@ -55,7 +60,7 @@ cat("PROSE = as written in the submitted manuscript | PIPELINE = computed now\n"
 .chk("dual-disposition chemicals retained (7)", 7,
      sum(feature_metadata$Disposition == "Exogenous and Endogenous", na.rm = TRUE))
 #! The IARC validation set holds 10 distinct chemicals, but section 2.7 says "an ADDITIONAL n ... beyond the 62", and o-toluidine sits in both sets, so the additional count is 9 and 62 + 9 = 71 chemicals reached manual validation. Three traps here: iv_wide is keyed on library id so one chemical spans several rows (pentachlorophenol is CP1016 and CP2242); validated_iarc is the set that PASSED, not the set submitted; and short_name carries a trailing * for Level 2 ids in some objects, so it must be stripped or the overlap silently under-counts. The PCB exclusion the prose names is already applied at 07_validation_prep.R.
-#! Prose was 11 as submitted -- reproducible as neither 10 nor 9, so it was corrected to 9 on 2026-09-03.
+#! Prose said 11 through R1-R3; corrected to 9 on 2026-09-04. PROVENANCE: the `source` column of validation.xlsx sheet "validation" has three values -- VD (62 chemicals), "IARC and VD" (1: o-Toluidine), IARC (10). Counting the two IARC-labelled groups as 10 + 1 gives 11, but o-Toluidine is in both, so the union is 10 and the additional-beyond-VD count is 9. That same sheet also reconciles the 62: TTBNP (CP2302) is a VD row and is dropped by drop_excluded, so 62 VD - 1 TTBNP + 1 o-Toluidine = 62, matching nrow(quant_qual_results).
 .chk("additional IARC Group 1 validated (9)", 9,
      sum(!unique(sub("\\*$", "", iv_wide$short_name)) %in%
            unique(sub("\\*$", "", quant_qual_results$short_name))))
@@ -107,12 +112,14 @@ cat("PROSE = as written in the submitted manuscript | PIPELINE = computed now\n"
 #+ 19.6: Results 3.4 -- Exposome-wide Association
 .sec("Results 3.4 - exposome-wide association")
 .chk("statistical differences, chemicals (62)", 62, nrow(quant_qual_results))
-.chk("  quantitative of those (33)",         33,   sum(quant_qual_results$mode == "quantitative"))
+#! Not a manuscript number -- the 62 is never split by mode in the paper. Kept as an internal consistency check that 33 + 29 = 62.
+.chk("  quantitative of those (33) [internal]", 33, sum(quant_qual_results$mode == "quantitative"))
 .chk("  qualitative of those (29)",          29,   sum(quant_qual_results$mode == "qualitative"))
 .chk("validated chemicals (29)",             29,   nrow(ancova_summary))
 .chk("  quantitative validated (17)",        17,   sum(ancova_summary$mode == "quant"))
 .chk("  qualitative validated (12)",         12,   sum(ancova_summary$mode == "qual"))
-.chk("nominally significant features (67)",  67,   sum(fdr_all$p_value < 0.05, na.rm = TRUE))
+#! Not in the manuscript -- 67 is claimed in the RESPONSE LETTER, Comment 3 ("our results indicated that 67 total features ... were significant"). Checked here so that letter stays defensible too.
+.chk("nominally significant features (67) [response letter]", 67, sum(fdr_all$p_value < 0.05, na.rm = TRUE))
 .chk("expected by chance, P<0.05 (~74)",     74,   round(sum(!is.na(fdr_all$p_value)) * 0.05), tol = 1)
 .chk("surviving pooled BH (0)",              0,    sum(fdr_all$q_BH < 0.05, na.rm = TRUE))
 .chk("  Level 1 identifications (25)", 25, sum(MT_final$quality == 1, na.rm = TRUE))
@@ -143,7 +150,17 @@ cat("PROSE = as written in the submitted manuscript | PIPELINE = computed now\n"
 .chk("not evaluated as carcinogens (~70%)", 70,
      round(100 - 100 * sum(!is.na(feature_metadata$IARC_Group) & feature_metadata$IARC_Group != "") /
              nrow(feature_metadata)), tol = 1)
-#+ 19.10: Verdict
+#+ 19.10: Graphical Abstract and Highlights
+#! Front-matter claims. Both files are EXTERNAL to the pipeline -- GA.png is drawn in BioRender and script 14 only embeds it (14_render_figures.R:116), and the highlights are a .docx -- so nothing here regenerates them and a FAIL means the asset must be redrawn or retyped by hand.
+#! Only the three donut segment labels are new. The GA's other numbers (709, 60, 8, 442, 40%, 23/13/52/45, 29) are already checked above and are not repeated. The highlights introduce no number of their own -- they restate 442 and 29 -- so highlights drift surfaces as a FAIL on those checks, not here. This is how the 2026-09-04 audit caught the highlights still claiming 443 and 30, stale since the TTBNP exclusion.
+.sec("Graphical abstract / highlights")
+.chk("GA IARC donut, not evaluated (309)", 309,
+     sum(is.na(feature_metadata$IARC_Group) | feature_metadata$IARC_Group == ""))
+.chk("GA EDC donut, potential EDC (179)", 179,
+     sum(feature_metadata$Potential_EDC == "Y", na.rm = TRUE))
+.chk("GA EDC donut, non-EDC (263)", 263,
+     nrow(feature_metadata) - sum(feature_metadata$Potential_EDC == "Y", na.rm = TRUE))
+#+ 19.11: Verdict
 cat(sprintf("\n  %s   mismatches: %d   not-evaluable: %d\n",
             if (.vfail == 0L) "ALL EVALUABLE CLAIMS MATCH." else "*** REVIEW NEEDED ***",
             .vfail, .vskip))

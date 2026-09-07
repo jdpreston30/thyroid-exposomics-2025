@@ -1015,7 +1015,8 @@ rtx <- function(validation_list,
   # Report RDS saving summary
   if (save_rds && !is.null(rds_save_folder)) {
     successful_plots <- compound_plots[!sapply(compound_plots, inherits, "error")]
-    total_plots <- sum(sapply(successful_plots, function(x) length(x$plots)))
+#! vapply, not sapply -- when every compound errors (e.g. OneDrive read timeouts) successful_plots is empty, sapply returns list(), and sum(list()) aborts the whole run instead of reporting zero.
+    total_plots <- sum(vapply(successful_plots, function(x) length(x$plots), integer(1)))
     local_dir <- if (exists("config") && !is.null(config$paths$validation_plot_directory)) {
       file.path(config$paths$validation_plot_directory, rds_save_folder)
     } else {
@@ -1162,7 +1163,7 @@ rtx <- function(validation_list,
   successful_plots <- compound_plots[!sapply(compound_plots, inherits, "error")]
   cat(sprintf("  Generated %d compounds with %d total plots\n",
               length(successful_plots),
-              sum(sapply(successful_plots, function(x) length(x$plots)))))
+              sum(vapply(successful_plots, function(x) length(x$plots), integer(1)))))
   cat(sprintf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"))
   
   return(compound_plots)

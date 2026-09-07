@@ -23,16 +23,21 @@ l <- function(...) {
   base_path <- config$paths$validation_plot_directory_onedrive
   loaded_plots <- list()
   
+#! curated/original no longer exists in either store, so this searched one dead path and returned an empty list; vp() then hard-stops at its "Invalid plot object" check. Script 09 line 107 is the only l() call in the pipeline and it aborted the run there. Search vp()'s own directories as a fallback -- l()'s purpose is to force a fresh load from disk rather than reuse a modified in-memory copy, which the variant_rtx original serves.
+  search_dirs <- c(file.path("curated", "original"), "variant_rtx", "iarc_tumor_rtx", "iarc_cadaver_rtx")
   for (plot_tag in plot_tags) {
     # Construct path to RDS file
-    rds_path <- file.path(base_path, "curated", "original", paste0(plot_tag, ".rds"))
-    
+    rds_path <- NULL
+    for (dir in search_dirs) {
+      test_path <- file.path(base_path, dir, paste0(plot_tag, ".rds"))
+      if (file.exists(test_path)) { rds_path <- test_path; break }
+    }
     # Check if file exists
-    if (!file.exists(rds_path)) {
-      warning(sprintf("Plot file not found: %s", rds_path))
+    if (is.null(rds_path)) {
+      warning(sprintf("Plot file not found in any directory: %s", plot_tag))
       next
     }
-    
+
     # Load the plot
     plot_obj <- readRDS(rds_path)
     

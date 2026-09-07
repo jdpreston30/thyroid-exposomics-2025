@@ -237,7 +237,8 @@ writeLines(st3_latex, "Supplementary/Components/Tables/ST3.tex")
 #! Two same-structured test blocks from script 13 (covariate vs. type; covariate vs. covariate) merged under underlined section headers. The collection-year distribution reconciliation is emitted to ST4_caption.tex so its numbers are wired from R (not hand-typed) — build_ST4() styles the tabular to match ST3 (see its roxygen).
 #- 17.5.1: Merge the balance + cross-association blocks under two section headers
 #! Script 13 supplies numeric P; formatting happens here so ST3, ST4 and ST5 all round identically
-.fmt_p4 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
+#! Empty cells are an en dash (U+2013) in every table, matching ST2 and manuscript Table 4; never a hyphen.
+.fmt_p4 <- function(p) ifelse(is.na(p), "–", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
 ST4_data <- tibble(
   Comparison = c(
     "Covariate vs. Tumor Type", balance_by_type$covariate,
@@ -300,7 +301,7 @@ writeLines(st4_caption, "Supplementary/Components/Tables/ST4_caption.tex")
     Covariate = covariate,
     `Significant|Quantitative` = cell_quant,
     `Significant|Qualitative` = cell_qual,
-    `Median $\\eta^{2}$|Quantitative` = if_else(is.na(median_effect_sig_quant), "-", sprintf("%.3f", median_effect_sig_quant)),
+    `Median $\\eta^{2}$|Quantitative` = if_else(is.na(median_effect_sig_quant), "–", sprintf("%.3f", median_effect_sig_quant)),
     .section = FALSE
   )
 #! Tumor type is split into its own section so it reads as the on-scale reference contrast rather than as another candidate confounder
@@ -336,8 +337,8 @@ st5_caption <- paste0(
 writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
 #+ 17.7: ST6: Covariate-adjusted Tumor-type Effects (reviewer #2 — Do Findings Survive adjustment)
 #- 17.7.1: Format p-values and effect sizes
-.fmt_p6 <- function(p) ifelse(is.na(p), "-", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
-.fmt_es6 <- function(e) ifelse(is.na(e), "-", formatC(e, format = "f", digits = 3))
+.fmt_p6 <- function(p) ifelse(is.na(p), "–", ifelse(p < 0.001, "< 0.001", formatC(p, format = "f", digits = 3)))
+.fmt_es6 <- function(e) ifelse(is.na(e), "–", formatC(e, format = "f", digits = 3))
 #- 17.7.2: One block per mode, ordered by unadjusted significance within each
 .st6_block <- function(md, header) {
   rows <- ancova_summary |>
@@ -351,7 +352,7 @@ writeLines(st5_caption, "Supplementary/Components/Tables/ST5_caption.tex")
         if_else(str_detect(short_name, "\\*$"), "\\textsuperscript{\\textdagger}", ""),
         if_else(!is.na(n_detected) & n_detected <= 10, "\\textsuperscript{\\textdaggerdbl}", "")
       ),
-      `n Detected` = if (md == "qual") formatC(n_detected, format = "d") else "-",
+      `n Detected` = if (md == "qual") formatC(n_detected, format = "d") else "–",
       #! Model 1/2/3 rather than spelled-out adjustment sets; the sets are defined in the caption and the numbering keeps the columns narrow
       `P|Model 1` = .fmt_p6(p_value_unadjusted),
       `P|Model 2` = .fmt_p6(p_value_year),

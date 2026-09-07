@@ -46,7 +46,7 @@
 #' @importFrom ggplot2 ggsave
 #' @export
 print_to_png <- function(plot, filename, width = 8.5, height = 11, dpi = 800,
-                         output_dir = NULL, auto_open = TRUE) {
+                         output_dir = NULL, auto_open = FALSE) {
   
   # Use config path if output_dir not specified
   if (is.null(output_dir)) {

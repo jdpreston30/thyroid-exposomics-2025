@@ -16,6 +16,8 @@ IARC_ttests <- full_joiner |>
   ) |>
   arrange(p_value)
 #+ 12.2: Graph Tumor v Cadaver IARC1
+#! FRAGMENT CHOICE -- both panels hardcode the _0 fragment because it is the one the source data flags as the quantifier: lib.subject.qsummary carries bestFlag = 1 AND bestQuantFlag = 1 on o-Toluidine_0 and 4-aminobiphenyl_0, and the cadaver sheet agrees. The criterion is detection then intensity, NOT p-value -- 4-aminobiphenyl_0 is detected in 60/60 tumors and 8/8 cadavers (detectFrac 1.00) versus _1 at 55/60 and _2 at 52/60. So _0 is chosen even though _1 has the smaller P (7.18e-17 vs 1.33e-11); picking on P would be selecting the fragment by its own result.
+#! This mirrors the rule still visible at 06_tumor_cadaver.R:131, `arrange(desc(pct_det_tumor), desc(pct_det_ctrl), desc(iMean_tumors))`. That arrange was once followed by `group_by(cas) |> slice_head(n = 1)`, which auto-selected the ideal fragment; it was removed in c7ecd9c (2025-12-16) so full_joiner could retain every fragment. These hardcoded names are that removed selector's output, written out by hand -- 8dc27ec, the commit that introduced them, is from the same day.
 #- 12.2.1: o-Toluidine_0_BP3.GC2_CP3017
 # P-value
 toluidine_p <- IARC_ttests |> 

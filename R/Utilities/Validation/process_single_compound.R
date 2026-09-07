@@ -279,7 +279,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           mz_num <- as.numeric(gsub("mz", "", marked_mz))
           sample_chrom$mz_label <- ifelse(
             sample_chrom$mz_index == mz_num,
-            paste0("**", sample_chrom$mz_label, " \\*****"),
+            paste0(sample_chrom$mz_label, " **\\***"),
             sample_chrom$mz_label
           )
         }
@@ -533,7 +533,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           mz_num <- as.numeric(gsub("mz", "", marked_mz))
           combined_data$mz_label <- ifelse(
             combined_data$mz_index == mz_num,
-            paste0("**", combined_data$mz_label, " \\*****"),
+            paste0(combined_data$mz_label, " **\\***"),
             combined_data$mz_label
           )
         }

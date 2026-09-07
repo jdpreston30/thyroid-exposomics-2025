@@ -16,7 +16,7 @@
 #' @details
 #' The plot includes:
 #' \itemize{
-#'   \item X-axis range: 0-100 with label "Number of Chemicals annotated"
+#'   \item X-axis range: 0-100 with label "Chemicals Annotated"
 #'   \item Y-axis: Chemical use classes ordered by frequency
 #'   \item Black bars with no color differentiation
 #'   \item Superscript symbols (†, ‡, §) in class labels

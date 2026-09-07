@@ -7,7 +7,7 @@ file_inventory <- convert_raw_to_mzml(
   cadaver_raw_dir = config$paths$cadaver_raw_dir
 )
 #+ 8.2: Manual Validation Plots Creation
-#! 8.2.1 and 8.2.2 are skippable when their grobs are already current on OneDrive. vp() falls back to reading validation_plots/{iarc_tumor_rtx,iarc_cadaver_rtx} when an object is absent from .GlobalEnv (vp.R:50-83), and script 09 needs only 16 of those objects. Nothing downstream consumes the iarc_tumor_rtx / iarc_cadaver_rtx variables -- they are used solely by the compile_validation_pdf() calls in this block.
+#! 8.2.1 and 8.2.2 are skippable when their grobs are already current on OneDrive. vp() falls back to reading validation_plots/{iarc_tumor_rtx,iarc_cadaver_rtx} when an object is absent from .GlobalEnv (vp.R:50-83), and script 09 needs only 16 of those objects. Nothing downstream consumes the iarc_tumor_rtx / iarc_cadaver_rtx variables -- they are used solely by the try(compile_validation_pdf()) calls in this block.
 #! ONLY skip after confirming the OneDrive folders hold the CURRENT grobs. If they are stale, vp() loads the old ones silently and the figures come out with the previous chemical names -- no error, no warning.
 if (isTRUE(config$analysis$rebuild_iarc_grobs)) {
 #- 8.2.1: IARC tumor
@@ -23,13 +23,18 @@ iarc_tumor_rtx <- rtx(
   n_cores = 9
 )
 # Create compiled PDF
-compile_validation_pdf(
+try(compile_validation_pdf(
   compound_plots = iarc_tumor_rtx,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_tumor_rtx.pdf",
   add_plot_tags = TRUE,
   external_subfolder = "iarc_tumor_rtx"
-)
+))
+#! Freed immediately: these grob lists run to ~2 GB each and NOTHING downstream consumes them
+#! (see the note at 8.2). Retaining all five through the run put ~4 GB in the global env, which the
+#! next rtx() call then forked across 7 workers -- that OOM-killed the 2026-09-05 end-to-end run
+#! partway through variant pt1, after both IARC blocks had already succeeded.
+rm(iarc_tumor_rtx); invisible(gc())
 #- 8.2.2: IARC cadaver
 # Run rtx
 iarc_cadaver_rtx <- rtx(
@@ -44,17 +49,23 @@ iarc_cadaver_rtx <- rtx(
   n_cores = 9
 )
 # Create compiled PDF
-compile_validation_pdf(
+try(compile_validation_pdf(
   compound_plots = iarc_cadaver_rtx,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "iarc_cadaver_rtx.pdf",
   add_plot_tags = TRUE,
   external_subfolder = "iarc_cadaver_rtx"
-)
+))
+rm(iarc_cadaver_rtx); invisible(gc())
 } else {
   cat("⏭️  Skipping 8.2.1/8.2.2 IARC grob rebuild (config$analysis$rebuild_iarc_grobs = FALSE);\n")
   cat("   script 09 will load those grobs from the OneDrive backup via vp().\n")
 }
+#! 8.2.3/8.2.4 (rows 1-40) are skippable on the same terms as 8.2.1/8.2.2: vp() falls back to
+#! validation_plots/variant_rtx on OneDrive when the object is absent from .GlobalEnv. Set false only
+#! when those grobs are CURRENT -- stale ones load silently with the previous chemical names. Part 3
+#! (8.2.5) has its own flag, rebuild_variant_grobs_pt3.
+if (isTRUE(config$analysis$rebuild_variant_grobs_pt12)) {
 #- 8.2.3: Variant differences chemicals (Part 1)
 # Subset to part 1
 vv_wide_pt1 <- vv_wide |>
@@ -72,13 +83,14 @@ variant_rtx_pt1 <- rtx(
   n_cores = NULL
 )
 # Write compiled PDF
-compile_validation_pdf(
+try(compile_validation_pdf(
   compound_plots = variant_rtx_pt1,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "variant_rtx_pt1.pdf",
   add_plot_tags = TRUE,
   external_subfolder = "variant_rtx"
-)
+))
+rm(variant_rtx_pt1); invisible(gc())
 #- 8.2.4: Variant differences chemicals (Part 2)
 # Subset to part 2
 vv_wide_pt2 <- vv_wide |>
@@ -96,13 +108,20 @@ variant_rtx_pt2<- rtx(
   n_cores = NULL
 )
 # Write compiled PDF
-compile_validation_pdf(
+try(compile_validation_pdf(
   compound_plots = variant_rtx_pt2,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "variant_rtx_pt2.pdf",
   add_plot_tags = TRUE,
   external_subfolder = "variant_rtx"
-)
+))
+rm(variant_rtx_pt2); invisible(gc())
+} else {
+  cat("⏭️  Skipping 8.2.3/8.2.4 variant pt1/pt2 rebuild (config$analysis$rebuild_variant_grobs_pt12 = FALSE);\n")
+  cat("   script 09 will load rows 1-40 from the OneDrive backup via vp().\n")
+}
+#! Part 3 was previously ungated, so it re-ran rows 41+ even when pt1/pt2 were skipped. Same terms as the other parts: skip only when variant_rtx holds CURRENT grobs, since vp() loads stale ones silently with the old chemical names.
+if (isTRUE(config$analysis$rebuild_variant_grobs_pt3)) {
 #- 8.2.5: Variant differences chemicals (Part 3)
 # Subset to part 3
 vv_wide_pt3 <- vv_wide |>
@@ -120,13 +139,18 @@ variant_rtx_pt3 <- rtx(
   n_cores = NULL
 )
 # Write compiled PDF
-compile_validation_pdf(
+try(compile_validation_pdf(
   compound_plots = variant_rtx_pt3,
   output_dir = "Outputs/Validation/initial_compile/",
   pdf_name = "variant_rtx_pt3.pdf",
   add_plot_tags = TRUE,
   external_subfolder = "variant_rtx"
-)
+))
+rm(variant_rtx_pt3); invisible(gc())
+} else {
+  cat("⏭️  Skipping 8.2.5 variant pt3 rebuild (config$analysis$rebuild_variant_grobs_pt3 = FALSE);\n")
+  cat("   script 09 will load rows 41+ from the variant_rtx backup via vp().\n")
+}
 #+ 8.3: Iterate Through All Validated IARC1 (Post-hoc per Step 9)
 #! Diagnostic only, and OFF by default. Nothing here reaches the supplement: the figure_order sheet points exclusively at Outputs/Validation/revised/grobs/, script 09 never references a *_validated / *_check object, and its section 9.10 ("IARC 1 Top Fragments") is an empty stub. These are nine SERIAL single-compound runs at iterate_through = 120 with use_parallel = FALSE, so they cost hours while producing PDFs for eyeballing fragments. Flip run_iarc_fragment_check to true in the yaml only when you actually want that inspection.
 if (isTRUE(config$analysis$run_iarc_fragment_check)) {
@@ -145,13 +169,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt1,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[1]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.2: IARC tumor - γ-BHC
 {
@@ -168,13 +192,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt2,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[2]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.3: IARC tumor - 2-Naphthylamine
 {
@@ -191,13 +215,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt3,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[3]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.4: IARC tumor - Phenacetin
 {
@@ -214,13 +238,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt4,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[4]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.5: IARC tumor - 4-ABP
 {
@@ -237,13 +261,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt5,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[5]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.6: IARC tumor - MOCA
 {
@@ -260,13 +284,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt6,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[6]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.7: IARC tumor - o-Toluidine
 {
@@ -283,13 +307,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt7,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[7]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.8: IARC tumor - 2-ABP
 {
@@ -306,13 +330,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     fragment_pare = FALSE,
     force_plot = TRUE
   )
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_tumor_rtx_validated_pt8,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = paste0("iarc_tumor_", gsub("[^A-Za-z0-9]", "_", iv_wide_iarc_validated$short_name[8]), ".pdf"),
     add_plot_tags = TRUE,
     external_subfolder = "iarc_tumor_rtx_validated_check"
-  )
+  ))
 }
 #- 8.3.9: IARC cadaver
 {
@@ -332,13 +356,13 @@ if (isTRUE(config$analysis$run_iarc_fragment_check)) {
     debug = TRUE
   )
   # Generate compiled PDF
-  compile_validation_pdf(
+  try(compile_validation_pdf(
     compound_plots = iarc_cadaver_rtx_validated,
     output_dir = "Outputs/Validation/initial_compile/",
     pdf_name = "iarc_cadaver_rtx_validated.pdf",
     add_plot_tags = TRUE,
     external_subfolder = "iarc_cadaver_rtx_validated_check"
-  )
+  ))
 }
 } else {
   cat("⏭️  Skipping 8.3 IARC fragment checks (config$analysis$run_iarc_fragment_check = FALSE)\n")

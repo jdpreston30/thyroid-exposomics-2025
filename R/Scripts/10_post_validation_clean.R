@@ -51,6 +51,8 @@ IARC_combined <- IARC_controls |>
     pct_detected_tumor = 1 - replace_na(pct_NA_tumor, 1),
     pct_detected_ctrl = 1 - replace_na(pct_NA_ctrl, 1)
   ) |>
+#! THIS LINE IS WHY ONLY TWO OF 23 IARC GROUP 1 CARCINOGENS REACH FIGURE 3E/F. It is a DETECTABILITY bar, not a significance one: a chemical must be detected in >= 70% of tumors AND >= 70% of cadavers to be quantitatively comparable across the two batches. Both survivors (o-toluidine, 4-aminobiphenyl) also differ significantly, but nothing was ever dropped for being non-significant -- do not describe this filter, in the paper or in a legend, as selecting on significance.
+#! It excludes chemicals that ARE annotated in both cohorts: phenacetin (0.917 tumor / 0.250 cadaver), gamma-BHC (0.017 / 0.125), 4-aminobiphenyl_1 from CP2518 (0.750 / 0.625). So "annotated in both" and "passes this filter" are different tests -- which matters because Methods 2.10 criterion B currently states the weaker one. See punch item 119.
   filter(pct_detected_tumor >= 0.7 & pct_detected_ctrl >= 0.7) |>
   arrange(short_name, desc(pct_detected_tumor)) |>
   select(name_sub_lib_id, short_name, id, subid, pct_detected_tumor, pct_detected_ctrl, iMean_ctrl, iMean_tumor) |>

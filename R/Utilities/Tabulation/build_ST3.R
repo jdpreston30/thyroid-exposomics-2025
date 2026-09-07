@@ -32,11 +32,12 @@ build_ST3 <- function(data) {
   # Clean embedded newlines in headers (e.g. "Total\n(N = 68)")
   names(df) <- gsub("\\s*\n\\s*", " ", names(df))
   value_cols <- setdiff(names(df), "Variable")
-  # P-value formatting: <0.001 collapses scientific notation; else 3 dp; keep "-"/""
+  # P-value formatting: <0.001 collapses scientific notation; else 3 dp; ternG's "-" becomes the en-dash placeholder used by every other table
   if ("P" %in% names(df)) {
     num <- suppressWarnings(as.numeric(df$P))
     df$P <- ifelse(!is.na(num) & num < 0.001, "< 0.001",
              ifelse(!is.na(num), formatC(num, format = "f", digits = 3), df$P))
+    df$P[!is.na(df$P) & df$P == "-"] <- "–"
   }
   # LaTeX-escape cell content (% and & appear in n (%) cells; ± in mean ± SD)
   esc <- function(x) {

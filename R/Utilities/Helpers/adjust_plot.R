@@ -49,8 +49,12 @@ vp <- function(plot_obj,
   }
   
   # Y-axis title, grid removal, scientific notation
+#! Cohort derived from plot_tag, not hardcoded -- see the matching note in VP/vp.R. Hardcoding "Tumor" here relabels cadaver plots.
+  .cohort <- if (is.character(modified_plot$plot_tag) &&
+                 length(modified_plot$plot_tag) == 1L &&
+                 startsWith(modified_plot$plot_tag, "C_")) "Cadaver" else "Tumor"
   modified_plot$plot <- modified_plot$plot +
-    ggplot2::labs(y = "← Standard | Tumor →") +
+    ggplot2::labs(y = sprintf("← Standard | %s →", .cohort)) +
     ggplot2::theme(
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank()

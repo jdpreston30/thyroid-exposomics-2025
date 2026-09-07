@@ -90,7 +90,12 @@ vp <- function(plot_obj,
   }
   
   modified_plot <- plot_obj
-  
+  #- Step 0a: Repair the asterisk marker written by the 2026-01-05 regression
+#! 5b82667 changed process_single_compound.R to emit `**LABEL \*****` -- bold-wrapping the whole label with five trailing asterisks -- instead of the documented `LABEL **\***`. That one string breaks three things: markdown consumes two asterisks closing the bold and renders the other two literally, the `^(mz[0-9]+):` colour lookup below fails because the label starts with `**` so the marked fragment gets an NA colour, and the Step 6 detector never matches so the "Analyzed Fragment" subtitle is silently dropped. Fixed at source, but every grob generated between that commit and 2026-09-04 carries it, so repair on load rather than regenerate. Idempotent -- correctly-formed labels are untouched.
+  if ("mz_label" %in% names(modified_plot$plot$data)) {
+    modified_plot$plot$data$mz_label <- sub("^\\*\\*(.*) \\\\\\*{5}$", "\\1 **\\\\***",
+                                            modified_plot$plot$data$mz_label)
+  }
   #- Step 0: Apply global formatting (colors, y-axis title, grid removal, scientific notation)
   cat("→ Applying global formatting...\n")
   
@@ -116,8 +121,12 @@ vp <- function(plot_obj,
   }
   
   # Y-axis title, grid removal, scientific notation
+#! Cohort is DERIVED, not hardcoded. This line read "Tumor" unconditionally and so relabelled every cadaver plot as tumor -- the grob arrives from process_single_compound.R:622 correctly reading "Cadaver", and this overwrote it. Visible on supplement pp. 34-36 (six labels, GC097 samples, no tumor samples on those pages). Masked from grep because the rendered text is the expanded "Standard", while the source form is the abbreviated "Std". Cadaver grobs carry a C_ prefix on plot_tag, enforced at the load step above.
+  .cohort <- if (is.character(modified_plot$plot_tag) &&
+                 length(modified_plot$plot_tag) == 1L &&
+                 startsWith(modified_plot$plot_tag, "C_")) "Cadaver" else "Tumor"
   modified_plot$plot <- modified_plot$plot +
-    ggplot2::labs(y = "← Standard | Tumor →") +
+    ggplot2::labs(y = sprintf("← Standard | %s →", .cohort)) +
     ggplot2::theme(
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank()
@@ -223,7 +232,23 @@ vp <- function(plot_obj,
   if (!is.null(modified_plot$plot$labels$title)) {
     modified_plot$plot$labels$title <- gsub("γ", "gamma", modified_plot$plot$labels$title)
   }
-  
+  #- Step 7.6: Italicise chemical locants in the title
+#! rtx bakes title = short_name and renders it with element_text, which parses no markup, so locants
+#! came out roman while the caption above the same plot italicised them. Applied here, not in rtx,
+#! because the title is still a live ggplot label until ggplotGrob() runs below. Alphabetic locants
+#! only -- numeric (4,4') and Greek (lambda-) locants stay roman, per the manuscript convention.
+  if (!is.null(modified_plot$plot$labels$title)) {
+    t <- gsub("*", "\\*", modified_plot$plot$labels$title, fixed = TRUE)
+    t <- gsub("(?<![A-Za-z0-9])(sec|tert|cis|trans)-", "*\\1*-", t, perl = TRUE)
+    t <- gsub("(?<![A-Za-z0-9*])([NOSomnp])-(?=[A-Za-z])", "*\\1*-", t, perl = TRUE)
+    t <- gsub("\\[([a-z]),([a-z])\\]", "[*\\1*,*\\2*]", t, perl = TRUE)
+    t <- gsub("\\[([a-z])\\]", "[*\\1*]", t, perl = TRUE)
+    modified_plot$plot$labels$title <- t
+    modified_plot$plot <- modified_plot$plot +
+      ggplot2::theme(plot.title = ggtext::element_markdown(hjust = 0.5, face = "bold", size = 9,
+                                                           margin = margin(0, 0, 2, 0)))
+  }
+
   #- Write final output (with _F suffix if fragment adjustment was used)
   suffix <- if (!is.null(mz_fragment)) "_F" else ""
   write_small(modified_plot, subfolder = subfolder, suffix = suffix)

@@ -1,27 +1,48 @@
 # Environmental Chemical Burden in Differentiated Thyroid Cancer
 
-## 📖 Citation
+Analysis code for a GC–MS environmental chemical screening study of 60 differentiated thyroid
+cancer (DTC) specimens — papillary, follicular, and invasive encapsulated follicular variant of
+papillary thyroid carcinoma (n = 20 each) — compared with 8 non-cancer cadaver thyroids.
 
-This code is associated with the analysis presented in the following manuscript:
-> Preston et al. (2026). Environmental Chemical Burden in Differentiated Thyroid Cancer.
-> *Environmental International* (submitted).
+## Citation
 
-## 📝 Terminology Note (code vs. manuscript)
+> Preston JD, Liang Y, Szabo Yamashita T, Teeny S, Weinberg J, Crandall WJ, Jarrell ZR, Hu X,
+> Safley SA, Robertson JM, Tran V, Jackson AS, Patel SG, Glosser LD, Weber CJ, Sharma J,
+> Saunders ND, Go Y, Jones DP, Smith MR. Environmental Chemical Burden in Differentiated Thyroid
+> Cancer. *Environment International*. Under revision, 2026.
 
-Throughout this codebase, the three differentiated thyroid cancer **types** analyzed — papillary (PTC), follicular (FTC), and the invasive encapsulated follicular variant of papillary thyroid carcinoma (IEFVPTC) — are referred to internally as **"variant"** (in column names, object names, function names, script names, and file paths). This is an intentional, isolated inconsistency with the manuscript.
+## Terminology: "variant" in the code, "type" in the manuscript
 
-Per the 2022 WHO Classification of Thyroid Tumours (Jung et al., 2022; WHO Classification of Tumours Editorial Board, 2022), the term "variant" is now reserved for genetic variants, and IEFVPTC is recognized as a distinct entity rather than a subtype of PTC. The manuscript accordingly uses **"type" / "tumor type"** throughout. We deliberately retain "variant" as an internal identifier to preserve the integrity and reproducibility of a validated, working pipeline — renaming would risk introducing errors into analysis code that is otherwise verified and stable. **In every case, "variant" in the code is equivalent to "type" in the manuscript and current pathology literature**; the discrepancy is purely nominal and confined to code-level naming.
+Throughout this codebase, the three differentiated thyroid cancer **types** analyzed — papillary
+(PTC), follicular (FTC), and the invasive encapsulated follicular variant of papillary thyroid
+carcinoma (IEFVPTC) — are referred to internally as **"variant"**, in column names, object names,
+function names, script names and file paths. This is an intentional, isolated inconsistency with the
+manuscript.
 
-## 🚀 Quick Start for Reproduction
+Per the 2022 WHO Classification of Thyroid Tumours (Jung et al., 2022; WHO Classification of Tumours
+Editorial Board, 2022), "variant" is now reserved for genetic variants, and IEFVPTC is recognized as
+a distinct entity rather than a subtype of PTC. The manuscript accordingly uses **"type" / "tumor
+type"** throughout. We retain "variant" as an internal identifier to preserve the integrity of a
+validated, working pipeline — renaming would risk introducing errors into analysis code that is
+otherwise verified and stable. **In every case, "variant" in the code is equivalent to "type" in the
+manuscript and the current pathology literature**; the discrepancy is purely nominal and confined to
+code-level naming.
 
-**⚠️ Data Availability Notice**: 
-- **No raw data files** are included in this repository
-- **All instructions below assume you have obtained data files or are using your own data**
-- **To reproduce this analysis**: Contact the first author (Joshua D. Preston, joshua.preston@emory.edu) or senior author (M. Ryan Smith, matthew.ryan.smith@emory.edu) to obtain the data files—this is the easiest and recommended approach
-- **Public data access**: Open-format spectra (`.mzML`) and the processed feature tables are deposited at Metabolomics Workbench, [Study ST005162](https://doi.org/10.21228/M87P2Q). Vendor `.raw` files are **not** deposited (see below)
-- **To run analyses with your own data or provided data files**: Update file paths in `All_Run/config_dynamic.yaml` to match your system
+## Data availability
 
-## 📤 Metabolomics Workbench deposition
+**No data files are included in this repository.** Demographic and clinical data on study
+participants are withheld.
+
+Open-format spectra (`.mzML`) and the processed feature tables are deposited at Metabolomics
+Workbench, [Study ST005162](https://doi.org/10.21228/M87P2Q). Vendor `.raw` files are **not**
+deposited — see below.
+
+To reproduce the analysis, the simplest route is to contact the first author (Joshua D. Preston,
+joshua.preston@emory.edu) or the senior author (M. Ryan Smith, matthew.ryan.smith@emory.edu) for the
+data files. To run the pipeline against those files or your own, edit the paths in
+`All_Run/config_dynamic.yaml` to match your system.
+
+## Metabolomics Workbench deposition
 
 Open-format spectra (`.mzML`) for all 191 acquisitions across both batches, together with the
 processed feature tables, are deposited at the NIH Common Fund's National Metabolomics Data
@@ -55,168 +76,114 @@ those identifiers are not publicly shareable. Reproducing the validation figures
 means substituting the deposited mzML, which derive from the same acquisitions but a different
 conversion run: equivalent inputs, not byte-identical ones.
 
-### Installation
+## Requirements
 
-**Prerequisites**: 
-- R >= 4.5.1
-- Git (to clone repository)
+- **R ≥ 4.5.1**
+- **Memory**: 8 GB RAM minimum for the GC–MS feature tables
+- **Storage**: ~100 GB for raw data plus processed outputs
+- **Platform**: developed on macOS (Apple Silicon); cross-platform compatible
 
-**Note**: This project uses `renv` for package management to ensure reproducibility. The `renv.lock` file contains exact versions of all packages used in the manuscript.
+System tools:
 
-```r
-# 1. Clone the repository
-# (from terminal)
+- **TinyTeX / LaTeX** — supplementary PDF generation, installed automatically via `tinytex`
+- **Mono** — required by ThermoRawFileParser
+- **[ThermoRawFileParser](https://github.com/compomics/ThermoRawFileParser)** — converts Thermo
+  `.raw` files to open `.mzML`; expected at `~/bin/ThermoRawFileParser/`
+
+Package versions are pinned with **renv** (`renv.lock`); CRAN, Bioconductor and GitHub dependencies
+are declared in `DESCRIPTION`. Those two files are the authoritative list.
+
+## Running the analysis
+
+```bash
 git clone https://github.com/jdpreston30/thyroid-exposomics-2025.git
 cd thyroid-exposomics-2025
+```
 
-# 2. Start R in the project directory
-# (renv automatically activates via .Rprofile)
+```r
+# renv activates automatically via .Rprofile
+renv::restore()                 # first time only, ~10-20 min
 
-# 3. Restore all packages at exact versions (first time only, ~10-20 minutes)
-renv::restore()
+# edit All_Run/config_dynamic.yaml so the paths match your system:
+#   computers          — your machine's user_home and onedrive_path
+#   paths.base_data_path — parent directory of the GC-MS raw data
+# every other path is a template that populates from those two.
 
-# 4. Update configuration paths
-# Edit All_Run/config_dynamic.yaml to set paths for your system:
-#   - computers: Define your computer's user_home and onedrive_path
-#   - paths.base_data_path: Path to GC-MS raw data parent directory
-#   - All other paths use dynamic templates that auto-populate from these base settings
-
-# 5. Run the complete analysis pipeline
 source("All_Run/run.R")
 ```
 
-**What happens during `renv::restore()`**:
-- Installs all R packages at exact versions from `renv.lock`
-- Installs CRAN packages (e.g., ggplot2, dplyr, broom, tidyr)
-- Installs Bioconductor packages (e.g., mzR for mass spectrometry data)
-- Creates isolated project library (doesn't affect your system R packages)
-- Only needed once per computer; subsequent runs use installed packages
-- Packages are automatically loaded from `DESCRIPTION` file during pipeline execution
+`renv::restore()` builds an isolated project library and leaves your system R untouched. It is
+needed once per machine; the pipeline loads packages from `DESCRIPTION` on each run.
 
-## 📁 Project Structure
+Chemical metadata and reference libraries live outside the repository, on OneDrive; their paths are
+also set in `All_Run/config_dynamic.yaml`.
+
+## Pipeline
+
+`run.R` executes `R/Scripts/` in order, `00a` through `20`.
+
+| Script | Purpose |
+|---|---|
+| `00a_environment_setup.R` | Conflict preferences and package loading from `DESCRIPTION` |
+| `00b_setup.R` | Configuration; sources every utility under `R/Utilities/` |
+| `00c_FTs.R` | Feature table import and preprocessing |
+| `00d_peakwalk_compile.R` | PeakWalk compilation |
+| `01_clinical_data.R` | Clinical data, demographics, Table 1 |
+| `02_detection.R` | Detection frequency analysis |
+| `03_classes.R` | Use classes and detection distribution |
+| `04_variant_stats.R` | Statistical comparisons between tumor types |
+| `05_variant_vis_prep.R` | Visualization data preparation |
+| `06_tumor_cadaver.R` | Tumor vs. cadaver control comparison |
+| `07_validation_prep.R` | Prepares manual spectral validation QC |
+| `08_validation_run.R` | Manual spectral validation |
+| `09_validation_plots_create.R` | Validation plot adjustment and manual review |
+| `10_post_validation_clean.R` | Post-validation cleaning |
+| `11_variant_vis.R` | Tumor-type differences, post-validation |
+| `12_IARC_vis.R` | Tumor vs. control IARC carcinogen plots |
+| `13_confounding_analysis.R` | Confounding analysis (age, sex, collection timing) |
+| `14_render_figures.R` | Renders the main figures |
+| `15_render_supplementary_figures.R` | Renders the supplementary figures |
+| `16_tables.R` | Manuscript tables |
+| `17_supplementary_tables.R` | Supplementary tables |
+| `18_construct_supplementary.R` | Compiles the supplementary PDF |
+| `19_results_validate.R` | Validates numerical claims against pipeline outputs |
+| `20_session_info.R` | Writes `SESSION_INFO.txt` |
+
+## Repository layout
 
 ```
-├── DESCRIPTION                 # R package dependencies
-├── renv.lock                   # Exact package versions for reproducibility
-├── SESSION_INFO.txt            # Session record from the manuscript run
-├── All_Run/                    # Pipeline execution
-│   ├── config_dynamic.yaml     # Analysis configuration (update paths for your system)
-│   └── run.R                   # Main pipeline execution script
-├── R/                          # Analysis code
-│   ├── Scripts/                # Analysis workflow scripts (00a-19)
-│   │   ├── 00a_environment_setup.R
-│   │   ├── 00b_setup.R
-│   │   ├── 00c_FTs.R
-│   │   ├── 00d_peakwalk_compile.R
-│   │   ├── 01_clinical_data.R
-│   │   ├── 02_detection.R
-│   │   ├── 03_classes.R
-│   │   ├── 04_variant_stats.R
-│   │   ├── 05_variant_vis_prep.R
-│   │   ├── 06_tumor_cadaver.R
-│   │   ├── 07_validation_prep.R
-│   │   ├── 08_validation_run.R
-│   │   ├── 09_validation_plots_create.R
-│   │   ├── 10_post_validation_clean.R
-│   │   ├── 11_variant_vis.R
-│   │   ├── 12_IARC_vis.R
-│   │   ├── 13_confounding_analysis.R
-│   │   ├── 14_render_figures.R
-│   │   ├── 15_render_supplementary_figures.R
-│   │   ├── 16_tables.R
-│   │   ├── 17_supplementary_tables.R
-│   │   ├── 18_construct_supplementary.R
-│   │   └── 19_session_info.R
-│   └── Utilities/              # Custom analysis functions
-│       ├── Analysis/           # Statistical and carcinogen classification
-│       ├── Clinical/           # AJCC 8th ed. staging and T-category assignment
-│       ├── Helpers/            # Helper functions (config, validation, tables)
-│       ├── Tabulation/         # Table generation (demographics, supplementary)
-│       ├── Terminal/           # Terminal helper functions
-│       ├── Validation/         # Spectral validation and fragment processing
-│       └── Visualization/      # Plotting functions (balloons, heatmaps, donuts)
-├── Outputs/                    # Generated results
-│   ├── Figures/                # Publication figures (PNG, PDF)
-│   ├── Tables/                 # Manuscript tables (Excel format)
-│   └── Validation/             # Spectral validation plots and PDFs
-│       ├── failed/             # Compounds that failed validation
-│       ├── initial_compile/    # Initial validation compilation
-│       ├── revised/            # Revised validation plots
-│       └── top_fragments/      # Top fragment validations
-└── Supplementary/              # Materials for compiled supplementary PDF
-    ├── Components/             # R Markdown components
-    └── Build_Logs/             # LaTeX build logs
+├── DESCRIPTION                 # dependencies (CRAN, Bioconductor, GitHub)
+├── renv.lock                   # pinned package versions
+├── SESSION_INFO.txt            # session record from the manuscript run
+├── All_Run/
+│   ├── config_dynamic.yaml     # paths and analysis options — edit before running
+│   └── run.R                   # pipeline entry point
+├── R/
+│   ├── Scripts/                # analysis workflow, 00a-20
+│   └── Utilities/              # Analysis, Clinical, Helpers, Tabulation,
+│                               #   Terminal, Validation, Visualization
+├── Outputs/
+│   ├── Figures/                # publication figures (PNG, TIFF, PDF)
+│   ├── Tables/                 # manuscript tables
+│   ├── Revisions/              # figures produced for the revision responses
+│   └── Validation/             # spectral validation plots and PDFs
+│       ├── failed/             #   compounds that failed validation
+│       ├── initial_compile/    #   first-pass validation compilation
+│       ├── revised/            #   revised validation plots (feed the supplement)
+│       └── top_fragments/      #   top-fragment validations
+└── Supplementary/
+    ├── Components/             # Sections, Tables, Figures, References,
+    │                           #   abbreviations.tsv
+    ├── Build_Logs/             # LaTeX build logs
+    └── Supplementary Data.pdf  # compiled supplement
 ```
 
-Chemical metadata and reference libraries live outside the repository (OneDrive); paths are set in
-`All_Run/config_dynamic.yaml`.
+## Contact
 
-## 🔬 Analysis Workflow
+**Joshua D. Preston** — joshua.preston@emory.edu ·
+[ORCID 0000-0001-9834-3017](https://orcid.org/0000-0001-9834-3017) ·
+Emory University School of Medicine
 
-The complete pipeline executes in sequence:
-
-1. **00a-00d**: Environment setup, feature tables, peakwalk compilation
-2. **01**: Clinical data, demographics, and Table 1
-3. **02**: Detection frequency analysis
-4. **03**: Chemical class distribution
-5. **04**: Variant-specific statistical comparisons
-6. **05**: Variant visualization data preparation
-7. **06**: Tumor vs cadaver control comparisons
-8. **07-10**: Spectral validation workflow (preparation, execution, plotting, cleanup)
-9. **11-12**: Variant and IARC carcinogen visualizations
-10. **13**: Confounding analysis (age, sex, collection timing)
-11. **14-15**: Render main and supplementary figures
-12. **16-17**: Generate manuscript and supplementary tables
-13. **18**: Construct supplementary materials document
-14. **19**: Write `SESSION_INFO.txt` session record
-
-## 💻 System Requirements
-
-### Computational Requirements
-- **R**: Version 4.5.1 or higher
-- **Platform**: Developed on macOS (M1/Apple Silicon) but cross-platform compatible
-- **Memory**: Minimum 8 GB RAM recommended for large GC-MS datasets
-- **Storage**: ~100 GB for raw data + processed outputs
-
-### System Dependencies
-- **TinyTeX/LaTeX**: PDF generation (automatically installed via tinytex package)
-- **Mono framework**: Required for ThermoRawFileParser (.raw file conversion to mzML)
-- **ThermoRawFileParser**: Converts Thermo .raw files to open mzML format
-  - Installation: `~/bin/ThermoRawFileParser/`
-  - Download: https://github.com/compomics/ThermoRawFileParser
-
-
-## 📦 Package Dependencies
-
-All CRAN, Bioconductor and GitHub dependencies are declared in `DESCRIPTION` and pinned in
-`renv.lock`. See those files for the complete, authoritative list.
-
-## 🔄 Reproducibility Features
-
-This project implements best practices for computational reproducibility:
-
-- ✅ **Version Control**: Complete analysis code on GitHub
-- ✅ **Package Management**: `renv` with `renv.lock` pinning all packages to exact versions
-- ✅ **Dependency Declaration**: All dependencies specified in `DESCRIPTION` with automatic loading
-- ✅ **Configuration-Driven**: All parameters in `config_dynamic.yaml` (computer-specific paths)
-- ✅ **Dynamic Path Resolution**: Automatic detection of computer/user for path configuration
-- ✅ **Documentation**: Comprehensive function documentation (roxygen2 style) and workflow comments
-- ✅ **Hierarchical Code Organization**: Clear comment structure (#*, #+, #-, #_) for workflow navigation
-- ✅ **Modular Design**: Utilities separated by function type (Analysis, Visualization, Validation, etc.)
-
-## 📧 Contact
-
-**First Author & Repository Maintainer**: Joshua D. Preston
-- **Email**: joshua.preston@emory.edu  
-- **ORCID**: [0000-0001-9834-3017](https://orcid.org/0000-0001-9834-3017)  
-- **Institution**: Emory University School of Medicine
-
-**Senior & Corresponding Author**: M. Ryan Smith
-- **Email**: matthew.ryan.smith@emory.edu
-- **ORCID**: [0000-0002-8889-3477](https://orcid.org/0000-0002-8889-3477)  
-- **Institution**: Emory University School of Medicine
-
----
-
-**Repository**: https://github.com/jdpreston30/thyroid-exposomics-2025  
-**Metabolomics Workbench**: [ST005162](https://doi.org/10.21228/M87P2Q) (Project PR003330)
+**Corresponding author: M. Ryan Smith** — matthew.ryan.smith@emory.edu ·
+[ORCID 0000-0002-8889-3477](https://orcid.org/0000-0002-8889-3477) ·
+Emory University School of Medicine

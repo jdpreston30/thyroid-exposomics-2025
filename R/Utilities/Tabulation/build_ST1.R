@@ -40,11 +40,17 @@ build_ST1 <- function(data) {
   # Format Monoisotopic Mass
   data_formatted$`Monoisotopic Mass` <- sapply(data$`Monoisotopic Mass`, function(x) {
     if (is.na(x) || x == "") return("")
-    if (x == "-") return("-")
+    if (x == "-") return("–")
     num_val <- suppressWarnings(as.numeric(x))
     if (is.na(num_val)) return("")
     sprintf("%.4f", num_val)
   })
+  
+  # Empty-cell placeholder: en dash, matching Monoisotopic Mass above and every other table
+  for (col in c("Name", "CAS")) {
+    hyphen <- !is.na(data_formatted[[col]]) & data_formatted[[col]] == "-"
+    data_formatted[[col]][hyphen] <- "–"
+  }
   
   # Create basic gt table
   gt_table <- gt(data_formatted) |>

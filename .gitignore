@@ -71,6 +71,12 @@ Outputs/Validation/temp_RDS/
 Outputs/Tables/Literature/
 Outputs/Tables/T4_CDC_biomonitor/
 
+# Publisher PDFs of cited papers, kept locally for citation checks -- copyrighted, never commit
+lit/
+
+# Empty artifact R drops when a base plot is drawn with no device specified
+Rplots.pdf
+
 # IDE
 .vscode/
 .idea/

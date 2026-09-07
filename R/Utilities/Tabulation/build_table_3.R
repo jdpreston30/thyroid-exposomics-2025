@@ -128,7 +128,8 @@ build_table_3 <- function(data, export_path) {
   
   # Add footnote text to merged cell
   footnote_text <- paste(
-    "\u2020 Possible, likely, or known carcinogen",
+#! Descending confidence, matching the Results prose, the Methods category definitions, Fig. 3D's legend breaks and the carcinogen_colors palette order. Only the Discussion's "(three possible, three likely, two known)" runs ascending, because it is pairing counts with tiers rather than naming the scale.
+    "\u2020 Known, likely, or possible carcinogen",
 #! Hyphenated: compound modifier before "chemical", matching the abstract and the EDC dictionary entry.
     "\u2021 Potential endocrine-disrupting chemical",
     "\u00b6 Indicates Level 2 identification",
