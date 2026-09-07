@@ -100,19 +100,19 @@ Joshua D. Preston^a,b,c^, Yongliang Liang^c^, Thomas Szabo Yamashita^d^, Sami Te
 
 \quad \textit{4.2: Level 2 identifications (1 page)} \dotfill 37
 
-\textbf{Table S1} \dotfill 38--55
+\textbf{Table S1} \dotfill 38--54
 
-\textbf{Table S2} \dotfill 56--66
+\textbf{Table S2} \dotfill 55--65
 
-\textbf{Table S3} \dotfill 67
+\textbf{Table S3} \dotfill 66
 
-\textbf{Table S4} \dotfill 68
+\textbf{Table S4} \dotfill 67
 
-\textbf{Table S5} \dotfill 69
+\textbf{Table S5} \dotfill 68
 
-\textbf{Table S6} \dotfill 70
+\textbf{Table S6} \dotfill 69
 
-\textbf{Abbreviation Dictionary} \dotfill 71
+\textbf{Abbreviation Dictionary} \dotfill 70
 
 \newpage
 

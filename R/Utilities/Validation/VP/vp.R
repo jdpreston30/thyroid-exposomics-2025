@@ -237,13 +237,17 @@ vp <- function(plot_obj,
 #! came out roman while the caption above the same plot italicised them. Applied here, not in rtx,
 #! because the title is still a live ggplot label until ggplotGrob() runs below. Alphabetic locants
 #! only -- numeric (4,4') and Greek (lambda-) locants stay roman, per the manuscript convention.
+#! IDEMPOTENT. Script 09 calls vp() twice on the same plot whenever title_add is used (e.g. F3_S2_CP3017_RF <- vp(F3_S2_CP3017_R, title_add = ...)). Without the guard the second pass ran the escape below over markup the first pass added, turning *o*-Toluidine into \*o\*-Toluidine, which ggtext renders as literal asterisks. Four titles in the supplement carried that defect. The escape must still run on a virgin title so that any literal asterisk in short_name is not read as markup, so the guard tests for markup rather than skipping the block outright. element_markdown is applied on every pass because the theme is what makes the first pass's markup render.
   if (!is.null(modified_plot$plot$labels$title)) {
-    t <- gsub("*", "\\*", modified_plot$plot$labels$title, fixed = TRUE)
-    t <- gsub("(?<![A-Za-z0-9])(sec|tert|cis|trans)-", "*\\1*-", t, perl = TRUE)
-    t <- gsub("(?<![A-Za-z0-9*])([NOSomnp])-(?=[A-Za-z])", "*\\1*-", t, perl = TRUE)
-    t <- gsub("\\[([a-z]),([a-z])\\]", "[*\\1*,*\\2*]", t, perl = TRUE)
-    t <- gsub("\\[([a-z])\\]", "[*\\1*]", t, perl = TRUE)
-    modified_plot$plot$labels$title <- t
+    t <- modified_plot$plot$labels$title
+    if (!grepl("\\*[A-Za-z]+\\*", t)) {
+      t <- gsub("*", "\\*", t, fixed = TRUE)
+      t <- gsub("(?<![A-Za-z0-9])(sec|tert|cis|trans)-", "*\\1*-", t, perl = TRUE)
+      t <- gsub("(?<![A-Za-z0-9*])([NOSomnp])-(?=[A-Za-z])", "*\\1*-", t, perl = TRUE)
+      t <- gsub("\\[([a-z]),([a-z])\\]", "[*\\1*,*\\2*]", t, perl = TRUE)
+      t <- gsub("\\[([a-z])\\]", "[*\\1*]", t, perl = TRUE)
+      modified_plot$plot$labels$title <- t
+    }
     modified_plot$plot <- modified_plot$plot +
       ggplot2::theme(plot.title = ggtext::element_markdown(hjust = 0.5, face = "bold", size = 9,
                                                            margin = margin(0, 0, 2, 0)))
