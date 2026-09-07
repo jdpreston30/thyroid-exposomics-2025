@@ -216,6 +216,31 @@ vp <- function(plot_obj,
     }
   }
   
+  #- Step 6.5: Correct the subtitle retention time to the measured value
+#! process_single_compound.R prints mean(sample_rt_range), and that range arrives as a STRING whose endpoints build_validation_table.R:180 already rounded with %.2f. Averaging two rounded endpoints loses up to 0.005 min, so 32.9% of RT labels disagree with the correctly rounded measured RT by 0.01 -- and where the midpoint lands exactly on a .xx5 tie (o-Toluidine at 8.085) a 1.8e-15 float perturbation decides the digit. Fixed here rather than upstream because widening the stored range would move the extraction window itself. Lookup is by compound id + sample id against the PeakWalk RT table built in 00d; arrange() before [1] so the choice is deterministic when a compound has several subids. Any failure leaves the subtitle untouched.
+  {
+    .st <- modified_plot$plot$labels$subtitle
+    .tag <- modified_plot$plot_tag
+    if (!is.null(.st) && !is.na(.st) && grepl("RT = [0-9.]+ min", .st) &&
+        is.character(.tag) && length(.tag) == 1L) {
+      .id  <- sub(".*?(CP\\d+).*", "\\1", .tag)
+      .smp <- sub(".*Sample:\\s*([^ |]+).*", "\\1", .st)
+      .src <- if (startsWith(.tag, "C_")) "cadaver_rt_long" else "tumor_rt_long"
+      if (grepl("^CP\\d+$", .id) && nzchar(.smp) && exists(.src, envir = .GlobalEnv)) {
+        .rt <- get(.src, envir = .GlobalEnv) |>
+          dplyr::filter(grepl(paste0("^", .id, "_"), id_subid), file == .smp) |>
+          dplyr::arrange(id_subid) |> dplyr::pull(rt)
+        if (length(.rt) && !is.na(.rt[1])) {
+          .new <- sub("RT = [0-9.]+ min", sprintf("RT = %.2f min", .rt[1]), .st)
+          if (!identical(.new, .st)) {
+            modified_plot$plot <- modified_plot$plot + ggplot2::labs(subtitle = .new)
+            cat(sprintf("→ Corrected subtitle RT to %.2f min (measured)\n", .rt[1]))
+          }
+        }
+      }
+    }
+  }
+
   #- Step 7: Update legend formatting (always 2 rows for consistent vertical spacing and scientific y-axis)
   cat("→ Updating legend formatting...\n")
   
