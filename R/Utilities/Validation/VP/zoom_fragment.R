@@ -78,9 +78,9 @@ zoom_fragment <- function(plot_obj, mz_fragment, subfolder = "revised", write_ou
   if (!is.null(subtitle_text)) {
     modified_plot$plot <- modified_plot$plot +
       ggplot2::labs(
-        subtitle = sprintf("Sample: %s  |  RT = %.2f min  |  %s", 
-                           modified_plot$sample_id, 
-                           mean(modified_plot$rt_range),
+        subtitle = sprintf("Sample: %s  |  RT = %.2f min  |  %s",
+                           modified_plot$sample_id,
+                           subtitle_rt_of(modified_plot),
                            subtitle_text)
       )
   }

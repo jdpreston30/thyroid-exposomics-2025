@@ -179,8 +179,8 @@ rtx <- function(validation_list,
   if (use_parallel) {
     if (!requireNamespace("foreach", quietly = TRUE) || 
         !requireNamespace("doParallel", quietly = TRUE)) {
-      warning("foreach and doParallel packages required for parallel processing. Falling back to sequential.")
-      use_parallel <- FALSE
+#! Hard failure, not a silent fallback. The sequential branch below (~325-990) is a DUPLICATE of process_single_compound() that has drifted from it: its subtitle code at ~637/883 still prints mean(sample_rt_range) and indexes fN_* by the loop counter, i.e. both bugs fixed in process_single_compound.R on 2026-09-08. Falling back would therefore regenerate grobs that are silently wrong, with only a warning nobody reads in a 2,500-line log. Fix the environment instead. The duplication itself should be collapsed -- the sequential branch ought to call process_single_compound() too -- but that refactor is not worth doing mid-rebuild.
+      stop("rtx(use_parallel = TRUE) requires the foreach and doParallel packages, which are not available. Refusing to fall back to the sequential branch: it is a stale duplicate of process_single_compound() and would produce silently incorrect retention times and extraction windows.")
     }
   }
   

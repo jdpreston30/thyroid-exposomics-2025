@@ -47,48 +47,59 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
     
     ms_data <- mzml_data$ms_data
     header_info <- mzml_data$header_info
-    
-    extract_xic <- function(ms_data, header_info, target_mz, ppm_tol, rt_range, use_max) {
-      ms1_scans <- header_info[header_info$msLevel == 1, ]
-      total_scans <- nrow(ms1_scans)
-      ms1_scans <- ms1_scans[ms1_scans$retentionTime >= rt_range[1] * 60 & 
-                             ms1_scans$retentionTime <= rt_range[2] * 60, ]
-      scans_in_range <- nrow(ms1_scans)
-      
+#! The scan window is read ONCE here and shared by every target m/z. It used to be read inside extract_xic, which ran per m/z and called mzR::peaks(ms_data, scan_num) one scan at a time -- so a 6-fragment compound over a 200-scan window made ~1,200 separate peaks() calls, each paying C++ dispatch and a file seek, to fetch the same 200 spectra six times over. One vectorised call replaces all of it. Purely a read-locality change: the scan set, the per-m/z tolerance and the arithmetic below are untouched, and equivalence against the old path was asserted with identical() on real mzML before this landed.
+#! Memory is bounded by the WINDOW, not the file -- a few hundred spectra, tens of MB -- so this does not reintroduce the per-worker footprint that OOM-killed the 2026-09-05 and 09-07 runs.
+    ms1_scans_all <- header_info[header_info$msLevel == 1, ]
+    total_scans <- nrow(ms1_scans_all)
+    ms1_scans <- ms1_scans_all[ms1_scans_all$retentionTime >= rt_range[1] * 60 &
+                               ms1_scans_all$retentionTime <= rt_range[2] * 60, ]
+    scans_in_range <- nrow(ms1_scans)
+#! mzR::peaks() returns a bare matrix for a single scan and a list for several, so a 1-scan window has to be wrapped or spectra[[k]] would index into the matrix.
+    spectra <- if (scans_in_range > 0) mzR::peaks(ms_data, ms1_scans$seqNum) else list()
+    if (scans_in_range == 1 && !is.list(spectra)) spectra <- list(spectra)
+#! Indexed directly instead of the old ms1_scans$retentionTime[ms1_scans$seqNum == scan_num], which rescanned the whole seqNum vector once per scan.
+    scan_rts <- ms1_scans$retentionTime / 60
+
+    extract_xic <- function(target_mz) {
       if (debug && scans_in_range == 0) {
-        cat(sprintf("  [DEBUG] No scans found in RT range %.2f-%.2f min (total scans: %d, RT range: %.2f-%.2f min)\n", 
-                    rt_range[1], rt_range[2], total_scans, 
+        cat(sprintf("  [DEBUG] No scans found in RT range %.2f-%.2f min (total scans: %d, RT range: %.2f-%.2f min)\n",
+                    rt_range[1], rt_range[2], total_scans,
                     min(header_info$retentionTime)/60, max(header_info$retentionTime)/60))
       }
-      
+
       mz_tol_da <- target_mz * ppm_tol / 1e6
-      
-      xic_data <- lapply(ms1_scans$seqNum, function(scan_num) {
-        spectrum <- mzR::peaks(ms_data, scan_num)
+#! Accumulated into preallocated vectors and turned into ONE data.frame, instead of building a one-row data.frame per matching scan and rbind()-ing them. That allocation pattern -- ~1,300 tiny data.frames per compound-file for a 221-scan window and 6 fragments -- dominated the runtime: removing it is 9.5x, against 1.9x for the vectorised read alone. Output is byte-identical (asserted with identical() over both use_max modes, unmatched-m/z, zero-scan and whole-run windows on real mzML); rows are still emitted only for scans with a match, in scan order, so row names come out the same.
+      rt_v <- numeric(scans_in_range)
+      int_v <- numeric(scans_in_range)
+      keep <- logical(scans_in_range)
+      for (k in seq_len(scans_in_range)) {
+        spectrum <- spectra[[k]]
         mz_match <- abs(spectrum[, 1] - target_mz) <= mz_tol_da
-        
+
         if (sum(mz_match) > 0) {
-          intensity <- if (use_max) max(spectrum[mz_match, 2]) else sum(spectrum[mz_match, 2])
-          rt <- ms1_scans$retentionTime[ms1_scans$seqNum == scan_num] / 60
-          data.frame(rt = rt, intensity = intensity, mz = target_mz)
-        } else {
-          NULL
+          keep[k] <- TRUE
+          int_v[k] <- if (use_max) max(spectrum[mz_match, 2]) else sum(spectrum[mz_match, 2])
+          rt_v[k] <- scan_rts[k]
         }
-      })
-      
-      xic_result <- do.call(rbind, xic_data)
-      
+      }
+
+      xic_result <- if (any(keep)) {
+        data.frame(rt = rt_v[keep], intensity = int_v[keep], mz = target_mz)
+      } else {
+        NULL
+      }
+
       if (debug && (is.null(xic_result) || nrow(xic_result) == 0)) {
-        cat(sprintf("  [DEBUG] No ions detected at m/z %.4f (±%.4f Da) in %d scans\n", 
+        cat(sprintf("  [DEBUG] No ions detected at m/z %.4f (±%.4f Da) in %d scans\n",
                     target_mz, mz_tol_da, scans_in_range))
       }
-      
+
       xic_result
     }
-    
+
     all_xics <- lapply(seq_along(target_mzs), function(i) {
       mz_val <- target_mzs[i]
-      xic <- extract_xic(ms_data, header_info, mz_val, ppm_tol, rt_range, use_max)
+      xic <- extract_xic(mz_val)
       if (!is.null(xic)) {
         xic$mz_index <- i - 1
         xic
@@ -162,21 +173,28 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
   
   # Get sample files - dynamically collect all file columns that exist
   file_cols <- grep("^file\\d+$", names(row), value = TRUE)
+#! Ordered NUMERICALLY, not by name: grep returns names(row) order, so a table with 10+ file columns could otherwise put file10 before file2 and shift every lookup below.
+  file_cols <- file_cols[order(as.integer(sub("^file", "", file_cols)))]
   all_samples <- as.character(row[file_cols])
   names(all_samples) <- NULL
-  
+#! sample_file_nums carries the ORIGINATING file number for each processed sample. The else branch below drops NA slots, which RENUMBERS all_samples, but the fN_rt / fN_rt_range columns keep the original file numbering -- so indexing them with the loop counter read a different sample's retention time AND a different chromatogram extraction window whenever an earlier slot was NA. That is why every plot vp.R Step 6.5 still had to correct was an S1. Index the fN_* columns with sample_file_nums[sample_idx], never with sample_idx.
+  file_nums <- as.integer(sub("^file", "", file_cols))
+
   if (force_plot) {
     # When force_plot=TRUE, iterate through ALL slots up to iterate_through
-    samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+    keep_idx <- seq_len(min(iterate_through, length(all_samples)))
   } else {
     # Normal behavior: only process non-NA files
-    all_samples <- all_samples[!is.na(all_samples)]
-    samples_to_process <- all_samples[1:min(iterate_through, length(all_samples))]
+    non_na_idx <- which(!is.na(all_samples))
+    keep_idx <- non_na_idx[seq_len(min(iterate_through, length(non_na_idx)))]
   }
-  
+  samples_to_process <- all_samples[keep_idx]
+  sample_file_nums <- file_nums[keep_idx]
+
   # Process each sample
   for (sample_idx in seq_along(samples_to_process)) {
     sample_file <- samples_to_process[sample_idx]
+    file_num <- sample_file_nums[sample_idx]
     
     # Skip if file is NA and force_plot is FALSE
     if (is.na(sample_file) && !force_plot) next
@@ -185,18 +203,23 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
     sample_rt_range <- base_rt_range_expanded
     use_hard_limits <- FALSE
     rt_is_fallback <- FALSE
-    
+#! measured_rt carries the UNROUNDED retention time straight from the fN_rt column so the subtitle never has to reconstruct it. build_validation_table.R:169 writes fN_rt_range as sprintf("c(%.2f, %.2f)", rt - buffer, rt + buffer), so mean(sample_rt_range) round-trips the value through two %.2f-rounded endpoints and loses up to 0.005 min. The worst case is an exact tie: mean(c(7.92, 8.25)) is 8.085, and the +/-0.2 expansion below perturbs the double by 1.78e-15, flipping sprintf("%.2f") between 8.08 and 8.09. sample_rt_range is deliberately left alone -- it also sets the chromatogram extraction window (extract_xic) and the x-axis limits, so changing its precision would shift which scans are pulled.
+    measured_rt <- NA_real_
+
     if (rt_lookup == "sample") {
-      rt_range_col_name <- paste0("f", sample_idx, "_rt_range")
+      rt_range_col_name <- paste0("f", file_num, "_rt_range")
+      rt_col_name <- paste0("f", file_num, "_rt")
+      if (rt_col_name %in% names(row) && !is.na(row[[rt_col_name]])) measured_rt <- row[[rt_col_name]]
       if (rt_range_col_name %in% names(row) && !is.na(row[[rt_range_col_name]])) {
         rt_range_str <- row[[rt_range_col_name]]
         sample_rt_range <- eval(parse(text = rt_range_str))
         sample_rt_range <- c(sample_rt_range[1] - 0.2, sample_rt_range[2] + 0.2)
       }
     } else if (rt_lookup == "window") {
-      rt_col_name <- paste0("f", sample_idx, "_rt")
+      rt_col_name <- paste0("f", file_num, "_rt")
       if (rt_col_name %in% names(row) && !is.na(row[[rt_col_name]])) {
         rt_value <- row[[rt_col_name]]
+        measured_rt <- rt_value
         half_window <- window / 2
         sample_rt_range <- c(rt_value - half_window, rt_value + half_window)
         use_hard_limits <- TRUE
@@ -204,6 +227,8 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         rt_is_fallback <- TRUE
       }
     }
+#! Falls back to mean(sample_rt_range) only when fN_rt is absent, preserving the old behaviour for any row without a measured RT.
+    subtitle_rt <- if (!is.na(measured_rt)) measured_rt else mean(sample_rt_range)
     
     # Process based on run_standard flag
     if (!run_standard) {
@@ -369,7 +394,7 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         subtitle_text <- sprintf("Sample: %s  |  RT = NA (range: %.2f-%.2f min)", 
                                 sample_id, sample_rt_range[1], sample_rt_range[2])
       } else {
-        subtitle_text <- sprintf("Sample: %s  |  RT = %.2f min", sample_id, mean(sample_rt_range))
+        subtitle_text <- sprintf("Sample: %s  |  RT = %.2f min", sample_id, subtitle_rt)
       }
       
       p_rtx <- p_rtx +
@@ -420,12 +445,14 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         plot_tag <- paste0("C_", plot_tag)
       }
       
+#! subtitle_rt is carried on the object so remove_standard() and zoom_fragment() can reprint the subtitle without recomputing mean(rt_range), which is the lossy value this function stopped using.
       compound_result$plots[[plot_label]] <- list(
         plot = p_rtx,
         sample_id = sample_id,
         standard_file = NA,
         plot_tag = plot_tag,
-        rt_range = sample_rt_range
+        rt_range = sample_rt_range,
+        subtitle_rt = subtitle_rt
       )
       
       # Save RDS if requested (sample-only mode)
@@ -610,8 +637,8 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         subtitle_text <- sprintf("Sample: %s  |  Standard: %s  |  RT = NA (range: %.2f-%.2f min)", 
                                 sample_id, standard_file, sample_rt_range[1], sample_rt_range[2])
       } else {
-        subtitle_text <- sprintf("Sample: %s  |  Standard: %s  |  RT = %.2f min", 
-                                sample_id, standard_file, mean(sample_rt_range))
+        subtitle_text <- sprintf("Sample: %s  |  Standard: %s  |  RT = %.2f min",
+                                sample_id, standard_file, subtitle_rt)
       }
       
       p_rtx <- p_rtx +
@@ -662,12 +689,14 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
         plot_tag <- paste0("C_", plot_tag)
       }
       
+#! subtitle_rt is carried on the object so remove_standard() and zoom_fragment() can reprint the subtitle without recomputing mean(rt_range), which is the lossy value this function stopped using.
       compound_result$plots[[plot_label]] <- list(
         plot = p_rtx,
         sample_id = sample_id,
         standard_file = standard_file,
         plot_tag = plot_tag,
-        rt_range = sample_rt_range
+        rt_range = sample_rt_range,
+        subtitle_rt = subtitle_rt
       )
       
       # Save RDS if requested

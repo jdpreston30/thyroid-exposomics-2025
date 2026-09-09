@@ -40,9 +40,9 @@ remove_standard <- function(plot_obj, xl = NULL, xu = NULL, subfolder = "revised
       labels = function(x) scales::scientific(abs(x))
     ) +
     ggplot2::labs(
-      subtitle = sprintf("Sample: %s  |  RT = %.2f min", 
-                         modified_plot$sample_id, 
-                         mean(new_rt_range)),
+      subtitle = sprintf("Sample: %s  |  RT = %.2f min",
+                         modified_plot$sample_id,
+                         subtitle_rt_of(modified_plot, new_rt_range)),
       y = "Intensity (Sample)"
     )
   

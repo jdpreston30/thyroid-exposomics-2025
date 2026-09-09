@@ -20,7 +20,7 @@ iarc_tumor_rtx <- rtx(
   rds_save_folder = "iarc_tumor_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 9
+  n_cores = config$analysis$rtx_n_cores
 )
 # Create compiled PDF
 try(compile_validation_pdf(
@@ -46,7 +46,7 @@ iarc_cadaver_rtx <- rtx(
   rds_save_folder = "iarc_cadaver_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = 9
+  n_cores = config$analysis$rtx_n_cores
 )
 # Create compiled PDF
 try(compile_validation_pdf(
@@ -65,7 +65,8 @@ rm(iarc_cadaver_rtx); invisible(gc())
 #! validation_plots/variant_rtx on OneDrive when the object is absent from .GlobalEnv. Set false only
 #! when those grobs are CURRENT -- stale ones load silently with the previous chemical names. Part 3
 #! (8.2.5) has its own flag, rebuild_variant_grobs_pt3.
-if (isTRUE(config$analysis$rebuild_variant_grobs_pt12)) {
+#! pt1 and pt2 are gated SEPARATELY (they shared rebuild_variant_grobs_pt12 until 2026-09-08). The 09-07 overnight run finished IARC tumor, IARC cadaver and pt1, then was OOM-killed forking pt2's workers; a single flag would have forced a 2 h 51 m rebuild of pt1 just to reach pt2. Set each part false once its grobs in validation_plots/variant_rtx are CURRENT -- stale ones load silently with the old chemical names.
+if (isTRUE(config$analysis$rebuild_variant_grobs_pt1)) {
 #- 8.2.3: Variant differences chemicals (Part 1)
 # Subset to part 1
 vv_wide_pt1 <- vv_wide |>
@@ -80,7 +81,7 @@ variant_rtx_pt1 <- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = NULL
+  n_cores = config$analysis$rtx_n_cores
 )
 # Write compiled PDF
 try(compile_validation_pdf(
@@ -91,6 +92,11 @@ try(compile_validation_pdf(
   external_subfolder = "variant_rtx"
 ))
 rm(variant_rtx_pt1); invisible(gc())
+} else {
+  cat("⏭️  Skipping 8.2.3 variant pt1 rebuild (config$analysis$rebuild_variant_grobs_pt1 = FALSE);\n")
+  cat("   script 09 will load rows 1-20 from the validation_plots backup via vp().\n")
+}
+if (isTRUE(config$analysis$rebuild_variant_grobs_pt2)) {
 #- 8.2.4: Variant differences chemicals (Part 2)
 # Subset to part 2
 vv_wide_pt2 <- vv_wide |>
@@ -105,7 +111,7 @@ variant_rtx_pt2<- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = NULL
+  n_cores = config$analysis$rtx_n_cores
 )
 # Write compiled PDF
 try(compile_validation_pdf(
@@ -117,8 +123,8 @@ try(compile_validation_pdf(
 ))
 rm(variant_rtx_pt2); invisible(gc())
 } else {
-  cat("⏭️  Skipping 8.2.3/8.2.4 variant pt1/pt2 rebuild (config$analysis$rebuild_variant_grobs_pt12 = FALSE);\n")
-  cat("   script 09 will load rows 1-40 from the OneDrive backup via vp().\n")
+  cat("⏭️  Skipping 8.2.4 variant pt2 rebuild (config$analysis$rebuild_variant_grobs_pt2 = FALSE);\n")
+  cat("   script 09 will load rows 21-40 from the validation_plots backup via vp().\n")
 }
 #! Part 3 was previously ungated, so it re-ran rows 41+ even when pt1/pt2 were skipped. Same terms as the other parts: skip only when variant_rtx holds CURRENT grobs, since vp() loads stale ones silently with the old chemical names.
 if (isTRUE(config$analysis$rebuild_variant_grobs_pt3)) {
@@ -136,7 +142,7 @@ variant_rtx_pt3 <- rtx(
   rds_save_folder = "variant_rtx",
   overwrite_rds = TRUE,
   use_parallel = TRUE,
-  n_cores = NULL
+  n_cores = config$analysis$rtx_n_cores
 )
 # Write compiled PDF
 try(compile_validation_pdf(
