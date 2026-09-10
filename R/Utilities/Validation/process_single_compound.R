@@ -326,13 +326,8 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           mz_labels_present
         )
         
-        if (stick) {
-          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
-            geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4)
-        } else {
-          p_rtx <- ggplot(sample_chrom, aes(x = rt, y = intensity, color = mz_label)) +
-            geom_line(linewidth = 0.4)
-        }
+#! Built by top-level helpers (rtx_plot_parts.R) so the plot does not capture this frame -- see the note there.
+        p_rtx <- rtx_sample_plot(sample_chrom, stick)
         
         p_rtx <- p_rtx +
           scale_color_manual(values = color_mapping) +
@@ -344,50 +339,11 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           )
       } else {
         # Create empty plot for no-data case
-        p_rtx <- ggplot() +
-          annotate("text", x = mean(sample_rt_range), y = y_limit/2, 
-                  label = "NO DATA", size = 6, color = "gray50", fontface = "bold") +
-          scale_y_continuous(
-            expand = c(0, 0),
-            limits = c(0, y_limit),
-            n.breaks = 8,
-            labels = scales::label_scientific(digits = 2)
-          )
+        p_rtx <- rtx_sample_nodata_plot(sample_rt_range, y_limit)
       }
       
       # Apply x-axis scaling based on whether hard limits are used
-      if (use_hard_limits) {
-        p_rtx <- p_rtx +
-          scale_x_continuous(
-            expand = c(0, 0),
-            limits = sample_rt_range,
-            breaks = function(limits) {
-              start <- ceiling(limits[1] * 20) / 20
-              end <- floor(limits[2] * 20) / 20
-              if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
-            },
-            minor_breaks = function(limits) {
-              start <- ceiling(limits[1] * 40) / 40
-              end <- floor(limits[2] * 40) / 40
-              if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
-            }
-          )
-      } else {
-        p_rtx <- p_rtx +
-          scale_x_continuous(
-            expand = expansion(mult = c(0.05, 0.05), add = 0),
-            breaks = function(limits) {
-              start <- ceiling(limits[1] * 20) / 20
-              end <- floor(limits[2] * 20) / 20
-              if (start < end) seq(start, end, by = 0.05) else seq(start, end, by = -0.05)
-            },
-            minor_breaks = function(limits) {
-              start <- ceiling(limits[1] * 40) / 40
-              end <- floor(limits[2] * 40) / 40
-              if (start < end) seq(start, end, by = 0.025) else seq(start, end, by = -0.025)
-            }
-          )
-      }
+      p_rtx <- p_rtx + rtx_sample_scale_x(use_hard_limits, sample_rt_range)
       
       # Create subtitle with RT info
       if (rt_is_fallback) {
@@ -587,55 +543,17 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
           mz_labels_present
         )
         
-        if (stick) {
-          p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-            geom_segment(aes(xend = rt, yend = 0), linewidth = 0.4) +
-            geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
-        } else {
-          p_rtx <- ggplot(combined_data, aes(x = rt, y = plot_intensity, color = mz_label, group = interaction(mz_label, type))) +
-            geom_line(linewidth = 0.4) +
-            geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4)
-        }
-        
-        p_rtx <- p_rtx +
+#! Built by top-level helpers (rtx_plot_parts.R) so the plot does not capture this frame -- see the note there.
+        p_rtx <- rtx_mirror_plot(combined_data, stick) +
           scale_color_manual(values = color_mapping) +
-          scale_y_continuous(
-            expand = c(0, 0),
-            limits = c(-y_limit, y_limit),
-            labels = function(x) scales::label_scientific(digits = 2)(abs(x)),
-            n.breaks = 8
-          )
+          rtx_mirror_scale_y(y_limit)
       } else {
         # Create empty plot for no-data case
-        p_rtx <- ggplot() +
-          annotate("text", x = mean(sample_rt_range), y = 0, 
-                  label = "NO DATA", size = 6, color = "gray50", fontface = "bold") +
-          geom_hline(yintercept = 0, linetype = "solid", color = "black", linewidth = 0.4) +
-          scale_y_continuous(
-            expand = c(0, 0),
-            limits = c(-y_limit, y_limit),
-            labels = function(x) scales::label_scientific(digits = 2)(abs(x)),
-            n.breaks = 8
-          )
+        p_rtx <- rtx_mirror_nodata_plot(sample_rt_range, y_limit)
       }
       
       # Apply x-axis scaling based on whether hard limits are used
-      if (use_hard_limits) {
-        p_rtx <- p_rtx +
-          scale_x_continuous(
-            expand = c(0, 0),
-            limits = sample_rt_range,
-            breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
-            minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)
-          )
-      } else {
-        p_rtx <- p_rtx +
-          scale_x_continuous(
-            expand = expansion(mult = c(0.05, 0.05), add = 0),
-            breaks = function(limits) seq(ceiling(limits[1] * 20) / 20, floor(limits[2] * 20) / 20, by = 0.05),
-            minor_breaks = function(limits) seq(ceiling(limits[1] * 40) / 40, floor(limits[2] * 40) / 40, by = 0.025)
-          )
-      }
+      p_rtx <- p_rtx + rtx_mirror_scale_x(use_hard_limits, sample_rt_range)
       
       # Create subtitle with RT info
       if (rt_is_fallback) {

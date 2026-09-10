@@ -72,7 +72,9 @@ compile_sf_sub_pdf <- function(metadata, sf_sub_value, output_dir = here::here("
     dev.off()
   }
   
-  pdf(output_path, width = 8.5, height = 11)
+#! cairo_pdf, not pdf(). The base pdf() device ignores the font faces gridtext sets, so every element_markdown title and subtitle came out plain: the italic locants (*o*-Toluidine, Benz[*a*]anthracene), the bold titles and the italic subtitles never rendered in any supplement build before 2026-09-10, although the PNGs (ragg) showed them. Its Type 1 Helvetica also cannot encode U+2032, so 2,4′-Methoxychlor printed with an acute accent, and its hyphens came out as U+2212. cairo_pdf embeds TrueType Helvetica with all four faces and renders the grobs exactly as the PNGs do.
+#! family = "Arial": the figure convention (all figures Arial), and the sans face cairo picks for the grobs' default family lacks the U+2190/U+2192 arrows of the "← Standard | Tumor →" axis title (they rendered as boxes in a test); Arial carries them and the prime, and embeds all four faces.
+  cairo_pdf(output_path, width = 8.5, height = 11, onefile = TRUE, family = "Arial")
   walk(pages, print)
   
   # Robust device cleanup

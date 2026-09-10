@@ -4,6 +4,8 @@ if (file.exists("Supplementary/Components/Figures/PDF/S1.pdf")) {
   file.remove(list.files("Supplementary/Components/Figures/PDF", pattern = "^S[0-9]", full.names = TRUE))
 }
 #+ 15.1: Print Supplementary Figures (PNG and PDF)
+#! Re-read the validation grobs HERE, not at 00c. 00c_FTs.R loads validation_plot_metadata_ordered$grob at run start, but script 09 rewrites Outputs/Validation/revised/grobs/ in the same run whenever run_validation_step is true -- so every end-to-end rebuild compiled the supplement from the PREVIOUS run's grobs. Found 2026-09-10: script 09 had written the corrected p.28 Menthone axis title at 16:38 and the supplement built at 17:04 still carried the old one. Harmless only when the grobs did not change between runs.
+validation_plot_metadata_ordered$grob <- purrr::map(validation_plot_metadata_ordered$full_path, readRDS)
 #- 15.1.1: Supplementary figure 1 — carcinogenicity classification decision tree
 #! Standalone Graphviz schematic of classify_carcinogenicity(); writes S1.pdf
 render_carcinogen_flowchart()

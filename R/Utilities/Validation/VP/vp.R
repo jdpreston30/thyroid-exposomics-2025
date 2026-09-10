@@ -90,11 +90,10 @@ vp <- function(plot_obj,
   }
   
   modified_plot <- plot_obj
-  #- Step 0a: Repair the asterisk marker written by the 2026-01-05 regression
-#! 5b82667 changed process_single_compound.R to emit `**LABEL \*****` -- bold-wrapping the whole label with five trailing asterisks -- instead of the documented `LABEL **\***`. That one string breaks three things: markdown consumes two asterisks closing the bold and renders the other two literally, the `^(mz[0-9]+):` colour lookup below fails because the label starts with `**` so the marked fragment gets an NA colour, and the Step 6 detector never matches so the "Analyzed Fragment" subtitle is silently dropped. Fixed at source, but every grob generated between that commit and 2026-09-04 carries it, so repair on load rather than regenerate. Idempotent -- correctly-formed labels are untouched.
-  if ("mz_label" %in% names(modified_plot$plot$data)) {
-    modified_plot$plot$data$mz_label <- sub("^\\*\\*(.*) \\\\\\*{5}$", "\\1 **\\\\***",
-                                            modified_plot$plot$data$mz_label)
+  #- Step 0a: Assert the asterisk marker is well formed
+#! 5b82667 (2026-01-05) made process_single_compound.R emit `**LABEL \*****` instead of `LABEL **\***`, which broke the markdown, the `^(mz[0-9]+):` colour lookup (the marked fragment vanished with an NA colour) and the Step 6 "Analyzed Fragment" detector. Fixed at source on 2026-09-04, and every grob the supplement reads was regenerated on 2026-09-10, so the load-time repair that lived here is gone; a malformed label now stops the run instead of being patched over.
+  if ("mz_label" %in% names(modified_plot$plot$data) && any(grepl("^\\*\\*", modified_plot$plot$data$mz_label))) {
+    stop(sprintf("vp(): %s carries the pre-2026-09-04 asterisk marker (label starts with **). Regenerate the grob; do not patch it here.", modified_plot$plot_tag))
   }
   #- Step 0: Apply global formatting (colors, y-axis title, grid removal, scientific notation)
   cat("→ Applying global formatting...\n")
@@ -125,8 +124,10 @@ vp <- function(plot_obj,
   .cohort <- if (is.character(modified_plot$plot_tag) &&
                  length(modified_plot$plot_tag) == 1L &&
                  startsWith(modified_plot$plot_tag, "C_")) "Cadaver" else "Tumor"
+#! The mirrored title only when the mirror is still there. remove_standard() drops every Standard row and relabels the axis "Intensity (Sample)"; script 09 then calls vp() a second time on that object for the fragment-isolated panel, and this line used to put the mirrored title back on a plot with no standard in it (supplement p.28, Menthone, F5_S1_CP3148_F). The data decides: Standard rows present -> mirrored title; absent -> sample-only title.
+  .has_std <- "type" %in% names(modified_plot$plot$data) && any(modified_plot$plot$data$type == "Standard", na.rm = TRUE)
   modified_plot$plot <- modified_plot$plot +
-    ggplot2::labs(y = sprintf("← Standard | %s →", .cohort)) +
+    ggplot2::labs(y = if (.has_std) sprintf("← Standard | %s →", .cohort) else "Intensity (Sample)") +
     ggplot2::theme(
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank()
@@ -216,8 +217,8 @@ vp <- function(plot_obj,
     }
   }
   
-  #- Step 6.5: Correct the subtitle retention time to the measured value
-#! process_single_compound.R prints mean(sample_rt_range), and that range arrives as a STRING whose endpoints build_validation_table.R:180 already rounded with %.2f. Averaging two rounded endpoints loses up to 0.005 min, so 32.9% of RT labels disagree with the correctly rounded measured RT by 0.01 -- and where the midpoint lands exactly on a .xx5 tie (o-Toluidine at 8.085) a 1.8e-15 float perturbation decides the digit. Fixed here rather than upstream because widening the stored range would move the extraction window itself. Lookup is by compound id + sample id against the PeakWalk RT table built in 00d; arrange() before [1] so the choice is deterministic when a compound has several subids. Any failure leaves the subtitle untouched.
+  #- Step 6.5: Assert the subtitle retention time equals the measured value
+#! Until 2026-09-10 this step silently REPAIRED the label: the generator printed mean(sample_rt_range) from %.2f-rounded endpoints, and remove_standard()/zoom_fragment() rebuilt it from window midpoints, so up to a third of labels were off by 0.01 (o-Toluidine sat on the 8.085 tie). All three writers now use the measured RT (subtitle_rt / subtitle_rt_of()), and the 2026-09-10 full rebuild produced 0 corrections across all 83 loaded plots with the supplement text identical to the verified build. The lookup is kept as an assertion so a regression fails the run instead of being patched over in silence. Same lookup as before: compound id + sample id against the PeakWalk RT table built in 00d, arrange() before [1] for determinism.
   {
     .st <- modified_plot$plot$labels$subtitle
     .tag <- modified_plot$plot_tag
@@ -231,10 +232,9 @@ vp <- function(plot_obj,
           dplyr::filter(grepl(paste0("^", .id, "_"), id_subid), file == .smp) |>
           dplyr::arrange(id_subid) |> dplyr::pull(rt)
         if (length(.rt) && !is.na(.rt[1])) {
-          .new <- sub("RT = [0-9.]+ min", sprintf("RT = %.2f min", .rt[1]), .st)
-          if (!identical(.new, .st)) {
-            modified_plot$plot <- modified_plot$plot + ggplot2::labs(subtitle = .new)
-            cat(sprintf("→ Corrected subtitle RT to %.2f min (measured)\n", .rt[1]))
+          .expected <- sprintf("RT = %.2f min", .rt[1])
+          if (!grepl(.expected, .st, fixed = TRUE)) {
+            stop(sprintf("vp(): subtitle RT for %s does not match the measured RT (%s). Subtitle: %s. The generator or a vp helper is printing a window midpoint again -- fix it at the source (process_single_compound.R / subtitle_rt_of()), do not patch here.", .tag, .expected, .st))
           }
         }
       }
@@ -278,20 +278,26 @@ vp <- function(plot_obj,
                                                            margin = margin(0, 0, 2, 0)))
   }
 
-  #- Write final output (with _F suffix if fragment adjustment was used)
+  #- Write final output (with _F suffix if fragment adjustment was used), and the grob, in a child R process
+#! Both the PNG (ggsave inside write_small) and the gtable (ggplotGrob) BUILD the plot, and under ggplot2 4.0 every build of a plot that came in from RDS leaves ~165 MB reachable in the building process's heap for good (measured 2026-09-10: linear over 60 builds; rm/gc/dev.off do not release it). Script 09 builds 83 of them, which put ~13 GB into swap and turned scripts 09-20 into a two-hour crawl. So the build happens in a short-lived child that writes exactly the files this block always wrote and exits; the parent keeps the unbuilt ggplot, which is what the caller uses. A callr subprocess, NOT a fork: ragg's text rendering goes through CoreText, and macOS kills a forked child the moment it initialises a Cocoa class (OBJC_DISABLE_INITIALIZE_FORK_SAFETY does not rescue it -- tested). A fresh R process renders the PNG byte-identically to the parent. A child error is re-raised here so the run still fails loudly.
   suffix <- if (!is.null(mz_fragment)) "_F" else ""
-  write_small(modified_plot, subfolder = subfolder, suffix = suffix)
-  
-  #- Save as grob if requested (to nested grobs/ directory)
-  if (save_grob) {
-    grob_output_dir <- file.path("Outputs/Validation", subfolder, "grobs")
-    dir.create(grob_output_dir, recursive = TRUE, showWarnings = FALSE)
-    plot_tag <- modified_plot$plot_tag
-    grob_filename <- paste0(plot_tag, suffix, ".rds")
-    grob_path <- file.path(grob_output_dir, grob_filename)
-    saveRDS(ggplotGrob(modified_plot$plot), grob_path)
-    cat(sprintf("→ Saved grob: %s\n", grob_path))
-  }
+  .built <- tryCatch(callr::r(function(mp, subfolder, suffix, save_grob, wd) {
+    setwd(wd)
+    suppressPackageStartupMessages({ library(ggplot2); library(ggtext) })
+    source("R/Utilities/Validation/VP/write_small.R")
+    write_small(mp, subfolder = subfolder, suffix = suffix)
+    if (save_grob) {
+      grob_output_dir <- file.path("Outputs/Validation", subfolder, "grobs")
+      dir.create(grob_output_dir, recursive = TRUE, showWarnings = FALSE)
+      grob_path <- file.path(grob_output_dir, paste0(mp$plot_tag, suffix, ".rds"))
+      saveRDS(ggplotGrob(mp$plot), grob_path)
+      cat(sprintf("→ Saved grob: %s\n", grob_path))
+    }
+    TRUE
+  }, args = list(mp = modified_plot, subfolder = subfolder, suffix = suffix, save_grob = save_grob, wd = getwd()),
+  libpath = .libPaths(), show = TRUE), error = function(e) conditionMessage(e))
+  if (!isTRUE(.built)) stop(sprintf("vp(): rendering %s failed in the child process: %s", modified_plot$plot_tag,
+                                    if (is.character(.built)) .built else "no result returned"))
   
   cat("✓ All adjustments complete\n")
   return(modified_plot)

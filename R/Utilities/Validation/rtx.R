@@ -230,7 +230,11 @@ rtx <- function(validation_list,
                                    "stick", "max_i", "ppm_tolerance",
                                    "save_rds", "rds_save_folder", "overwrite_rds",
                                    "output_dir", "study", "config", "process_single_compound",
-                                   "run_standard", "fragment_pare", "force_plot", "debug"),
+                                   "run_standard", "fragment_pare", "force_plot", "debug",
+#! PSOCK workers start empty: every top-level helper the generator calls has to be shipped by name (rtx_plot_parts.R)
+                                   "rtx_sample_plot", "rtx_sample_nodata_plot", "rtx_sample_scale_x",
+                                   "rtx_mirror_plot", "rtx_mirror_y_labels", "rtx_mirror_scale_y",
+                                   "rtx_mirror_nodata_plot", "rtx_mirror_scale_x"),
                            envir = environment())
     
     # Load required packages on each worker
