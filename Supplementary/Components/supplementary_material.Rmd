@@ -29,6 +29,7 @@ header-includes:
   - \fancyhead[L]{\fontsize{10}{12}\selectfont\textit{Preston et al., Environmental Chemical Burden in Thyroid Tumors}}
   - \fancyhead[R]{\fontsize{10}{12}\selectfont\textit{\rightmark}}
   - \fancyfoot[C]{\fontsize{10}{12}\selectfont-\thepage-}
+  - \fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\fontsize{10}{12}\selectfont-\thepage-}\renewcommand{\headrulewidth}{0pt}}
   - \renewcommand{\headrulewidth}{0pt}
   - \renewcommand{\footrulewidth}{0pt}
   - \renewcommand{\sectionmark}[1]{\markright{\textit{#1}}}
