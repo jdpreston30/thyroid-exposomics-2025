@@ -475,10 +475,15 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
             sample_id = sample_id,
             standard_file = NA,
             plot_tag = plot_tag,
-            rt_range = sample_rt_range
+            rt_range = sample_rt_range,
+            subtitle_rt = subtitle_rt
           )
           saveRDS(individual_plot, file = rds_path, compress = "gzip")
         }
+#! Once the plot is on disk the ggplot object is dropped from the RETURNED result and replaced by the RDS name and folder. The parent process only ever needed these for compile_validation_pdf(), which now reads them back one at a time. Returning the objects meant the foreach collect pulled every grob of a block (3.6 GB for pt3) into a parent already carrying the heap high-water mark of earlier blocks -- that collect, not the fork, is what OOM-killed four full rebuilds on whichever block ran last.
+        compound_result$plots[[plot_label]]$plot <- NULL
+        compound_result$plots[[plot_label]]$rds_name <- paste0(plot_tag, ".rds")
+        compound_result$plots[[plot_label]]$rds_folder <- rds_save_folder
       }
       
     } else {
@@ -719,10 +724,14 @@ process_single_compound <- function(row, row_idx, total_rows, mzml_dir, iterate_
             sample_id = sample_id,
             standard_file = standard_file,
             plot_tag = plot_tag,
-            rt_range = sample_rt_range
+            rt_range = sample_rt_range,
+            subtitle_rt = subtitle_rt
           )
           saveRDS(individual_plot, file = rds_path, compress = "gzip")
         }
+        compound_result$plots[[plot_label]]$plot <- NULL
+        compound_result$plots[[plot_label]]$rds_name <- paste0(plot_tag, ".rds")
+        compound_result$plots[[plot_label]]$rds_folder <- rds_save_folder
       }
       }  # End else (standard comparison mode)
     }  # End if/else run_standard

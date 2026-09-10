@@ -98,3 +98,8 @@ Rplots.pdf
 # Office lock/owner files (Excel and Word write these while a document is open)
 ~$*
 .~lock.*
+
+# Manuscript submission folder, moved out of OneDrive 2026-09-07 to dodge sync conflicts.
+# Holds the unpublished manuscript (clean + markup), response letter and highlights. Never commit.
+R3_EI-D-26-02460/
+*_EI-D-26-02460/
