@@ -28,7 +28,9 @@ tumors_quant_sig_i <- tumors_quant_wt |>
 #- 4.1.4: Make a second cas key
 cas_key_2 <- tumor_raw |>
   select(name_sub_lib_id, cas, short_display_name) |>
-  rename(Name = short_display_name)
+  rename(Name = short_display_name) |>
+#! Raw sheet names carry apostrophe locants and round fusion brackets; every other display path (00c feature_metadata, ST1, 04 short_name) is already normalised. No rendered name today comes off this join, but 05/06 do join it, so guard it too.
+  mutate(Name = fix_chem_nomenclature(Name))
 #- 4.1.5: Create summary table with reran ANOVA
 summary_table_i <- tumors_quant_sig_i |>
   pivot_longer(-variant, names_to = "name_sub_lib_id", values_to = "value") |>
