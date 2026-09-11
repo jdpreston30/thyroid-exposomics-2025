@@ -21,7 +21,7 @@ fix_chem_nomenclature <- function(x) {
 #! ring position. CAS 4376-20-9 = mono(2-ethylhexyl) phthalate; the sibling entries bis(2-Ethylhexyl)phthalate
 #! and Tris(2-ethylhexyl) phosphate already parenthesise the same group.
   x <- stringr::str_replace(x, "Mono-2-ethylhexyl phthalate", "Mono(2-ethylhexyl) phthalate")
-#! Primed locants take U+2032 PRIME, not an apostrophe (4,4'-Diaminodiphenylmethane). Escaped rather than written literally: a literal prime is read as U+FFFD when the session locale is not UTF-8, which silently corrupts the label. Guarded on digit-comma-digit so ordinary apostrophes are untouched.
-  x <- stringr::str_replace_all(x, "(?<=\\d),(\\d+)'", ",\\1\\u2032")
+#! Primed locants take U+2032 PRIME, not an apostrophe (4,4'-Diaminodiphenylmethane). Escaped rather than written literally: a literal prime is read as U+FFFD when the session locale is not UTF-8, which silently corrupts the label. The library sheet mixes ASCII ' (34 names) and U+2019 ’ (7 names: the TCP/DCP-4’-NPE ethers); pandoc's smart quotes turned the ASCII ones into ’ at render, so until 2026-09-10 twenty locants in Tables S1/S2 printed a curly apostrophe. Guarded on a digit or an o/m/p locant before and a hyphen or comma after, so ordinary apostrophes are untouched.
+  x <- stringr::str_replace_all(x, "(?<=[0-9omp])['\\u2019](?=[-,])", "\\u2032")
   x
 }
