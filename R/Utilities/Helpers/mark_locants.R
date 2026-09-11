@@ -40,9 +40,9 @@ mark_locants <- function(x) {
 #! N,N- and O,O-: both letters marked, the comma between them left upright.
   x <- stringr::str_replace_all(x, "(?<![A-Za-z])([NOS]),\\1-(?=[A-Za-z])",
                                 paste0(o, "\\1", c_, ",", o, "\\1", c_, "-"))
-#! Single locants and structural prefixes, at the start of a name or after a hyphen, space or parenthesis. Numeric locants (4-, 2,4-) and Greek ones (gamma-) are untouched: the alternation is letters only.
+#! Single locants and structural prefixes, at the start of a name or after a hyphen, space or parenthesis. Numeric locants (4-, 2,4-) and Greek ones (gamma-) are untouched: the alternation is letters only. The lookahead admits "(" as well as a letter: N-(2,4-Dimethylphenyl)formamide was the one library name whose locant stayed upright (found 2026-09-10; it is the only name the wider lookahead changes).
   x <- stringr::str_replace_all(
-    x, "(?<=^|[-\\s(])(sec|tert|cis|trans|ortho|meta|para|[NOSomnpd])-(?=[A-Za-z])",
+    x, "(?<=^|[-\\s(])(sec|tert|cis|trans|ortho|meta|para|[NOSomnpd])-(?=[A-Za-z(])",
     paste0(o, "\\1", c_, "-"))
   x
 }
