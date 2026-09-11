@@ -110,7 +110,9 @@ print_to_tiff(fig3, "Fig3.tiff", output_dir = "Outputs/Figures/TIFF")
 while (!is.null(dev.list())) { 
   dev.off() 
 }
-pdf("Outputs/Figures/figures.pdf", width = 8.5, height = 11)
+#! Device writes to tempdir and the finished PDF is copied in: the repo sits in iCloud's Desktop sync, which swapped this file's inode under an open pdf() device on 2026-09-10 (write failed at grid.newpage; same mechanism as compile_validation_pdf(), punch list 133)
+figures_pdf_tmp <- tempfile("figures_", fileext = ".pdf")
+pdf(figures_pdf_tmp, width = 8.5, height = 11)
 # Page 1: GA
 #! GA is a static repo asset, landscape (8400x5100) unlike the portrait figures, so it is fit to page width and centred rather than stretched; skipped silently if absent so the run never stalls
 if (file.exists("Outputs/Figures/PNG/GA.png")) {
@@ -131,4 +133,6 @@ img3 <- readPNG("Outputs/Figures/PNG/Fig3.png")
 grid::grid.newpage()
 grid::grid.raster(img3, width = grid::unit(8.5, "inches"), height = grid::unit(11, "inches"))
 dev.off()
+if (!file.copy(figures_pdf_tmp, "Outputs/Figures/figures.pdf", overwrite = TRUE)) stop("14.6: could not copy figures.pdf into Outputs/Figures/")
+unlink(figures_pdf_tmp)
 cat("PDF compiled: Outputs/Figures/figures.pdf\n")
