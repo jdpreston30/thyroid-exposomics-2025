@@ -173,7 +173,7 @@ ancova_summary <- ancova_res |>
     survives_year = p_value_year < 0.05,
     survives_binned = p_value_timing_binned < 0.05,
     flips = p_value_unadjusted < 0.05 & !survives_year,
-    low_detection = n_detected < 10
+    low_detection = n_detected <= 10
   )
 #+ 13.5: Why the Binned Sensitivity Attenuates
 #- 13.5.1: Association of tumor type with binned collection timing
